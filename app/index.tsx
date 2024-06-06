@@ -1,7 +1,11 @@
 import { View } from "react-native";
 import { Chessboard } from "./components/Chessboard";
+import { useChess } from "./hooks/useChess";
 
 export default function Index() {
+  const game = useChess();
+  game.startGame();
+
   return (
     <View
       style={{
@@ -9,7 +13,7 @@ export default function Index() {
         justifyContent: "center",
         alignItems: "center",
       }}>
-      <Chessboard />
+      <Chessboard game={game}/>
     </View>
   );
 }
