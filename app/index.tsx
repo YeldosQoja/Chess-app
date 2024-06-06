@@ -7,6 +7,7 @@ export default function Index() {
   game.startGame();
 
   return (
+    
     <View
       style={{
         flex: 1,

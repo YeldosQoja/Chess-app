@@ -401,6 +401,32 @@ export class KingStrategy extends Strategy {
 
   isInCheck(square: Square, owner: Player): boolean {
     const [rank, file] = square;
+    const rankOffset = owner === this.game.white ? -1 : 1;
+
+    let [pawnRank, pawnFile] = [rank + rankOffset, file - 1];
+    let maybePawn = this.isValidSquare([pawnRank, pawnFile])
+      ? this.game.board[pawnRank][pawnFile]
+      : null;
+    if (
+      maybePawn &&
+      maybePawn.owner !== owner &&
+      maybePawn.strategy.type === PieceType.Pawn
+    ) {
+      return true;
+    }
+
+    [pawnRank, pawnFile] = [rank + rankOffset, file + 1];
+    maybePawn = this.isValidSquare([pawnRank, pawnFile])
+      ? this.game.board[pawnRank][pawnFile]
+      : null;
+    if (
+      maybePawn &&
+      maybePawn.owner !== owner &&
+      maybePawn.strategy.type === PieceType.Pawn
+    ) {
+      return true;
+    }
+
     for (const offset of horizontalVerticalDirs) {
       const square: Square = [rank + offset[0], file + offset[1]];
       while (this.isValidSquare(square)) {
