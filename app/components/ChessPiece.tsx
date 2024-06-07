@@ -1,8 +1,12 @@
-import { StyleSheet, Image, TouchableOpacity } from "react-native";
+import { StyleSheet, Image, TouchableOpacity, Dimensions } from "react-native";
 import React from "react";
 import { IPiece } from "../hooks/Piece";
 import images from "../assets/images/chess";
 import lodash from "lodash";
+import Animated, {
+  useAnimatedStyle,
+  withTiming,
+} from "react-native-reanimated";
 
 type Props = {
   piece: IPiece;
@@ -10,17 +14,28 @@ type Props = {
   selected: boolean;
 };
 
+const AnimatedTouchableOpacity =
+  Animated.createAnimatedComponent(TouchableOpacity);
+
+const { width } = Dimensions.get("screen");
+const SQUARE_SIZE = width / 8;
+
 export const ChessPiece = ({ piece, onSelect, selected }: Props) => {
   const [rank, file] = piece.currentSquare;
+
+  const animatedStyles = useAnimatedStyle(() => {
+    return {
+      left: withTiming(SQUARE_SIZE * file),
+      top: withTiming(SQUARE_SIZE * rank),
+    };
+  }, [rank, file]);
+
   return (
-    <TouchableOpacity
+    <AnimatedTouchableOpacity
       activeOpacity={0.9}
       style={[
         styles.container,
-        {
-          top: `${(100 / 8) * rank}%`,
-          left: `${(100 / 8) * file}%`,
-        },
+        animatedStyles,
         selected && {
           backgroundColor: "yellow",
         },
@@ -33,7 +48,7 @@ export const ChessPiece = ({ piece, onSelect, selected }: Props) => {
         )}
         style={styles.image}
       />
-    </TouchableOpacity>
+    </AnimatedTouchableOpacity>
   );
 };
 

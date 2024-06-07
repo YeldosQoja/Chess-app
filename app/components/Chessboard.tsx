@@ -1,12 +1,12 @@
 import { View, StyleSheet, TouchableOpacity, Modal } from "react-native";
 import React, { useState } from "react";
 import { Colors } from "../constants/Colors";
-import { Game } from "../hooks/Chess";
+import { IGame } from "../hooks/Chess";
 import { ChessPiece } from "./ChessPiece";
 import { IPiece, IStrategy, PieceType } from "../hooks/Piece";
 import { PromotionPicker } from "./PromotionPicker";
 
-export const Chessboard = ({ game }: { game: Game }) => {
+export const Chessboard = ({ game }: { game: IGame }) => {
   const { board, white, black } = game;
   const [selectedPiece, setSelectedPiece] = useState<IPiece | null>(null);
   const validMoves = selectedPiece ? selectedPiece.getValidMoves() : [];
@@ -79,17 +79,17 @@ export const Chessboard = ({ game }: { game: Game }) => {
           </View>
         );
       })}
-      {white.pieces.map((piece, index) => (
+      {white.pieces.map((piece) => (
         <ChessPiece
-          key={index}
+          key={piece.id}
           piece={piece}
           selected={selectedPiece === piece}
           onSelect={handleSelectSquare}
         />
       ))}
-      {black.pieces.map((piece, index) => (
+      {black.pieces.map((piece) => (
         <ChessPiece
-          key={index}
+          key={piece.id}
           piece={piece}
           selected={selectedPiece === piece}
           onSelect={handleSelectSquare}
