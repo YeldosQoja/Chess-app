@@ -52,7 +52,7 @@ export interface IPiece {
   getValidMoves(): Square[];
   move(square: Square): void;
   getType(): PieceType;
-  updateStrategy(strategy: Strategy): void;
+  updateStrategy(strategy: IStrategy): void;
 }
 
 export class Piece implements IPiece {
@@ -380,7 +380,9 @@ export class KingStrategy extends Strategy {
   ): Array<Square> {
     const [rank, file] = currentSquare;
     const moves: Square[] = [];
-    for (const [dr, df] of HORIZONTAL_VERTICAL_OFFSETS.concat(DIAGONAL_OFFSETS)) {
+    for (const [dr, df] of HORIZONTAL_VERTICAL_OFFSETS.concat(
+      DIAGONAL_OFFSETS
+    )) {
       const curSquare: Square = [rank + dr, file + df];
       if (!this.isValidSquare(curSquare)) {
         continue;
@@ -431,7 +433,7 @@ export class KingStrategy extends Strategy {
     if (
       maybePawn &&
       maybePawn.owner !== owner &&
-      maybePawn.strategy.type === PieceType.Pawn
+      maybePawn.getType() === PieceType.Pawn
     ) {
       return true;
     }
@@ -443,7 +445,7 @@ export class KingStrategy extends Strategy {
     if (
       maybePawn &&
       maybePawn.owner !== owner &&
-      maybePawn.strategy.type === PieceType.Pawn
+      maybePawn.getType() === PieceType.Pawn
     ) {
       return true;
     }
@@ -457,8 +459,8 @@ export class KingStrategy extends Strategy {
           square[1] += offset[1];
         } else if (
           piece.owner !== owner &&
-          (piece.strategy.type === PieceType.Rook ||
-            piece.strategy.type === PieceType.Queen)
+          (piece.getType() === PieceType.Rook ||
+            piece.getType() === PieceType.Queen)
         ) {
           return true;
         } else {
@@ -476,8 +478,8 @@ export class KingStrategy extends Strategy {
           square[1] += offset[1];
         } else if (
           piece.owner !== owner &&
-          (piece.strategy.type === PieceType.Bishop ||
-            piece.strategy.type === PieceType.Queen)
+          (piece.getType() === PieceType.Bishop ||
+            piece.getType() === PieceType.Queen)
         ) {
           return true;
         } else {
@@ -494,7 +496,21 @@ export class KingStrategy extends Strategy {
       if (
         piece &&
         piece.owner !== owner &&
-        piece.strategy.type === PieceType.Knight
+        piece.getType() === PieceType.Knight
+      ) {
+        return true;
+      }
+    }
+
+    for (const offset of HORIZONTAL_VERTICAL_OFFSETS.concat(DIAGONAL_OFFSETS)) {
+      const square: Square = [rank + offset[0], file + offset[1]];
+      const piece = this.isValidSquare(square)
+        ? this.game.board[square[0]][square[1]]
+        : null;
+      if (
+        piece &&
+        piece.owner !== owner &&
+        piece.getType() === PieceType.King
       ) {
         return true;
       }
@@ -512,10 +528,9 @@ export class KingStrategy extends Strategy {
     if (
       isMoved ||
       maybeRook === null ||
-      maybeRook.strategy.type !== PieceType.Rook ||
+      maybeRook.getType() !== PieceType.Rook ||
       maybeRook.isMoved
     ) {
-      console.log(isMoved, maybeRook?.strategy.type, maybeRook?.isMoved);
       return false;
     }
     for (let file = currentSquare[1]; file < 7; file++) {
@@ -536,7 +551,7 @@ export class KingStrategy extends Strategy {
     if (
       isMoved ||
       maybeRook === null ||
-      maybeRook.strategy.type !== PieceType.Rook ||
+      maybeRook.getType() !== PieceType.Rook ||
       maybeRook.isMoved
     ) {
       return false;
