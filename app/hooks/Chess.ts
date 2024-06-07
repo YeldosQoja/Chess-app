@@ -19,7 +19,7 @@ export interface IGame {
   updateBoard(): void;
   resetBoard(): void;
   selectPiece(piece: Piece): void;
-  canSelect(piece: Piece): void;
+  canSelect(piece: Piece): boolean;
   move(square: [number, number]): void;
   isInCheck(): boolean;
   isInCheckmate(): boolean;

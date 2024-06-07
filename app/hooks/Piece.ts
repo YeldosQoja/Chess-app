@@ -1,5 +1,6 @@
 import { IGame } from "./Chess";
 import { Player } from "./Player";
+import { v4 as uuid } from "uuid";
 
 export enum PieceType {
   Pawn = "pawn",
@@ -40,6 +41,7 @@ const KNIGHT_OFFSETS: Array<Square> = [
 ];
 
 export interface IPiece {
+  id: number | string;
   readonly game: IGame;
   readonly owner: Player;
   strategy: IStrategy;
@@ -54,6 +56,7 @@ export interface IPiece {
 }
 
 export class Piece implements IPiece {
+  id: string | number;
   readonly game: IGame;
   readonly owner: Player;
   readonly initialSquare: Square;
@@ -65,6 +68,7 @@ export class Piece implements IPiece {
   }
 
   constructor(game: IGame, owner: Player, square: Square, strategy: IStrategy) {
+    this.id = uuid();
     this.game = game;
     this.owner = owner;
     this.initialSquare = this.currentSquare = square;
