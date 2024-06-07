@@ -24,9 +24,11 @@ export interface IGame {
   isInCheck(): boolean;
   isInCheckmate(): boolean;
   isInStalemate(): boolean;
+  getWinner(): string;
+  getActivePlayer(): string;
 }
 
-export class Game {
+export class Game implements IGame {
   readonly board: Board;
   readonly white: Player;
   readonly black: Player;
@@ -142,6 +144,9 @@ export class Game {
   }
 
   isInStalemate(): boolean {
+    if (this.isInCheck()) {
+      return false;
+    }
     for (let rank = 0; rank < 8; rank++) {
       for (let file = 0; file < 8; file++) {
         const piece = this.board[rank][file];
@@ -155,5 +160,19 @@ export class Game {
       }
     }
     return true;
+  }
+
+  getWinner(): string {
+    if (!this.isInCheckmate()) {
+      return "";
+    }
+    return this.activePlayer === this.white ? "Black" : "White";
+  }
+
+  getActivePlayer(): string {
+    if (this.isInCheckmate()) {
+      return "";
+    }
+    return this.activePlayer === this.white ? "White" : "Black";
   }
 }

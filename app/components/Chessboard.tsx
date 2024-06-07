@@ -1,5 +1,5 @@
-import { View, StyleSheet, TouchableOpacity, Modal } from "react-native";
-import React, { useState } from "react";
+import { View, StyleSheet, TouchableOpacity, Modal, Alert } from "react-native";
+import React, { useEffect, useState } from "react";
 import { Colors } from "../constants/Colors";
 import { IGame } from "../hooks/Chess";
 import { ChessPiece } from "./ChessPiece";
@@ -7,7 +7,11 @@ import { IPiece, IStrategy, PieceType } from "../hooks/Piece";
 import { PromotionPicker } from "./PromotionPicker";
 
 export const Chessboard = ({ game }: { game: IGame }) => {
-  const { board, white, black } = game;
+  const {
+    board,
+    white,
+    black,
+  } = game;
   const [selectedPiece, setSelectedPiece] = useState<IPiece | null>(null);
   const validMoves = selectedPiece ? selectedPiece.getValidMoves() : [];
   const [promotionModalOpen, setPromotionModalOpen] = useState(false);
@@ -44,6 +48,18 @@ export const Chessboard = ({ game }: { game: IGame }) => {
     setSelectedPiece(null);
     setPromotionModalOpen(false);
   };
+
+  useEffect(() => {
+    if (game.isInCheckmate()) {
+      Alert.alert("Checkmate", `${game.getWinner()} won!`);
+    }
+  }, [game.isInCheckmate()]);
+
+  useEffect(() => {
+    if (game.isInStalemate()) {
+      Alert.alert("Stalemate", "Draw!");
+    }
+  }, [game.isInStalemate()]);
 
   return (
     <View style={styles.board}>
