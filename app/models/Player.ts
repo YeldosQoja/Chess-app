@@ -12,4 +12,8 @@ export class Player {
   getKing(): King {
     return this.pieces.find((p) => p.strategy.type === PieceType.King) as King;
   }
+
+  getOpponent(): Player {
+    return this.game.white === this ? this.game.black : this.game.white;
+  }
 }

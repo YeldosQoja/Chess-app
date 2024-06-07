@@ -1,5 +1,5 @@
 import { Board } from "./Board";
-import { IPiece, Piece, King } from "./Piece";
+import { IPiece, Piece, King, Pawn } from "./Piece";
 import {
   QueenStrategy,
   RookStrategy,
@@ -14,6 +14,7 @@ export interface IGame {
   readonly board: Board;
   readonly white: Player;
   readonly black: Player;
+  currentEnPassantPawn: Pawn | null;
   updateBoard(): void;
   resetBoard(): void;
   selectPiece(piece: IPiece): void;
@@ -30,6 +31,7 @@ export class Game implements IGame {
   readonly board: Board;
   readonly white: Player;
   readonly black: Player;
+  currentEnPassantPawn: Pawn | null = null;
 
   private activePlayer: Player;
   private selectedPiece: IPiece | null = null;
@@ -62,7 +64,7 @@ export class Game implements IGame {
     const kingStrategy = new KingStrategy(this);
     for (let file = 0; file < 8; file++) {
       player.pieces.push(
-        new Piece(this, player, [pawnsRank, file], pawnStrategy)
+        new Pawn(this, player, [pawnsRank, file], pawnStrategy)
       );
     }
     player.pieces.push(
@@ -79,11 +81,11 @@ export class Game implements IGame {
 
   updateBoard(): void {
     this.resetBoard();
-    for (const p of this.white.pieces) {
+    for (const p of this.white.pieces.filter(p => !p.isCaptured)) {
       const [rank, file] = p.currentSquare;
       this.board[rank][file] = p;
     }
-    for (const p of this.black.pieces) {
+    for (const p of this.black.pieces.filter(p => !p.isCaptured)) {
       const [rank, file] = p.currentSquare;
       this.board[rank][file] = p;
     }
@@ -109,22 +111,12 @@ export class Game implements IGame {
     if (this.selectedPiece === null) {
       return;
     }
-
+    // Remove current en passant pawn
+    this.currentEnPassantPawn = null;
+    // Make move
     this.selectedPiece.move(square);
-    const [x, y] = square;
-    const prevPiece = this.board[x][y];
-
-    // Delete piece that are previously in square activePlayer moved to
-    // if (prevPiece) {
-    const otherPlayer =
-      this.activePlayer === this.white ? this.black : this.white;
-    otherPlayer.pieces = otherPlayer.pieces.filter((p) => p !== prevPiece);
-    // }
-
     // Switch player
-    this.activePlayer =
-      this.activePlayer === this.white ? this.black : this.white;
-
+    this.activePlayer = this.activePlayer.getOpponent();
     // Update the board
     this.updateBoard();
   }

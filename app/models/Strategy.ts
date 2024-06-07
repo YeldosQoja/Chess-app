@@ -1,4 +1,5 @@
 import { IGame } from "./Game";
+import { Pawn } from "./Piece";
 import { PieceType } from "./PieceType";
 import { Player } from "./Player";
 import { Square } from "./Square";
@@ -76,16 +77,17 @@ export class PawnStrategy extends Strategy {
 
     const rankOffset = this.game.white === owner ? -1 : 1;
     // Filter valid vertical offsets
-    const verticalOffsets: Array<Square> = [[rankOffset, 0]];
+    let offsets: Array<Square> = [[rankOffset, 0]];
     if (!isMoved) {
-      verticalOffsets.push([rankOffset * 2, 0]);
+      offsets.push([rankOffset * 2, 0]);
     }
-    for (const offset of verticalOffsets) {
+    for (const offset of offsets) {
       const square: Square = [rank + offset[0], file + offset[1]];
       if (!this.isValidSquare(square)) {
         continue;
       }
       const piece = this.game.board[square[0]][square[1]];
+      console.log(square, piece);
       if (piece === null) {
         moves.push(square);
       } else {
@@ -94,17 +96,36 @@ export class PawnStrategy extends Strategy {
     }
 
     // Filter diagonal offsets
-    const diagonalOffsets: Array<Square> = [
+    offsets = [
       [rankOffset, -1],
       [rankOffset, 1],
     ];
-    for (const offset of diagonalOffsets) {
+    for (const offset of offsets) {
       const square: Square = [rank + offset[0], file + offset[1]];
       const piece = this.isValidSquare(square)
         ? this.game.board[square[0]][square[1]]
         : null;
       if (piece && piece.owner !== owner) {
         moves.push(square);
+      }
+    }
+
+    offsets = [
+      [0, -1],
+      [0, 1],
+    ];
+    for (const offset of offsets) {
+      const square: Square = [rank + offset[0], file + offset[1]];
+      const piece = this.isValidSquare(square)
+        ? this.game.board[square[0]][square[1]]
+        : null;
+      if (
+        piece &&
+        piece.getType() === PieceType.Pawn &&
+        piece.owner !== owner &&
+        piece === this.game.currentEnPassantPawn
+      ) {
+        moves.push([rank + rankOffset, file + offset[1]]);
       }
     }
 

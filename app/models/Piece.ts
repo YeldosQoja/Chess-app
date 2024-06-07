@@ -7,6 +7,7 @@ import { Square } from "./Square";
 
 export interface IPiece {
   id: number | string;
+  isCaptured: boolean;
   readonly game: IGame;
   readonly owner: Player;
   strategy: IStrategy;
@@ -22,6 +23,7 @@ export interface IPiece {
 
 export class Piece implements IPiece {
   id: string | number;
+  isCaptured: boolean = false;
   readonly game: IGame;
   readonly owner: Player;
   readonly initialSquare: Square;
@@ -86,6 +88,28 @@ export class Piece implements IPiece {
   move(square: Square): void {
     this.isMoved = true;
     this.currentSquare = square;
+    // Delete piece that are previously in square activePlayer moved to
+    const [moveRank, moveFile] = square;
+    const prevPiece = this.game.board[moveRank][moveFile];
+    if (prevPiece) {
+      prevPiece.isCaptured = true;
+    }
+  }
+}
+
+export class Pawn extends Piece {
+  move(square: Square): void {
+    if (!this.isMoved && Math.abs(square[0] - this.initialSquare[0]) === 2) {
+      this.game.currentEnPassantPawn = this;
+    }
+    const [curRank, curFile] = this.currentSquare;
+    const [moveRank, moveFile] = square;
+    // Check If move is En Passant
+    const piece = this.game.board[moveRank][moveFile];
+    if (piece === null && moveFile !== curFile) {
+      (this.game.board[curRank][moveFile] as Pawn).isCaptured = true;
+    }
+    super.move(square);
   }
 }
 
@@ -122,5 +146,3 @@ export class King extends Piece {
     );
   }
 }
-
-

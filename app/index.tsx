@@ -14,6 +14,8 @@ export default function Index() {
   const validMoves = selectedPiece ? selectedPiece.getValidMoves() : [];
   const [promotionModalOpen, setPromotionModalOpen] = useState(false);
 
+  // console.log(validMoves);
+
   const handleSelectSquare = (square: [number, number]) => {
     const [rank, file] = square;
     const piece = board[rank][file];
@@ -70,22 +72,26 @@ export default function Index() {
         board={board}
         onSelect={handleSelectSquare}
         validMoves={validMoves}>
-        {white.pieces.map((piece) => (
-          <ChessPiece
-            key={piece.id}
-            piece={piece}
-            selected={selectedPiece === piece}
-            onSelect={handleSelectSquare}
-          />
-        ))}
-        {black.pieces.map((piece) => (
-          <ChessPiece
-            key={piece.id}
-            piece={piece}
-            selected={selectedPiece === piece}
-            onSelect={handleSelectSquare}
-          />
-        ))}
+        {white.pieces
+          .filter((p) => !p.isCaptured)
+          .map((piece) => (
+            <ChessPiece
+              key={piece.id}
+              piece={piece}
+              selected={selectedPiece === piece}
+              onSelect={handleSelectSquare}
+            />
+          ))}
+        {black.pieces
+          .filter((p) => !p.isCaptured)
+          .map((piece) => (
+            <ChessPiece
+              key={piece.id}
+              piece={piece}
+              selected={selectedPiece === piece}
+              onSelect={handleSelectSquare}
+            />
+          ))}
       </Chessboard>
       <PromotionPicker
         open={promotionModalOpen}
