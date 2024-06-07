@@ -2,12 +2,12 @@ import { View, Modal, StyleSheet, TouchableOpacity, Image } from "react-native";
 import React from "react";
 import Images from "../assets/images/chess";
 import {
+  IGame,
   BishopStrategy,
   KnightStrategy,
   QueenStrategy,
   RookStrategy,
-} from "../hooks/Piece";
-import { IGame } from "../hooks/Chess";
+} from "../models";
 
 interface Props {
   open: boolean;

@@ -1,6 +1,6 @@
 import { StyleSheet, Image, TouchableOpacity, Dimensions } from "react-native";
 import React from "react";
-import { IPiece } from "../hooks/Piece";
+import { IPiece } from "../models";
 import images from "../assets/images/chess";
 import lodash from "lodash";
 import Animated, {
@@ -8,7 +8,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-type Props = {
+interface Props {
   piece: IPiece;
   onSelect: (square: [number, number]) => void;
   selected: boolean;

@@ -1,25 +1,23 @@
+import { Board } from "./Board";
+import { IPiece, Piece, King } from "./Piece";
 import {
-  BishopStrategy,
-  Board,
-  King,
+  QueenStrategy,
+  RookStrategy,
   KingStrategy,
   KnightStrategy,
   PawnStrategy,
-  Piece,
-  QueenStrategy,
-  RookStrategy,
-} from "./Piece";
+  BishopStrategy,
+} from "./Strategy";
 import { Player } from "./Player";
 
 export interface IGame {
   readonly board: Board;
   readonly white: Player;
   readonly black: Player;
-  startGame(): void;
   updateBoard(): void;
   resetBoard(): void;
-  selectPiece(piece: Piece): void;
-  canSelect(piece: Piece): boolean;
+  selectPiece(piece: IPiece): void;
+  canSelect(piece: IPiece): boolean;
   move(square: [number, number]): void;
   isInCheck(): boolean;
   isInCheckmate(): boolean;
@@ -34,7 +32,7 @@ export class Game implements IGame {
   readonly black: Player;
 
   private activePlayer: Player;
-  private selectedPiece: Piece | null = null;
+  private selectedPiece: IPiece | null = null;
 
   constructor() {
     this.white = new Player(this);
@@ -46,13 +44,10 @@ export class Game implements IGame {
         this.board[i][j] = null;
       }
     }
-    this.activePlayer = this.white;
-  }
-
-  startGame(): void {
     this.createPieces(this.white);
     this.createPieces(this.black);
     this.updateBoard();
+    this.activePlayer = this.white;
   }
 
   private createPieces(player: Player): void {
@@ -102,11 +97,11 @@ export class Game implements IGame {
     }
   }
 
-  selectPiece(piece: Piece): void {
+  selectPiece(piece: IPiece): void {
     this.selectedPiece = piece;
   }
 
-  canSelect(piece: Piece): boolean {
+  canSelect(piece: IPiece): boolean {
     return piece.owner === this.activePlayer;
   }
 

@@ -1,5 +1,6 @@
-import { IGame } from "./Chess";
-import { King, Piece, PieceType } from "./Piece";
+import { IGame } from "./Game";
+import { King, Piece } from "./Piece";
+import { PieceType } from "./PieceType";
 
 export class Player {
   pieces: Piece[] = [];

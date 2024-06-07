@@ -1,122 +1,57 @@
-import { View, StyleSheet, TouchableOpacity, Modal, Alert } from "react-native";
-import React, { useEffect, useState } from "react";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
+import React, { PropsWithChildren } from "react";
 import { Colors } from "../constants/Colors";
-import { IGame } from "../hooks/Chess";
-import { ChessPiece } from "./ChessPiece";
-import { IPiece, IStrategy, PieceType } from "../hooks/Piece";
-import { PromotionPicker } from "./PromotionPicker";
+import { Board, Square } from "../models";
 
-export const Chessboard = ({ game }: { game: IGame }) => {
-  const {
-    board,
-    white,
-    black,
-  } = game;
-  const [selectedPiece, setSelectedPiece] = useState<IPiece | null>(null);
-  const validMoves = selectedPiece ? selectedPiece.getValidMoves() : [];
-  const [promotionModalOpen, setPromotionModalOpen] = useState(false);
+interface Props {
+  board: Board;
+  validMoves: Array<Square>;
+  onSelect: (square: Square) => void;
+}
 
-  const handleSelectSquare = (square: [number, number]) => {
-    const [rank, file] = square;
-    const piece = board[rank][file];
-    if (selectedPiece === null && piece === null) {
-      return;
-    }
-    if (piece && game.canSelect(piece)) {
-      setSelectedPiece(piece);
-      game.selectPiece(piece);
-    } else if (
-      selectedPiece &&
-      selectedPiece
-        .getValidMoves()
-        .some(([moveRank, moveFile]) => moveRank === rank && moveFile === file)
-    ) {
-      game.move(square);
-      if (
-        selectedPiece.getType() === PieceType.Pawn &&
-        (rank === 0 || rank === 7)
-      ) {
-        setPromotionModalOpen(true);
-      } else {
-        setSelectedPiece(null);
-      }
-    }
-  };
-
-  const handleSelectPromotion = ({ strategy }: { strategy: IStrategy }) => {
-    selectedPiece?.updateStrategy(strategy);
-    setSelectedPiece(null);
-    setPromotionModalOpen(false);
-  };
-
-  useEffect(() => {
-    if (game.isInCheckmate()) {
-      Alert.alert("Checkmate", `${game.getWinner()} won!`);
-    }
-  }, [game.isInCheckmate()]);
-
-  useEffect(() => {
-    if (game.isInStalemate()) {
-      Alert.alert("Stalemate", "Draw!");
-    }
-  }, [game.isInStalemate()]);
-
+export const Chessboard = ({
+  board,
+  validMoves,
+  onSelect,
+  children,
+}: PropsWithChildren<Props>) => {
   return (
-    <View style={styles.board}>
-      {board.map((row, rank) => {
-        const isEvenRank = rank % 2 === 0;
-        const colors = [
-          isEvenRank ? Colors.chessboard.light : Colors.chessboard.dark,
-          isEvenRank ? Colors.chessboard.dark : Colors.chessboard.light,
-        ];
-        return (
-          <View
-            key={rank}
-            style={styles.row}>
-            {row.map((_, file) => {
-              const isValid = validMoves.some(
-                (s) => s[0] === rank && s[1] === file
-              );
-              return (
-                <TouchableOpacity
-                  activeOpacity={0.9}
-                  key={file}
-                  style={[
-                    styles.square,
-                    {
-                      backgroundColor: colors[file % 2],
-                    },
-                  ]}
-                  onPress={() => void handleSelectSquare([rank, file])}>
-                  {isValid && <View style={styles.dot} />}
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        );
-      })}
-      {white.pieces.map((piece) => (
-        <ChessPiece
-          key={piece.id}
-          piece={piece}
-          selected={selectedPiece === piece}
-          onSelect={handleSelectSquare}
-        />
-      ))}
-      {black.pieces.map((piece) => (
-        <ChessPiece
-          key={piece.id}
-          piece={piece}
-          selected={selectedPiece === piece}
-          onSelect={handleSelectSquare}
-        />
-      ))}
-      <PromotionPicker
-        open={promotionModalOpen}
-        game={game}
-        isWhite={selectedPiece?.owner === game.white}
-        onSelect={handleSelectPromotion}
-      />
+    <View>
+      <View style={styles.board}>
+        {board.map((row, rank) => {
+          const isEvenRank = rank % 2 === 0;
+          const colors = [
+            isEvenRank ? Colors.chessboard.light : Colors.chessboard.dark,
+            isEvenRank ? Colors.chessboard.dark : Colors.chessboard.light,
+          ];
+          return (
+            <View
+              key={rank}
+              style={styles.row}>
+              {row.map((_, file) => {
+                const isValid = validMoves.some(
+                  (s) => s[0] === rank && s[1] === file
+                );
+                return (
+                  <TouchableOpacity
+                    activeOpacity={0.9}
+                    key={file}
+                    style={[
+                      styles.square,
+                      {
+                        backgroundColor: colors[file % 2],
+                      },
+                    ]}
+                    onPress={() => void onSelect([rank, file])}>
+                    {isValid && <View style={styles.dot} />}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          );
+        })}
+      </View>
+      {children}
     </View>
   );
 };
