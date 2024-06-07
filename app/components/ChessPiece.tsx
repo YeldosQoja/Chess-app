@@ -1,11 +1,11 @@
 import { StyleSheet, Image, TouchableOpacity } from "react-native";
 import React from "react";
-import { Piece, PieceType } from "../hooks/Piece";
+import { IPiece } from "../hooks/Piece";
 import images from "../assets/images/chess";
 import lodash from "lodash";
 
 type Props = {
-  piece: Piece;
+  piece: IPiece;
   onSelect: (square: [number, number]) => void;
   selected: boolean;
 };
@@ -29,9 +29,7 @@ export const ChessPiece = ({ piece, onSelect, selected }: Props) => {
       <Image
         source={lodash.get(
           images,
-          `${piece.strategy.type as PieceType}.${
-            piece.isWhite ? "white" : "black"
-          }`
+          `${piece.getType()}.${piece.isWhite ? "white" : "black"}`
         )}
         style={styles.image}
       />

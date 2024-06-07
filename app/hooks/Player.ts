@@ -1,10 +1,10 @@
-import { Game } from "./Chess";
-import { King, KingStrategy, Piece, PieceType } from "./Piece";
+import { IGame } from "./Chess";
+import { King, Piece, PieceType } from "./Piece";
 
 export class Player {
   pieces: Piece[] = [];
-  game: Game;
-  constructor(game: Game) {
+  game: IGame;
+  constructor(game: IGame) {
     this.game = game;
   }
 

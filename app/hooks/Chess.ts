@@ -6,11 +6,25 @@ import {
   KnightStrategy,
   PawnStrategy,
   Piece,
-  PieceType,
   QueenStrategy,
   RookStrategy,
 } from "./Piece";
 import { Player } from "./Player";
+
+export interface IGame {
+  readonly board: Board;
+  readonly white: Player;
+  readonly black: Player;
+  startGame(): void;
+  updateBoard(): void;
+  resetBoard(): void;
+  selectPiece(piece: Piece): void;
+  canSelect(piece: Piece): void;
+  move(square: [number, number]): void;
+  isInCheck(): boolean;
+  isInCheckmate(): boolean;
+  isInStalemate(): boolean;
+}
 
 export class Game {
   readonly board: Board;
@@ -95,9 +109,7 @@ export class Game {
   }
 
   move(square: [number, number]): void {
-    if (
-      this.selectedPiece === null
-    ) {
+    if (this.selectedPiece === null) {
       return;
     }
 
@@ -106,11 +118,11 @@ export class Game {
     const prevPiece = this.board[x][y];
 
     // Delete piece that are previously in square activePlayer moved to
-    if (prevPiece) {
-      const otherPlayer =
-        this.activePlayer === this.white ? this.black : this.white;
-      otherPlayer.pieces = otherPlayer.pieces.filter((p) => p !== prevPiece);
-    }
+    // if (prevPiece) {
+    const otherPlayer =
+      this.activePlayer === this.white ? this.black : this.white;
+    otherPlayer.pieces = otherPlayer.pieces.filter((p) => p !== prevPiece);
+    // }
 
     // Switch player
     this.activePlayer =
@@ -120,16 +132,13 @@ export class Game {
     this.updateBoard();
   }
 
+  isInCheck(): boolean {
+    const kingPiece = this.activePlayer.getKing();
+    return kingPiece.isInCheck();
+  }
+
   isInCheckmate(): boolean {
-    const king = this.activePlayer.pieces.find(
-      (p) => p.strategy.type === PieceType.King
-    ) as Piece;
-    return (
-      (king.strategy as KingStrategy).isInCheck(
-        king.currentSquare,
-        king.owner
-      ) && this.isInStalemate()
-    );
+    return this.isInCheck() && this.isInStalemate();
   }
 
   isInStalemate(): boolean {

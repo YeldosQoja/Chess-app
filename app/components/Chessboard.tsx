@@ -1,18 +1,18 @@
-import { View, StyleSheet, TouchableOpacity } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Modal } from "react-native";
 import React, { useState } from "react";
 import { Colors } from "../constants/Colors";
 import { Game } from "../hooks/Chess";
 import { ChessPiece } from "./ChessPiece";
-import { IPiece } from "../hooks/Piece";
+import { IPiece, IStrategy, PieceType } from "../hooks/Piece";
+import { PromotionPicker } from "./PromotionPicker";
 
 export const Chessboard = ({ game }: { game: Game }) => {
   const { board, white, black } = game;
   const [selectedPiece, setSelectedPiece] = useState<IPiece | null>(null);
   const validMoves = selectedPiece ? selectedPiece.getValidMoves() : [];
+  const [promotionModalOpen, setPromotionModalOpen] = useState(false);
 
-  // console.log(board.map((row) => row.map((p) => (p ? p.strategy.type : ""))));
-
-  const handleSelect = (square: [number, number]) => {
+  const handleSelectSquare = (square: [number, number]) => {
     const [rank, file] = square;
     const piece = board[rank][file];
     if (selectedPiece === null && piece === null) {
@@ -28,8 +28,21 @@ export const Chessboard = ({ game }: { game: Game }) => {
         .some(([moveRank, moveFile]) => moveRank === rank && moveFile === file)
     ) {
       game.move(square);
-      setSelectedPiece(null);
+      if (
+        selectedPiece.getType() === PieceType.Pawn &&
+        (rank === 0 || rank === 7)
+      ) {
+        setPromotionModalOpen(true);
+      } else {
+        setSelectedPiece(null);
+      }
     }
+  };
+
+  const handleSelectPromotion = ({ strategy }: { strategy: IStrategy }) => {
+    selectedPiece?.updateStrategy(strategy);
+    setSelectedPiece(null);
+    setPromotionModalOpen(false);
   };
 
   return (
@@ -58,7 +71,7 @@ export const Chessboard = ({ game }: { game: Game }) => {
                       backgroundColor: colors[file % 2],
                     },
                   ]}
-                  onPress={() => void handleSelect([rank, file])}>
+                  onPress={() => void handleSelectSquare([rank, file])}>
                   {isValid && <View style={styles.dot} />}
                 </TouchableOpacity>
               );
@@ -71,7 +84,7 @@ export const Chessboard = ({ game }: { game: Game }) => {
           key={index}
           piece={piece}
           selected={selectedPiece === piece}
-          onSelect={handleSelect}
+          onSelect={handleSelectSquare}
         />
       ))}
       {black.pieces.map((piece, index) => (
@@ -79,9 +92,15 @@ export const Chessboard = ({ game }: { game: Game }) => {
           key={index}
           piece={piece}
           selected={selectedPiece === piece}
-          onSelect={handleSelect}
+          onSelect={handleSelectSquare}
         />
       ))}
+      <PromotionPicker
+        open={promotionModalOpen}
+        game={game}
+        isWhite={selectedPiece?.owner === game.white}
+        onSelect={handleSelectPromotion}
+      />
     </View>
   );
 };

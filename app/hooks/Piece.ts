@@ -1,4 +1,4 @@
-import { Game } from "./Chess";
+import { IGame } from "./Chess";
 import { Player } from "./Player";
 
 export enum PieceType {
@@ -14,21 +14,21 @@ export type Board = Array<Array<Piece | null>>;
 
 export type Square = [number, number];
 
-const horizontalVerticalDirs: Array<Square> = [
+const HORIZONTAL_VERTICAL_OFFSETS: Array<Square> = [
   [-1, 0],
   [0, 1],
   [1, 0],
   [0, -1],
 ];
 
-const diagonalDirs: Array<Square> = [
+const DIAGONAL_OFFSETS: Array<Square> = [
   [-1, -1],
   [-1, 1],
   [1, 1],
   [1, -1],
 ];
 
-const knightDirs: Array<Square> = [
+const KNIGHT_OFFSETS: Array<Square> = [
   [-1, -2],
   [-2, -1],
   [-2, 1],
@@ -40,17 +40,21 @@ const knightDirs: Array<Square> = [
 ];
 
 export interface IPiece {
-  readonly game: Game;
+  readonly game: IGame;
   readonly owner: Player;
   strategy: IStrategy;
   currentSquare: Square;
   readonly initialSquare: Square;
+  isMoved: boolean;
+  get isWhite(): boolean;
   getValidMoves(): Square[];
   move(square: Square): void;
+  getType(): PieceType;
+  updateStrategy(strategy: Strategy): void;
 }
 
 export class Piece implements IPiece {
-  readonly game: Game;
+  readonly game: IGame;
   readonly owner: Player;
   readonly initialSquare: Square;
   currentSquare: Square;
@@ -60,7 +64,7 @@ export class Piece implements IPiece {
     return this.game.white === this.owner;
   }
 
-  constructor(game: Game, owner: Player, square: Square, strategy: IStrategy) {
+  constructor(game: IGame, owner: Player, square: Square, strategy: IStrategy) {
     this.game = game;
     this.owner = owner;
     this.initialSquare = this.currentSquare = square;
@@ -99,6 +103,15 @@ export class Piece implements IPiece {
       });
     }
     return res;
+  }
+
+  getType(): PieceType {
+    return this.strategy.type as PieceType;
+  }
+
+  updateStrategy(strategy: IStrategy): void {
+    this.strategy = strategy;
+    this.isMoved = false;
   }
 
   move(square: Square): void {
@@ -142,19 +155,20 @@ export class King extends Piece {
 }
 
 export interface IStrategy {
-  game: Game;
+  game: IGame;
   type?: PieceType | undefined;
   getValidMoves(
     currentSquare: Square,
     isMoved: boolean,
     owner: Player
   ): Array<Square>;
+  isValidSquare(square: Square): boolean;
 }
 
 class Strategy implements IStrategy {
-  game: Game;
+  game: IGame;
   type?: PieceType | undefined;
-  constructor(game: Game) {
+  constructor(game: IGame) {
     this.game = game;
   }
 
@@ -173,7 +187,7 @@ class Strategy implements IStrategy {
 }
 
 export class PawnStrategy extends Strategy {
-  constructor(game: Game) {
+  constructor(game: IGame) {
     super(game);
     this.type = PieceType.Pawn;
   }
@@ -194,6 +208,9 @@ export class PawnStrategy extends Strategy {
     }
     for (const offset of verticalOffsets) {
       const square: Square = [rank + offset[0], file + offset[1]];
+      if (!this.isValidSquare(square)) {
+        continue;
+      }
       const piece = this.game.board[square[0]][square[1]];
       if (piece === null) {
         moves.push(square);
@@ -222,7 +239,7 @@ export class PawnStrategy extends Strategy {
 }
 
 export class RookStrategy extends Strategy {
-  constructor(game: Game) {
+  constructor(game: IGame) {
     super(game);
     this.type = PieceType.Rook;
   }
@@ -234,7 +251,7 @@ export class RookStrategy extends Strategy {
   ): Array<Square> {
     const [rank, file] = currentSquare;
     const moves: Square[] = [];
-    for (const offset of horizontalVerticalDirs) {
+    for (const offset of HORIZONTAL_VERTICAL_OFFSETS) {
       let [moveRank, moveFile] = [rank + offset[0], file + offset[1]];
       while (this.isValidSquare([moveRank, moveFile])) {
         const piece = this.game.board[moveRank][moveFile];
@@ -255,7 +272,7 @@ export class RookStrategy extends Strategy {
 }
 
 export class BishopStrategy extends Strategy {
-  constructor(game: Game) {
+  constructor(game: IGame) {
     super(game);
     this.type = PieceType.Bishop;
   }
@@ -267,7 +284,7 @@ export class BishopStrategy extends Strategy {
   ): Array<Square> {
     const [rank, file] = currentSquare;
     const moves: Square[] = [];
-    for (const offset of diagonalDirs) {
+    for (const offset of DIAGONAL_OFFSETS) {
       let [moveRank, moveFile] = [rank + offset[0], file + offset[1]];
       while (this.isValidSquare([moveRank, moveFile])) {
         const piece = this.game.board[moveRank][moveFile];
@@ -288,7 +305,7 @@ export class BishopStrategy extends Strategy {
 }
 
 export class KnightStrategy extends Strategy {
-  constructor(game: Game) {
+  constructor(game: IGame) {
     super(game);
     this.type = PieceType.Knight;
   }
@@ -300,7 +317,7 @@ export class KnightStrategy extends Strategy {
   ): Array<Square> {
     const [rank, file] = currentSquare;
     const moves: Square[] = [];
-    knightDirs.forEach(([dr, dc]) => {
+    KNIGHT_OFFSETS.forEach(([dr, dc]) => {
       const curSquare: Square = [rank + dr, file + dc];
       if (!this.isValidSquare(curSquare)) {
         return;
@@ -315,7 +332,7 @@ export class KnightStrategy extends Strategy {
 }
 
 export class QueenStrategy extends Strategy {
-  constructor(game: Game) {
+  constructor(game: IGame) {
     super(game);
     this.type = PieceType.Queen;
   }
@@ -327,7 +344,7 @@ export class QueenStrategy extends Strategy {
   ): Array<Square> {
     const [curRank, curFile] = currentSquare;
     const moves: Square[] = [];
-    for (const offset of horizontalVerticalDirs.concat(diagonalDirs)) {
+    for (const offset of HORIZONTAL_VERTICAL_OFFSETS.concat(DIAGONAL_OFFSETS)) {
       let [moveRank, moveFile] = [curRank + offset[0], curFile + offset[1]];
       while (this.isValidSquare([moveRank, moveFile])) {
         const piece = this.game.board[moveRank][moveFile];
@@ -348,7 +365,7 @@ export class QueenStrategy extends Strategy {
 }
 
 export class KingStrategy extends Strategy {
-  constructor(game: Game) {
+  constructor(game: IGame) {
     super(game);
     this.type = PieceType.King;
   }
@@ -359,7 +376,7 @@ export class KingStrategy extends Strategy {
   ): Array<Square> {
     const [rank, file] = currentSquare;
     const moves: Square[] = [];
-    for (const [dr, df] of horizontalVerticalDirs.concat(diagonalDirs)) {
+    for (const [dr, df] of HORIZONTAL_VERTICAL_OFFSETS.concat(DIAGONAL_OFFSETS)) {
       const curSquare: Square = [rank + dr, file + df];
       if (!this.isValidSquare(curSquare)) {
         continue;
@@ -427,7 +444,7 @@ export class KingStrategy extends Strategy {
       return true;
     }
 
-    for (const offset of horizontalVerticalDirs) {
+    for (const offset of HORIZONTAL_VERTICAL_OFFSETS) {
       const square: Square = [rank + offset[0], file + offset[1]];
       while (this.isValidSquare(square)) {
         const piece = this.game.board[square[0]][square[1]];
@@ -446,7 +463,7 @@ export class KingStrategy extends Strategy {
       }
     }
 
-    for (const offset of diagonalDirs) {
+    for (const offset of DIAGONAL_OFFSETS) {
       const square: Square = [rank + offset[0], file + offset[1]];
       while (this.isValidSquare(square)) {
         const piece = this.game.board[square[0]][square[1]];
@@ -465,7 +482,7 @@ export class KingStrategy extends Strategy {
       }
     }
 
-    for (const offset of knightDirs) {
+    for (const offset of KNIGHT_OFFSETS) {
       const square: Square = [rank + offset[0], file + offset[1]];
       const piece = this.isValidSquare(square)
         ? this.game.board[square[0]][square[1]]
