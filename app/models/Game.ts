@@ -1,5 +1,5 @@
 import { Board } from "./Board";
-import { IPiece, Piece, King, Pawn } from "./Piece";
+import { IPiece, Piece, King } from "./Piece";
 import {
   QueenStrategy,
   RookStrategy,
@@ -14,7 +14,7 @@ export interface IGame {
   readonly board: Board;
   readonly white: Player;
   readonly black: Player;
-  currentEnPassantPawn: Pawn | null;
+  currentEnPassantPawn: IPiece | null;
   updateBoard(): void;
   resetBoard(): void;
   selectPiece(piece: IPiece): void;
@@ -31,7 +31,7 @@ export class Game implements IGame {
   readonly board: Board;
   readonly white: Player;
   readonly black: Player;
-  currentEnPassantPawn: Pawn | null = null;
+  currentEnPassantPawn: IPiece | null = null;
 
   private activePlayer: Player;
   private selectedPiece: IPiece | null = null;
@@ -64,7 +64,7 @@ export class Game implements IGame {
     const kingStrategy = new KingStrategy(this);
     for (let file = 0; file < 8; file++) {
       player.pieces.push(
-        new Pawn(this, player, [pawnsRank, file], pawnStrategy)
+        new Piece(this, player, [pawnsRank, file], pawnStrategy)
       );
     }
     player.pieces.push(
