@@ -1,20 +1,18 @@
 import { Alert, View } from "react-native";
-import { Chessboard } from "./components/Chessboard";
-import { useChess } from "./hooks/useChess";
+import { Chessboard } from "@/components/Chessboard";
+import { useChess } from "@/hooks/useChess";
 import "react-native-get-random-values";
 import { useEffect, useState } from "react";
-import { IPiece, IStrategy, PieceType } from "./models";
-import { ChessPiece } from "./components/ChessPiece";
-import { PromotionPicker } from "./components/PromotionPicker";
+import { IPiece, IStrategy, PieceType } from "../models";
+import { ChessPiece } from "@/components/ChessPiece";
+import { PromotionPicker } from "@/components/PromotionPicker";
 
-export default function Index() {
+export default function Splash() {
   const game = useChess();
   const { board, white, black } = game;
   const [selectedPiece, setSelectedPiece] = useState<IPiece | null>(null);
   const validMoves = selectedPiece ? selectedPiece.getValidMoves() : [];
   const [promotionModalOpen, setPromotionModalOpen] = useState(false);
-
-  // console.log(validMoves);
 
   const handleSelectSquare = (square: [number, number]) => {
     const [rank, file] = square;

@@ -1,5 +1,4 @@
 import { IGame } from "./Game";
-import { Pawn } from "./Piece";
 import { PieceType } from "./PieceType";
 import { Player } from "./Player";
 import { Square } from "./Square";
@@ -87,7 +86,6 @@ export class PawnStrategy extends Strategy {
         continue;
       }
       const piece = this.game.board[square[0]][square[1]];
-      console.log(square, piece);
       if (piece === null) {
         moves.push(square);
       } else {
