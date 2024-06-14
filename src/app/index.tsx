@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { IPiece, IStrategy, PieceType } from "../models";
 import { ChessPiece } from "@/components/ChessPiece";
 import { PromotionPicker } from "@/components/PromotionPicker";
+import { useRouter } from "expo-router";
 
 export default function Splash() {
   const game = useChess();
@@ -13,6 +14,7 @@ export default function Splash() {
   const [selectedPiece, setSelectedPiece] = useState<IPiece | null>(null);
   const validMoves = selectedPiece ? selectedPiece.getValidMoves() : [];
   const [promotionModalOpen, setPromotionModalOpen] = useState(false);
+  const router = useRouter();
 
   const handleSelectSquare = (square: [number, number]) => {
     const [rank, file] = square;
@@ -58,6 +60,12 @@ export default function Splash() {
       Alert.alert("Stalemate", "Draw!");
     }
   }, [game.isInStalemate()]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      router.navigate("auth");
+    }, 500);
+  }, []);
 
   return (
     <View
