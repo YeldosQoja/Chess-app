@@ -1,9 +1,16 @@
 import { useTheme } from "@/hooks";
-import { PropsWithChildren } from "react";
-import { StyleSheet, View } from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { PropsWithChildren, useEffect } from "react";
+import { StyleSheet, View, useColorScheme } from "react-native";
 
 export const ScreenContainer = ({ children }: PropsWithChildren) => {
-  const { background } = useTheme();
+  const {
+    colors: { background },
+  } = useTheme();
+  const systemColor = useColorScheme();
+  useEffect(() => {
+    StatusBar;
+  }, [systemColor]);
   return (
     <View
       style={[
@@ -20,5 +27,6 @@ export const ScreenContainer = ({ children }: PropsWithChildren) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 12,
   },
 });

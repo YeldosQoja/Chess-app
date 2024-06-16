@@ -1,20 +1,39 @@
-import { PropsWithChildren, createContext } from "react";
+import { PropsWithChildren, createContext, useEffect, useState } from "react";
 import { Colors } from "@/constants";
-import { useColorScheme } from "react-native";
+import { Appearance, useColorScheme } from "react-native";
 
-export const ThemeContext = createContext(Colors.light);
+export const ThemeContext = createContext({
+  colors: Colors.light,
+  dark: false,
+  setDark: (value: boolean) => {},
+});
 
 interface Props {
-  mode?: "light" | "dark";
+  style?: "light" | "dark";
 }
 
-export const ThemeProvider = ({ children, mode }: PropsWithChildren<Props>) => {
+export const ThemeProvider = ({
+  children,
+  style,
+}: PropsWithChildren<Props>) => {
   const systemColor = useColorScheme();
+  const [dark, setDark] = useState(
+    style ? style === "dark" : systemColor === "dark"
+  );
+
+  useEffect(() => {
+    if (style === undefined) {
+      setDark(systemColor === "dark");
+    }
+  }, [systemColor]);
+
   return (
     <ThemeContext.Provider
-      value={
-        mode ? Colors[mode] : systemColor ? Colors[systemColor] : Colors.light
-      }>
+      value={{
+        colors: Colors[dark ? "dark" : "light"],
+        dark,
+        setDark,
+      }}>
       {children}
     </ThemeContext.Provider>
   );
