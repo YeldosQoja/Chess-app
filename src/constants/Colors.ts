@@ -7,21 +7,17 @@ const tintColor = "#050C9C";
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
+    text: "#11181C",
+    background: "#fff",
     tint: tintColor,
-    icon: '#687076',
-    tabIconDefault: '#687076',
+    icon: "#687076",
+    tabIconDefault: "#687076",
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
+    text: "#ECEDEE",
+    background: "#151718",
     tint: tintColor,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-  },
-  chessboard: {
-    light: "rgb(234,240,206)",
-    dark: "rgb(187,190,100)",
+    icon: "#9BA1A6",
+    tabIconDefault: "#9BA1A6",
   },
 };

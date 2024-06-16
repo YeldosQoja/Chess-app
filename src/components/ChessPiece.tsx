@@ -1,7 +1,7 @@
 import { StyleSheet, Image, TouchableOpacity, Dimensions } from "react-native";
 import React from "react";
-import { IPiece } from "../models";
-import images from "../assets/images/chess";
+import { IPiece } from "@/models";
+import images from "@/assets/images/chess";
 import lodash from "lodash";
 import Animated, {
   useAnimatedStyle,

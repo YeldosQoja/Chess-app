@@ -1,13 +1,17 @@
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import React, { PropsWithChildren } from "react";
-import { Colors } from "../constants/Colors";
-import { Board, Square } from "../models";
+import { Board, Square } from "@/models";
 
 interface Props {
   board: Board;
   validMoves: Array<Square>;
   onSelect: (square: Square) => void;
 }
+
+const COLORS = {
+  light: "rgb(234,240,206)",
+  dark: "rgb(187,190,100)",
+};
 
 export const Chessboard = ({
   board,
@@ -21,8 +25,8 @@ export const Chessboard = ({
         {board.map((row, rank) => {
           const isEvenRank = rank % 2 === 0;
           const colors = [
-            isEvenRank ? Colors.chessboard.light : Colors.chessboard.dark,
-            isEvenRank ? Colors.chessboard.dark : Colors.chessboard.light,
+            isEvenRank ? COLORS.light : COLORS.dark,
+            isEvenRank ? COLORS.dark : COLORS.light,
           ];
           return (
             <View

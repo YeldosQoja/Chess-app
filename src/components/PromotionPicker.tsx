@@ -1,13 +1,13 @@
 import { View, Modal, StyleSheet, TouchableOpacity, Image } from "react-native";
 import React from "react";
-import Images from "../assets/images/chess";
+import Images from "@/assets/images/chess";
 import {
   IGame,
   BishopStrategy,
   KnightStrategy,
   QueenStrategy,
   RookStrategy,
-} from "../models";
+} from "@/models";
 
 interface Props {
   open: boolean;
