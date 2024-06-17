@@ -3,13 +3,13 @@ import { ThemeProvider as NavigationThemeProvider } from "@react-navigation/nati
 import { Redirect, Stack } from "expo-router";
 import { useState } from "react";
 
-// export const unstable_settings = {
-//     initialRouteName: "(tabs)"
-// }
+export const unstable_settings = {
+  initialRouteName: "(tabs)",
+};
 
 export default function AppLayout() {
   const { colors, dark } = useTheme();
-  const [isAuth] = useState(false);
+  const [isAuth] = useState(true);
 
   if (!isAuth) {
     console.log("Redirecting to the url /sign-in");
@@ -27,7 +27,15 @@ export default function AppLayout() {
           notification: colors.tabIconDefault,
         },
       }}>
-      <Stack />
+      <Stack>
+        <Stack.Screen
+          name="(tabs)"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen name="index" />
+      </Stack>
     </NavigationThemeProvider>
   );
 }

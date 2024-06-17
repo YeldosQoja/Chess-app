@@ -1,6 +1,6 @@
 import { PropsWithChildren, createContext, useEffect, useState } from "react";
 import { Colors } from "@/constants";
-import { Appearance, useColorScheme } from "react-native";
+import { useColorScheme } from "react-native";
 
 export const ThemeContext = createContext({
   colors: Colors.light,
