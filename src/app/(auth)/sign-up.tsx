@@ -32,7 +32,7 @@ export default function SignUp() {
   };
   return (
     <ScreenContainer>
-      <Text style={styles.title}>Sign Up</Text>
+      <Text style={styles.title}>Create an account</Text>
       <Controller
         control={control}
         name="email"

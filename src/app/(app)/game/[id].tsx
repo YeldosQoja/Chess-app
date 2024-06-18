@@ -3,7 +3,8 @@ import "react-native-get-random-values";
 import { useEffect, useState } from "react";
 import { useChess } from "@/hooks";
 import { IPiece, IStrategy, PieceType } from "@/models";
-import { Chessboard, ChessPiece, PromotionPicker, ScreenContainer } from "@/components";
+import { Chessboard, ChessPiece, PromotionPicker } from "@/components";
+import { Stack } from "expo-router";
 
 export default function Game() {
   const game = useChess();
@@ -64,6 +65,12 @@ export default function Game() {
         justifyContent: "center",
         alignItems: "center",
       }}>
+      <Stack.Screen
+        options={{
+          title: "",
+          headerBackTitleVisible: false,
+        }}
+      />
       <Chessboard
         board={board}
         onSelect={handleSelectSquare}

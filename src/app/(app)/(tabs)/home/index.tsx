@@ -5,9 +5,11 @@ import {
   GameCard,
   ScreenContainer,
 } from "@/components";
+import { useRouter } from "expo-router";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
 export default function Home() {
+  const router = useRouter();
   const renderGameListItem = () => {
     return (
       <ArchiveListItem
@@ -42,7 +44,7 @@ export default function Home() {
       />
       <Button
         title="Play"
-        onPress={() => null}
+        onPress={() => router.push("game/10")}
       />
     </ScreenContainer>
   );
