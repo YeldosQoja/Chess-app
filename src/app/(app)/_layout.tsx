@@ -1,5 +1,3 @@
-import { useTheme } from "@/hooks";
-import { ThemeProvider as NavigationThemeProvider } from "@react-navigation/native";
 import { Redirect, Stack } from "expo-router";
 import { useState } from "react";
 
@@ -8,7 +6,6 @@ export const unstable_settings = {
 };
 
 export default function AppLayout() {
-  const { colors, dark } = useTheme();
   const [isAuth] = useState(true);
 
   if (!isAuth) {
@@ -17,16 +14,6 @@ export default function AppLayout() {
   }
 
   return (
-    <NavigationThemeProvider
-      value={{
-        dark,
-        colors: {
-          ...colors,
-          primary: colors.tint,
-          card: colors.background,
-          notification: colors.tabIconDefault,
-        },
-      }}>
       <Stack>
         <Stack.Screen
           name="(tabs)"
@@ -35,7 +22,7 @@ export default function AppLayout() {
           }}
         />
         <Stack.Screen name="index" />
+        <Stack.Screen name="game/[id]" />
       </Stack>
-    </NavigationThemeProvider>
   );
 }

@@ -1,2 +1,3 @@
 export * from './useChess';
-export * from './useTheme';
+export * from './useColorScheme';
+export * from './useAppTheme';

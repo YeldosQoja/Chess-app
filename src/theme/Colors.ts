@@ -11,15 +11,39 @@ export const Colors = {
     background: "#fff",
     tint: tintColor,
     icon: "#687076",
-    tabIconDefault: "#687076",
     border: "#DDDDDD",
+    green: "#1CBABA",
+    yellow: "#FFB700",
+    red: "#F63737",
+    card: "rgba(0.0, 0.0, 0.0, 0.04)",
   },
   dark: {
     text: "#ECEDEE",
     background: "#151718",
     tint: tintColor,
     icon: "#9BA1A6",
-    tabIconDefault: "#9BA1A6",
     border: "#DDDDDD",
+    green: "#1CBABA",
+    yellow: "#FFB700",
+    red: "#F63737",
+    card: "rgba(255.0, 255.0, 255.0, 0.1)",
+  },
+};
+
+export const NavigationLightTheme = {
+  dark: false,
+  colors: {
+    ...Colors.light,
+    primary: Colors.light.tint,
+    notification: Colors.light.background,
+  },
+};
+
+export const NavigationDarkTheme = {
+  dark: true,
+  colors: {
+    ...Colors.dark,
+    primary: Colors.dark.tint,
+    notification: Colors.dark.background,
   },
 };
