@@ -1,4 +1,4 @@
-import { useTheme } from "@/hooks";
+import { useAppTheme } from "@/hooks";
 import { StatusBar } from "expo-status-bar";
 import { PropsWithChildren, useEffect } from "react";
 import { ScrollView, StyleSheet, View, useColorScheme } from "react-native";
@@ -13,7 +13,7 @@ export const ScreenContainer = ({
 }: PropsWithChildren<Props>) => {
   const {
     colors: { background },
-  } = useTheme();
+  } = useAppTheme();
   const systemColor = useColorScheme();
   if (scrollable) {
     return (

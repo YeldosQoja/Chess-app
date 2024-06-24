@@ -1,24 +1,31 @@
-import { useTheme } from "@/hooks";
-import { ReactNode } from "react";
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { useAppTheme } from "@/hooks";
+import { ReactNode, forwardRef } from "react";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TouchableOpacityProps,
+} from "react-native";
 
-type Props = {
+interface Props extends TouchableOpacityProps {
   title: string;
   icon?: ReactNode;
-  onPress: () => void;
-};
+}
 
-export const Button = ({ onPress, title, icon }: Props) => {
-  const { colors } = useTheme();
-  return (
-    <TouchableOpacity
-      style={[styles.button, { backgroundColor: colors.tint }]}
-      onPress={onPress}>
-      <Text style={styles.buttonTitle}>{title}</Text>
-      {icon}
-    </TouchableOpacity>
-  );
-};
+export const Button = forwardRef<TouchableOpacity, Props>(
+  ({ style, title, icon, ...rest }, ref) => {
+    const { colors } = useAppTheme();
+    return (
+      <TouchableOpacity
+        ref={ref}
+        style={[styles.button, { backgroundColor: colors.tint }, style]}
+        {...rest}>
+        <Text style={styles.buttonTitle}>{title}</Text>
+        {icon}
+      </TouchableOpacity>
+    );
+  }
+);
 
 const styles = StyleSheet.create({
   button: {

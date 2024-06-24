@@ -8,7 +8,7 @@ export default function TabsLayout() {
         headerShown: false,
       }}>
       <Tabs.Screen
-        name="home"
+        name="(home)"
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => (
@@ -21,9 +21,9 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="more"
+        name="(menu)"
         options={{
-          title: "More",
+          title: "Menu",
           tabBarIcon: ({ color }) => (
             <Ionicons
               name="menu"

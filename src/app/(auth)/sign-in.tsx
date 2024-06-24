@@ -1,5 +1,5 @@
 import { Button, Input, ScreenContainer } from "@/components";
-import { useTheme } from "@/hooks";
+import { useAppTheme } from "@/hooks";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState } from "react";
@@ -17,7 +17,7 @@ const schema = object({
 type SignInFormType = InferType<typeof schema>;
 
 export default function SignIn() {
-  const { colors } = useTheme();
+  const { colors } = useAppTheme();
   const { bottom } = useSafeAreaInsets();
   const [passwordHidden, setPasswordHidden] = useState(false);
   const { control, handleSubmit } = useForm({
@@ -29,7 +29,9 @@ export default function SignIn() {
 
   return (
     <ScreenContainer>
-      <Text style={styles.title}>Sign In to Your Account</Text>
+      <Text style={[styles.title, { color: colors.text }]}>
+        Sign In to Your Account
+      </Text>
       <Controller
         control={control}
         name="email"
@@ -77,7 +79,7 @@ export default function SignIn() {
         onPress={handleSubmit(handleSignin)}
       />
       <View style={[styles.textLinkContainer, { bottom }]}>
-        <Text>Don't have an account?</Text>
+        <Text style={{ color: colors.text }}>Don't have an account?</Text>
         <Link
           style={styles.link}
           replace

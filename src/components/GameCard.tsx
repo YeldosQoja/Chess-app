@@ -1,4 +1,4 @@
-import { useTheme } from "@/hooks";
+import { useAppTheme } from "@/hooks";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type Props = {
@@ -8,10 +8,10 @@ type Props = {
 };
 
 export const GameCard = ({ title, playerName, onPress }: Props) => {
-  const { colors } = useTheme();
+  const { colors } = useAppTheme();
   return (
     <TouchableOpacity
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.card }]}
       onPress={onPress}>
       <Image
         source={require("@/assets/images/chessboard.png")}
@@ -21,8 +21,10 @@ export const GameCard = ({ title, playerName, onPress }: Props) => {
         style={{
           flex: 1,
         }}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.playerName}>{playerName}</Text>
+        <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+        <Text style={(styles.playerName, { color: colors.text })}>
+          {playerName}
+        </Text>
       </View>
     </TouchableOpacity>
   );
@@ -32,6 +34,8 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     marginBottom: 18,
+    padding: 8,
+    borderRadius: 16,
   },
   image: {
     width: 140,

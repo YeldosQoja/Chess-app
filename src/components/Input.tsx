@@ -1,4 +1,4 @@
-import { useTheme } from "@/hooks";
+import { useAppTheme } from "@/hooks";
 import { ReactNode } from "react";
 import {
   StyleProp,
@@ -22,7 +22,7 @@ export const Input = ({
   rightIcon,
   ...rest
 }: InputProps) => {
-  const { colors } = useTheme();
+  const { colors } = useAppTheme();
 
   return (
     <View style={[styles.container, containerStyle]}>
@@ -30,7 +30,7 @@ export const Input = ({
       <TextInput
         {...rest}
         placeholderTextColor={colors.border}
-        style={[styles.input, { borderColor: colors.border }]}
+        style={[styles.input, { borderColor: colors.border, color: colors.text }]}
       />
       {rightIcon}
     </View>

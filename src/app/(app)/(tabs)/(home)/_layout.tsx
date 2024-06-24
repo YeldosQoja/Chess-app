@@ -4,9 +4,15 @@ export default function HomeLayout() {
   return (
     <Stack>
       <Stack.Screen
-        name="index"
+        name="home"
         options={{
           title: "Home",
+        }}
+      />
+      <Stack.Screen
+        name="profile"
+        options={{
+          title: "",
         }}
       />
     </Stack>

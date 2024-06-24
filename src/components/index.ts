@@ -5,5 +5,4 @@ export * from './ScreenContainer';
 export * from './Input';
 export * from './Button';
 export * from './GameCard';
-export * from './ArchiveListItem';
-export * from './ArchiveListHeader';
+export * from './MenuItem';

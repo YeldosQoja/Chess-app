@@ -1,5 +1,5 @@
 import { Button, Input, ScreenContainer } from "@/components";
-import { useTheme } from "@/hooks";
+import { useAppTheme } from "@/hooks";
 import { Ionicons } from "@expo/vector-icons";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Link } from "expo-router";
@@ -21,7 +21,7 @@ const schema = object({
 type SignUpFormType = InferType<typeof schema>;
 
 export default function SignUp() {
-  const { colors } = useTheme();
+  const { colors } = useAppTheme();
   const { bottom } = useSafeAreaInsets();
   const [passwordHidden, setPasswordHidden] = useState(false);
   const { control, handleSubmit } = useForm({
@@ -32,7 +32,9 @@ export default function SignUp() {
   };
   return (
     <ScreenContainer>
-      <Text style={styles.title}>Create an account</Text>
+      <Text style={[styles.title, { color: colors.text }]}>
+        Create an account
+      </Text>
       <Controller
         control={control}
         name="email"
@@ -148,7 +150,7 @@ export default function SignUp() {
         onPress={handleSubmit(handleSignUp)}
       />
       <View style={[styles.textLinkContainer, { bottom }]}>
-        <Text>Already have an account?</Text>
+        <Text style={{ color: colors.text }}>Already have an account?</Text>
         <Link
           style={styles.link}
           replace
