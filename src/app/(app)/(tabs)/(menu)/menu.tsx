@@ -16,7 +16,7 @@ export default function Menu() {
         />
       </Link>
       <Link
-        href=""
+        href={`/${group}/friends`}
         asChild>
         <MenuItem
           title="Friends"

@@ -25,26 +25,39 @@ export const Input = ({
   const { colors } = useAppTheme();
 
   return (
-    <View style={[styles.container, containerStyle]}>
-      {leftIcon}
+    <View
+      style={[
+        styles.container,
+        { borderColor: colors.border },
+        containerStyle,
+      ]}>
+      {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
       <TextInput
         {...rest}
         placeholderTextColor={colors.border}
-        style={[styles.input, { borderColor: colors.border, color: colors.text }]}
+        style={[styles.input, { color: colors.text }]}
       />
-      {rightIcon}
+      {rightIcon && <View style={styles.rightIcon}>{rightIcon}</View>}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: "center",
-  },
-  input: {
+    flexDirection: "row",
+    alignItems: "center",
     borderWidth: 1,
     borderRadius: 6,
-    fontSize: 15,
     padding: 14,
+  },
+  input: {
+    flex: 1,
+    fontSize: 15,
+  },
+  leftIcon: {
+    marginRight: 12,
+  },
+  rightIcon: {
+    marginLeft: 12,
   },
 });

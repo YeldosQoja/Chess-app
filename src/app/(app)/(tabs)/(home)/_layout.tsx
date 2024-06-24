@@ -6,13 +6,13 @@ export default function HomeLayout() {
       <Stack.Screen
         name="home"
         options={{
-          title: "Home",
+          headerTitle: "",
         }}
       />
       <Stack.Screen
         name="profile"
         options={{
-          title: "",
+          headerTitle: "",
         }}
       />
     </Stack>

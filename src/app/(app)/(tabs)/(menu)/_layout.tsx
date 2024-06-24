@@ -6,15 +6,18 @@ export default function MenuLayout() {
       <Stack.Screen
         name="menu"
         options={{
-          title: "",
+          headerTitle: "",
         }}
       />
       <Stack.Screen
         name="profile"
         options={{
-          title: "",
+          headerTitle: "",
         }}
       />
+      <Stack.Screen name="friends" options={{
+        headerTitle: "Friends"
+      }}/>
     </Stack>
   );
 }

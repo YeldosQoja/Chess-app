@@ -104,16 +104,15 @@ export default function SignUp() {
             containerStyle={styles.input}
             secureTextEntry={passwordHidden}
             rightIcon={
-              <TouchableOpacity
-                activeOpacity={0.9}
-                style={styles.iconButton}
-                onPress={() => void setPasswordHidden((prev) => !prev)}>
-                <Ionicons
-                  name="eye-off-outline"
-                  size={22}
-                  color={passwordHidden ? colors.tint : colors.icon}
-                />
-              </TouchableOpacity>
+              <Ionicons.Button
+                name="eye-off-outline"
+                size={22}
+                color={passwordHidden ? colors.tint : colors.icon}
+                onPress={() => void setPasswordHidden((prev) => !prev)}
+                backgroundColor="transparent"
+                underlayColor="transparent"
+                {...iconButtonStyles}
+              />
             }
           />
         )}
@@ -131,16 +130,15 @@ export default function SignUp() {
             containerStyle={styles.input}
             secureTextEntry={passwordHidden}
             rightIcon={
-              <TouchableOpacity
-                activeOpacity={0.9}
-                style={styles.iconButton}
-                onPress={() => void setPasswordHidden((prev) => !prev)}>
-                <Ionicons
-                  name="eye-off-outline"
-                  size={22}
-                  color={passwordHidden ? colors.tint : colors.icon}
-                />
-              </TouchableOpacity>
+              <Ionicons.Button
+                name="eye-off-outline"
+                size={22}
+                color={passwordHidden ? colors.tint : colors.icon}
+                onPress={() => void setPasswordHidden((prev) => !prev)}
+                backgroundColor="transparent"
+                underlayColor="transparent"
+                {...iconButtonStyles}
+              />
             }
           />
         )}
@@ -162,15 +160,20 @@ export default function SignUp() {
   );
 }
 
+const iconButtonStyles = StyleSheet.create({
+  style: {
+    padding: 0,
+  },
+  iconStyle: {
+    marginRight: 0,
+  },
+});
+
 const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "500",
     marginVertical: 24,
-  },
-  iconButton: {
-    position: "absolute",
-    right: 12,
   },
   input: {
     marginBottom: 18,

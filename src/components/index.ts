@@ -6,3 +6,5 @@ export * from './Input';
 export * from './Button';
 export * from './GameCard';
 export * from './MenuItem';
+export * from './FriendListItem';
+export * from './FriendList';
