@@ -1,10 +1,10 @@
 import { Stack } from "expo-router";
 
-export default function HomeLayout() {
+export default function MenuLayout() {
   return (
     <Stack>
       <Stack.Screen
-        name="home"
+        name="index"
         options={{
           headerTitle: "",
         }}
@@ -15,6 +15,9 @@ export default function HomeLayout() {
           headerTitle: "",
         }}
       />
+      <Stack.Screen name="friends" options={{
+        headerTitle: "Friends"
+      }}/>
     </Stack>
   );
 }
