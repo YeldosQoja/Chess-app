@@ -24,7 +24,7 @@ export const useSignIn = () => {
     mutationFn: signIn,
     onSuccess: ({ data }) => {
       setToken(data);
-      router.replace("/");
+      router.replace("/home");
     },
     onError: (error) => {
       console.log("error:", error);
