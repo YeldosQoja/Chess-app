@@ -1,9 +1,9 @@
-import { Button, GameCard, ScreenContainer } from "@/components";
-import { useAppTheme } from "@/hooks";
-import { Link, useSegments } from "expo-router";
 import { useState } from "react";
 import { ScrollView, StyleSheet, Text } from "react-native";
+import { Link, useSegments } from "expo-router";
 import { DataTable } from "react-native-paper";
+import { Button, GameCard, ScreenContainer } from "@/components";
+import { useAppTheme } from "@/providers";
 
 export default function Home() {
   const [, , group] = useSegments();

@@ -1,8 +1,9 @@
-import { Link } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Link } from "expo-router";
 import { Avatar, Button, Divider } from "react-native-paper";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useAppTheme } from "@/hooks";
+import { useAppTheme } from "@/providers";
+
 
 type Props = {
   friendId: string | number;

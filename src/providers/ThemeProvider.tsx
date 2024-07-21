@@ -6,9 +6,9 @@ import {
   PaperLightTheme,
   PaperDarkTheme,
 } from "@/theme";
-import { useColorScheme } from "@/hooks";
 import { PaperProvider, adaptNavigationTheme } from "react-native-paper";
 import { ThemeProvider as NavigationThemeProvider } from "@react-navigation/native";
+import { useColorScheme } from "react-native";
 
 const { LightTheme, DarkTheme } = adaptNavigationTheme({
   reactNavigationLight: NavigationLightTheme,
@@ -37,6 +37,13 @@ export const ThemeContext = createContext({
   dark: false,
   setDark: (value: boolean) => {},
 });
+
+import { useContext } from "react";
+
+export const useAppTheme = () => {
+  const theme = useContext(ThemeContext);
+  return theme;
+};
 
 interface Props {
   style?: "light" | "dark";

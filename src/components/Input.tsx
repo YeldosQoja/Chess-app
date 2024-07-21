@@ -1,5 +1,4 @@
-import { useAppTheme } from "@/hooks";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import {
   StyleProp,
   StyleSheet,
@@ -8,6 +7,7 @@ import {
   TextStyle,
   View,
 } from "react-native";
+import { useAppTheme } from "@/providers";
 
 interface InputProps extends TextInputProps {
   leftIcon?: ReactNode;
@@ -23,12 +23,13 @@ export const Input = ({
   ...rest
 }: InputProps) => {
   const { colors } = useAppTheme();
+  const [focus, setFocus] = useState(false);
 
   return (
     <View
       style={[
         styles.container,
-        { borderColor: colors.border },
+        { borderColor: focus ? colors.tint : colors.border },
         containerStyle,
       ]}>
       {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
@@ -36,6 +37,14 @@ export const Input = ({
         {...rest}
         placeholderTextColor={colors.border}
         style={[styles.input, { color: colors.text }]}
+        autoCapitalize="none"
+        autoCorrect={false}
+        onFocus={() => {
+          setFocus(true);
+        }}
+        onBlur={() => {
+          setFocus(false);
+        }}
       />
       {rightIcon && <View style={styles.rightIcon}>{rightIcon}</View>}
     </View>
@@ -48,11 +57,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderRadius: 6,
-    padding: 14,
+    paddingHorizontal: 12,
   },
   input: {
     flex: 1,
-    fontSize: 15,
+    height: 45,
+    fontSize: 16,
+    fontWeight: "500",
   },
   leftIcon: {
     marginRight: 12,

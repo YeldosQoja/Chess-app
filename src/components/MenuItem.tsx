@@ -1,7 +1,7 @@
-import { useAppTheme } from "@/hooks";
-import { Image, ImageSource } from "expo-image";
 import { forwardRef } from "react";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { Image, ImageSource } from "expo-image";
+import { useAppTheme } from "@/providers";
 
 type Props = {
   title: string;

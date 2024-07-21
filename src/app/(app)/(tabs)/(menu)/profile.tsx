@@ -1,7 +1,7 @@
-import { useAppTheme } from "@/hooks";
 import { useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Avatar, DataTable } from "react-native-paper";
+import { useAppTheme } from "@/providers";
 
 export default function Profile() {
   const { colors } = useAppTheme();

@@ -1,18 +1,25 @@
-import { useAppTheme } from "@/hooks";
-import { StatusBar } from "expo-status-bar";
-import { PropsWithChildren, useEffect } from "react";
-import { ScrollView, StyleSheet, View, useColorScheme } from "react-native";
+import { PropsWithChildren } from "react";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  View,
+  useColorScheme,
+} from "react-native";
+import { useAppTheme } from "@/providers";
 
 type Props = {
   scrollable?: boolean;
+  isLoading?: boolean;
 };
 
 export const ScreenContainer = ({
   scrollable,
   children,
+  isLoading = false,
 }: PropsWithChildren<Props>) => {
   const {
-    colors: { background },
+    colors: { background, tint },
   } = useAppTheme();
   const systemColor = useColorScheme();
   if (scrollable) {
@@ -24,7 +31,7 @@ export const ScreenContainer = ({
             backgroundColor: background,
           },
         ]}>
-        {children}
+        {isLoading ? <ActivityIndicator color={tint} /> : children}
       </ScrollView>
     );
   }
@@ -36,7 +43,7 @@ export const ScreenContainer = ({
           backgroundColor: background,
         },
       ]}>
-      {children}
+      {isLoading ? <ActivityIndicator color={tint} /> : children}
     </View>
   );
 };

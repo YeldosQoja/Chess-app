@@ -1,5 +1,5 @@
-import { useAppTheme } from "@/hooks";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useAppTheme } from "@/providers";
 
 type Props = {
   title: string;

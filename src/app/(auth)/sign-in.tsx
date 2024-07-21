@@ -1,31 +1,24 @@
-import { Button, Input, ScreenContainer } from "@/components";
-import { useAppTheme } from "@/hooks";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState } from "react";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { StyleSheet, Text, View } from "react-native";
 import { Link } from "expo-router";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { Controller, useForm } from "react-hook-form";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { InferType, object, string } from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-
-const schema = object({
-  email: string().required().email(),
-  password: string().required().min(4),
-});
-
-type SignInFormType = InferType<typeof schema>;
+import { useAppTheme } from "@/providers";
+import { Button, Input, ScreenContainer } from "@/components";
+import { signInSchema, useSignIn } from "@/queries/auth";
 
 export default function SignIn() {
   const { colors } = useAppTheme();
   const { bottom } = useSafeAreaInsets();
-  const [passwordHidden, setPasswordHidden] = useState(false);
+  const [passwordHidden, setPasswordHidden] = useState(true);
   const { control, handleSubmit } = useForm({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(signInSchema),
   });
-  const handleSignin: SubmitHandler<SignInFormType> = (data) => {
-    console.log(data);
-  };
+
+  const signIn = useSignIn();
+  const { isPending } = signIn;
 
   return (
     <ScreenContainer>
@@ -43,6 +36,7 @@ export default function SignIn() {
             placeholder="Your Email"
             placeholderTextColor={colors.border}
             containerStyle={styles.input}
+            autoFocus
           />
         )}
       />
@@ -75,7 +69,11 @@ export default function SignIn() {
       />
       <Button
         title="Sign In"
-        onPress={handleSubmit(handleSignin)}
+        onPress={handleSubmit((values) => {
+          console.log("values", values);
+          signIn.mutate(values);
+        })}
+        isLoading={isPending}
       />
       <View style={[styles.textLinkContainer, { bottom }]}>
         <Text style={{ color: colors.text }}>Don't have an account?</Text>

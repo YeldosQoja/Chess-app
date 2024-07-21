@@ -1,35 +1,23 @@
-import { Button, Input, ScreenContainer } from "@/components";
-import { useAppTheme } from "@/hooks";
+import { useState } from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { Link } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Link } from "expo-router";
-import { useState } from "react";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Controller, useForm } from "react-hook-form";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { InferType, object, string } from "yup";
-
-const schema = object({
-  email: string().required().email(),
-  username: string().required(),
-  firstName: string(),
-  lastName: string(),
-  password: string().min(5),
-  passwordConfirmation: string().min(5),
-});
-
-type SignUpFormType = InferType<typeof schema>;
+import { useAppTheme } from "@/providers";
+import { Button, Input, ScreenContainer } from "@/components";
+import { signUpSchema, useSignUp } from "@/queries/auth";
 
 export default function SignUp() {
   const { colors } = useAppTheme();
   const { bottom } = useSafeAreaInsets();
-  const [passwordHidden, setPasswordHidden] = useState(false);
+  const [passwordHidden, setPasswordHidden] = useState(true);
   const { control, handleSubmit } = useForm({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(signUpSchema),
   });
-  const handleSignUp: SubmitHandler<SignUpFormType> = (data) => {
-    console.log(data);
-  };
+  const signUp = useSignUp();
+  const { isPending } = signUp;
   return (
     <ScreenContainer>
       <Text style={[styles.title, { color: colors.text }]}>
@@ -46,6 +34,7 @@ export default function SignUp() {
             onBlur={onBlur}
             placeholderTextColor={colors.border}
             containerStyle={styles.input}
+            autoFocus
           />
         )}
       />
@@ -145,7 +134,10 @@ export default function SignUp() {
       />
       <Button
         title="Sign Up"
-        onPress={handleSubmit(handleSignUp)}
+        onPress={handleSubmit((values) => {
+          signUp.mutate(values);
+        })}
+        isLoading={isPending}
       />
       <View style={[styles.textLinkContainer, { bottom }]}>
         <Text style={{ color: colors.text }}>Already have an account?</Text>
