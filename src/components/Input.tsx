@@ -1,55 +1,55 @@
-import { ReactNode, useState } from "react";
+import { forwardRef, ReactNode, useState } from "react";
 import {
   StyleProp,
   StyleSheet,
   TextInput,
   TextInputProps,
-  TextStyle,
   View,
+  ViewStyle,
 } from "react-native";
 import { useAppTheme } from "@/providers";
 
 interface InputProps extends TextInputProps {
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
-  containerStyle?: StyleProp<TextStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
-export const Input = ({
-  style,
-  containerStyle,
-  leftIcon,
-  rightIcon,
-  ...rest
-}: InputProps) => {
-  const { colors } = useAppTheme();
-  const [focus, setFocus] = useState(false);
+export const Input = forwardRef<TextInput, InputProps>(
+  ({ style, containerStyle, leftIcon, rightIcon, onFocus, ...rest }, ref) => {
+    const { colors } = useAppTheme();
+    const [focus, setFocus] = useState(false);
 
-  return (
-    <View
-      style={[
-        styles.container,
-        { borderColor: focus ? colors.tint : colors.border },
-        containerStyle,
-      ]}>
-      {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
-      <TextInput
-        {...rest}
-        placeholderTextColor={colors.border}
-        style={[styles.input, { color: colors.text }]}
-        autoCapitalize="none"
-        autoCorrect={false}
-        onFocus={() => {
-          setFocus(true);
-        }}
-        onBlur={() => {
-          setFocus(false);
-        }}
-      />
-      {rightIcon && <View style={styles.rightIcon}>{rightIcon}</View>}
-    </View>
-  );
-};
+    return (
+      <View
+        style={[
+          styles.container,
+          { borderColor: focus ? colors.tint : colors.border },
+          containerStyle,
+        ]}>
+        {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
+        <TextInput
+          {...rest}
+          ref={ref}
+          placeholderTextColor={colors.border}
+          style={[styles.input, { color: colors.text }, style]}
+          autoCapitalize="none"
+          autoCorrect={false}
+          onFocus={(e) => {
+            setFocus(true);
+            if (onFocus) {
+              onFocus(e);
+            }
+          }}
+          onBlur={() => {
+            setFocus(false);
+          }}
+        />
+        {rightIcon && <View style={styles.rightIcon}>{rightIcon}</View>}
+      </View>
+    );
+  }
+);
 
 const styles = StyleSheet.create({
   container: {

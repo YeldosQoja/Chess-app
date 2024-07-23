@@ -27,7 +27,7 @@ export interface IGame {
   getActivePlayer(): string;
 }
 
-export class Game implements IGame {
+export class Chess implements IGame {
   readonly board: Board;
   readonly white: Player;
   readonly black: Player;

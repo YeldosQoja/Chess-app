@@ -9,6 +9,13 @@ export default function AppLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen 
+        name="users/[id]"
+        options={{
+          headerTitle: "",
+          headerBackTitleVisible: false,
+        }}
+      />
     </Stack>
   );
 }

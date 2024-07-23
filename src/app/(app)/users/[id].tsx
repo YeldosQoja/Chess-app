@@ -1,42 +1,25 @@
-import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Avatar, DataTable } from "react-native-paper";
 import { useAppTheme } from "@/providers";
-import { useUserById } from "@/queries/users";
+import {
+  useUserById,
+  useFriendsByUserId,
+  useGamesByUserId,
+} from "@/queries/users";
 import { useLocalSearchParams } from "expo-router";
-import { ScreenContainer } from "@/components";
+import { FriendItem, ScreenContainer } from "@/components";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function User() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const insets = useSafeAreaInsets();
   const { colors } = useAppTheme();
-  const { data: user, isPending } = useUserById(id ?? "");
-  const [items] = useState([
-    {
-      time: "9:45",
-      opponent: "Nick Elliston",
-      status: "Lost",
-    },
-    {
-      time: "9:45",
-      opponent: "Nick Elliston",
-      status: "Draw",
-    },
-    {
-      time: "9:45",
-      opponent: "Nick Elliston",
-      status: "Won",
-    },
-    {
-      time: "9:45",
-      opponent: "Nick Elliston",
-      status: "Won",
-    },
-    {
-      time: "9:45",
-      opponent: "Nick Elliston",
-      status: "Won",
-    },
-  ]);
+
+  const params = useLocalSearchParams<{ id: string }>();
+  const id = params.id ? parseInt(params.id) : 0;
+
+  const { data: user, isPending } = useUserById(id);
+  const { data: friends } = useFriendsByUserId(id);
+  const { data: games } = useGamesByUserId(id);
 
   const {
     username,
@@ -100,37 +83,62 @@ export default function User() {
           </Text>
         </View>
       </View>
-      <Text style={[styles.sectionTitle, { color: colors.text }]}>
-        Recent games
-      </Text>
-      <DataTable>
-        <DataTable.Header>
-          <DataTable.Title>Time</DataTable.Title>
-          <DataTable.Title>Opponent</DataTable.Title>
-          <DataTable.Title>Status</DataTable.Title>
-        </DataTable.Header>
-        {items.map(({ time, opponent, status }, idx) => (
-          <DataTable.Row key={idx}>
-            <DataTable.Cell>{time}</DataTable.Cell>
-            <DataTable.Cell>{opponent}</DataTable.Cell>
-            <DataTable.Cell
-              textStyle={{
-                color:
-                  status === "Won"
-                    ? colors.green
-                    : status === "Draw"
-                    ? colors.yellow
-                    : status === "Lost"
-                    ? colors.red
-                    : undefined,
-                fontWeight: "600",
-              }}>
-              {status}
-            </DataTable.Cell>
-          </DataTable.Row>
-        ))}
-      </DataTable>
+      {games.length > 0 ? (
+        <>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Recent games
+          </Text>
+          <DataTable>
+            <DataTable.Header>
+              <DataTable.Title>Time</DataTable.Title>
+              <DataTable.Title>Opponent</DataTable.Title>
+              <DataTable.Title>Status</DataTable.Title>
+            </DataTable.Header>
+            {games.map(({ challenger, opponent, winner, duration }, idx) => {
+              const color =
+                winner === id
+                  ? colors.green
+                  : winner === null
+                  ? colors.yellow
+                  : colors.red;
+              const status =
+                winner === id ? "Won" : winner === null ? "Draw" : "Lost";
+              return (
+                <DataTable.Row key={idx}>
+                  <DataTable.Cell>{duration}</DataTable.Cell>
+                  <DataTable.Cell>
+                    {challenger.id === id
+                      ? opponent.username
+                      : challenger.username}
+                  </DataTable.Cell>
+                  <DataTable.Cell
+                    textStyle={{
+                      color,
+                      fontWeight: "600",
+                    }}>
+                    {status}
+                  </DataTable.Cell>
+                </DataTable.Row>
+              );
+            })}
+          </DataTable>
+        </>
+      ) : (
+        <Text>No games yet</Text>
+      )}
       <Text style={[styles.sectionTitle, { color: colors.text }]}>Friends</Text>
+      <View
+        style={{
+          marginBottom: insets.bottom,
+        }}>
+        {friends.map((friend) => (
+          <FriendItem
+            key={friend.id}
+            id={friend.id}
+            name={`${friend.firstName} ${friend.lastName}`}
+          />
+        ))}
+      </View>
     </ScreenContainer>
   );
 }

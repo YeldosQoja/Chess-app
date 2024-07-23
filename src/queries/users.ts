@@ -1,31 +1,21 @@
 import { QueryFunctionContext, useQuery } from "@tanstack/react-query";
 import { axiosClient } from "./axiosClient";
-import { User } from "@/models";
-
-const selectUser = (data: any): User => ({
-  id: data.id,
-  firstName: data.first_name,
-  lastName: data.last_name,
-  email: data.email,
-  username: data.username,
-  dateJoined: `Joined at ${new Date(data.date_joined).toDateString()}`,
-  avatar: data.profile.avatar,
-  wins: data.profile.wins,
-  losses: data.profile.losses,
-  draws: data.profile.draws,
-});
+import { selectGame, selectUser } from "./selectors";
 
 async function getUsers({ queryKey }: QueryFunctionContext) {
-  const [_, __, username] = queryKey;
-  const response = await axiosClient.get("users/", { params: { username } });
+  const [_, __, query] = queryKey;
+  const response = await axiosClient.get<any[]>("users/", {
+    params: { query },
+  });
   return response.data;
 }
 
-export const useUsers = (username: string) =>
+export const useUsers = (query: string) =>
   useQuery({
-    queryKey: ["users", "list", username],
+    queryKey: ["users", "list", query],
     queryFn: getUsers,
     select: (data) => data.map(selectUser),
+    initialData: [],
   });
 
 async function getUserById({ queryKey }: QueryFunctionContext) {
@@ -34,7 +24,7 @@ async function getUserById({ queryKey }: QueryFunctionContext) {
   return response.data;
 }
 
-export const useUserById = (id: string) =>
+export const useUserById = (id: number) =>
   useQuery({
     queryKey: ["users", "detail", id],
     queryFn: getUserById,
@@ -56,15 +46,30 @@ export const useUserById = (id: string) =>
     select: selectUser,
   });
 
-async function getProfile() {
-  const response = await axiosClient.get("profile/");
+async function getFriendsByUserId({ queryKey }: QueryFunctionContext) {
+  const [_, __, ___, userId] = queryKey;
+  const response = await axiosClient.get<any[]>(`users/${userId}/friends/`);
   return response.data;
 }
 
-export const useProfile = () => {
-  return useQuery({
-    queryKey: ["profile"],
-    queryFn: getProfile,
-    select: selectUser,
+export const useFriendsByUserId = (userId: number) =>
+  useQuery({
+    queryKey: ["users", "friends", "list", userId],
+    queryFn: getFriendsByUserId,
+    select: (data) => data.map(selectUser),
+    initialData: [],
   });
-};
+
+async function getGamesByUserId({ queryKey }: QueryFunctionContext) {
+  const [_, __, ___, userId] = queryKey;
+  const response = await axiosClient.get<any[]>(`users/${userId}/games/`);
+  return response.data;
+}
+
+export const useGamesByUserId = (userId: number) =>
+  useQuery({
+    queryKey: ["users", "games", "list", userId],
+    queryFn: getGamesByUserId,
+    select: (data) => data.map(selectGame),
+    initialData: [],
+  });

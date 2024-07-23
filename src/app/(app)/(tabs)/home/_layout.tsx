@@ -9,6 +9,12 @@ export default function HomeLayout() {
           headerTitle: "",
         }}
       />
+      <Stack.Screen
+        name="friends"
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }

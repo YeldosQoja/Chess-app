@@ -10,3 +10,11 @@ export interface User {
   losses: number;
   draws: number;
 }
+
+export interface Game {
+  id: number;
+  challenger: User;
+  opponent: User;
+  winner: number;
+  duration: number;
+}

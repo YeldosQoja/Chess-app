@@ -1,6 +1,6 @@
 import { Link, useSegments } from "expo-router";
 import { MenuItem, ScreenContainer } from "@/components";
-import { useProfile } from "@/queries/users";
+import { useProfile } from "@/queries/profile";
 
 export default function Menu() {
   const [, , group] = useSegments();

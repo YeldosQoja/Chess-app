@@ -25,7 +25,7 @@ export const ScreenContainer = ({
   if (scrollable) {
     return (
       <ScrollView
-        contentContainerStyle={[
+        style={[
           styles.container,
           {
             backgroundColor: background,

@@ -1,32 +1,17 @@
-import { FlatList, FlatListProps, TextInputProps } from "react-native";
-import { Input } from "./Input";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import { FlatList, FlatListProps } from "react-native";
 import { useAppTheme } from "@/providers";
+import { User } from "@/models";
+import { forwardRef } from "react";
 
-interface Props extends FlatListProps<any> {
-  searchBarProps: TextInputProps;
-}
-
-export const FriendList = ({ searchBarProps, ...listProps }: Props) => {
-  const { colors } = useAppTheme();
-  return (
-    <FlatList
-      keyExtractor={(_, index) => index.toString()}
-      ListHeaderComponent={
-        <Input
-          placeholder="Search"
-          placeholderTextColor={colors.border}
-          leftIcon={
-            <Ionicons
-              name="search"
-              size={22}
-              color={colors.icon}
-            />
-          }
-          {...searchBarProps}
-        />
-      }
-      {...listProps}
-    />
-  );
-};
+export const FriendList = forwardRef<FlatList<User>, FlatListProps<User>>(
+  ({ ...listProps }, ref) => {
+    const { colors } = useAppTheme();
+    return (
+      <FlatList
+        {...listProps}
+        keyExtractor={(item, _) => item.id.toString()}
+        ref={ref}
+      />
+    );
+  }
+);

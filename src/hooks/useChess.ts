@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Game } from "../models";
+import { Chess } from "../models";
 
 export const useChess = () => {
-  const [game, setGame] = useState(new Game());
+  const [game, setGame] = useState(new Chess());
   return game;
 };

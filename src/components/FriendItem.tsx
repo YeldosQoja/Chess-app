@@ -10,7 +10,7 @@ type Props = {
   name: string;
 };
 
-export const FriendListItem = ({ id, name }: Props) => {
+export const FriendItem = ({ id, name }: Props) => {
   const { colors } = useAppTheme();
   const { mutate: sendChallenge } = useSendChallenge();
 

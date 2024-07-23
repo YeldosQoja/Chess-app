@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { ScrollView, StyleSheet, Text } from "react-native";
-import { Link } from "expo-router";
+import { Link, useSegments } from "expo-router";
 import { DataTable } from "react-native-paper";
 import { Button, GameCard, ScreenContainer } from "@/components";
 import { useAppTheme } from "@/providers";
 
 export default function Home() {
   const { colors } = useAppTheme();
+
+  const [, , group] = useSegments();
+
   const [items] = useState([
     {
       time: "8:45",
@@ -68,7 +71,7 @@ export default function Home() {
         </DataTable>
       </ScrollView>
       <Link
-        href={`/users/`}
+        href={`/${group}/friends`}
         asChild>
         <Button
           title="Play"
