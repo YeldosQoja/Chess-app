@@ -2,20 +2,25 @@ import { useState } from "react";
 import { ListRenderItem } from "react-native";
 import { FriendList, FriendListItem, ScreenContainer } from "@/components";
 import { useFriends } from "@/queries/friends";
+import { useUsers } from "@/queries/users";
+import { User } from "@/models";
 
 export default function Friends() {
   const [query, setQuery] = useState("");
-  const { data, isPending, error } = useFriends();
-  const renderItem: ListRenderItem<any> = ({ item: { first_name, last_name }, index }) => {
+  const { data, isPending, error } = useUsers(query);
+  const renderItem: ListRenderItem<User> = ({
+    item: { id, firstName, lastName },
+    index,
+  }) => {
     return (
       <FriendListItem
-        fullName={`${first_name} ${last_name}`}
-        friendId={3}
-        onChallenge={() => null}
+        id={id}
+        name={`${firstName} ${lastName}`}
       />
     );
   };
 
+  console.log(data);
   console.log(error);
 
   return (

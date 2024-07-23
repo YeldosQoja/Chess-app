@@ -9,12 +9,6 @@ export default function MenuLayout() {
           headerTitle: "",
         }}
       />
-      <Stack.Screen
-        name="profile"
-        options={{
-          headerTitle: "",
-        }}
-      />
       <Stack.Screen name="friends" options={{
         headerTitle: "Friends"
       }}/>

@@ -3,55 +3,66 @@ import { Link } from "expo-router";
 import { Avatar, Button, Divider } from "react-native-paper";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useAppTheme } from "@/providers";
-
+import { useSendChallenge } from "@/queries/game";
 
 type Props = {
-  friendId: string | number;
-  fullName: string;
-  onChallenge: () => void;
+  id: number;
+  name: string;
 };
 
-export const FriendListItem = ({ friendId, fullName }: Props) => {
+export const FriendListItem = ({ id, name }: Props) => {
   const { colors } = useAppTheme();
+  const { mutate: sendChallenge } = useSendChallenge();
+
+  const onChallenge = () => {
+    sendChallenge(id);
+  };
+
   return (
-    <TouchableOpacity>
-      <View style={styles.container}>
-        <Avatar.Image
-          size={45}
-          source={{ uri: "1" }}
-        />
-        <Text style={[styles.fullName, { color: colors.text }]}>
-          {fullName}
-        </Text>
-        <Link
-          href={`/chats/${friendId}`}
-          asChild>
-          <Ionicons.Button
-            name="mail-outline"
-            size={24}
-            color={colors.icon}
-            iconStyle={styles.messageIcon}
-            backgroundColor="transparent"
-            onPress={() => console.log("Message pressed")}
-            underlayColor="transparent"
+    <Link
+      href={`/users/${id}`}
+      asChild>
+      <TouchableOpacity>
+        <View style={styles.content}>
+          <Avatar.Image
+            size={38}
+            source={{ uri: "1" }}
           />
-        </Link>
-        <Button textColor={colors.tint}>Challenge</Button>
-      </View>
-      <Divider />
-    </TouchableOpacity>
+          <Text style={[styles.name, { color: colors.text }]}>{name}</Text>
+          <Link
+            href={`/chats/${id}`}
+            asChild>
+            <Ionicons.Button
+              name="mail-outline"
+              size={24}
+              color={colors.icon}
+              iconStyle={styles.messageIcon}
+              backgroundColor="transparent"
+              onPress={() => console.log("Message pressed")}
+              underlayColor="transparent"
+            />
+          </Link>
+          <Button
+            textColor={colors.tint}
+            onPress={onChallenge}>
+            Challenge
+          </Button>
+        </View>
+        <Divider />
+      </TouchableOpacity>
+    </Link>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  content: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 12,
   },
-  fullName: {
+  name: {
     flex: 1,
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: "500",
     marginHorizontal: 12,
   },

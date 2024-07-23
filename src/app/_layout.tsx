@@ -1,4 +1,4 @@
-import { AuthProvider, ThemeProvider } from "@/providers";
+import { AuthProvider, ThemeProvider, UserProvider } from "@/providers";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { DevToolsBubble } from "react-native-react-query-devtools";
@@ -10,12 +10,14 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-            }}
-          />
-          <DevToolsBubble />
+          <UserProvider>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+              }}
+            />
+            <DevToolsBubble />
+          </UserProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

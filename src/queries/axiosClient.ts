@@ -22,6 +22,7 @@ axiosClient.interceptors.response.use(
     return response;
   },
   (error: AxiosError) => {
+    console.log("error", error);
     if (error.response?.status === 401) {
       router.replace("/sign-in");
     }

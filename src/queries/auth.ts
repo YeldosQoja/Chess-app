@@ -43,8 +43,20 @@ export const signUpSchema = object({
 
 type SignUpForm = InferType<typeof signUpSchema>;
 
-async function signUp(credentials: SignUpForm) {
-  return await axiosClient.post("auth/signup/", credentials);
+async function signUp({
+  username,
+  email,
+  firstName,
+  lastName,
+  password,
+}: SignUpForm) {
+  return await axiosClient.post("auth/signup/", {
+    username,
+    email,
+    first_name: firstName,
+    last_name: lastName,
+    password,
+  });
 }
 
 export const useSignUp = () =>

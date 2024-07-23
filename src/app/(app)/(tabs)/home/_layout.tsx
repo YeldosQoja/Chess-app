@@ -9,12 +9,6 @@ export default function HomeLayout() {
           headerTitle: "",
         }}
       />
-      <Stack.Screen
-        name="profile"
-        options={{
-          headerTitle: "",
-        }}
-      />
     </Stack>
   );
 }

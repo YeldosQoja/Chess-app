@@ -1,14 +1,14 @@
-import { MenuItem } from "@/components";
 import { Link, useSegments } from "expo-router";
-import { ScrollView, StyleSheet } from "react-native";
+import { MenuItem, ScreenContainer } from "@/components";
+import { useProfile } from "@/queries/users";
 
 export default function Menu() {
   const [, , group] = useSegments();
-  console.log(group);
+  const { data: user, isPending } = useProfile();
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScreenContainer isLoading={isPending}>
       <Link
-        href={`/${group}/profile`}
+        href={`/users/${user?.id}`}
         asChild>
         <MenuItem
           title="Profile"
@@ -39,12 +39,6 @@ export default function Menu() {
           imageSrc={require("@/assets/images/settings.png")}
         />
       </Link>
-    </ScrollView>
+    </ScreenContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});

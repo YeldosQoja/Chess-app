@@ -1,10 +1,15 @@
 import { useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { Avatar, DataTable } from "react-native-paper";
 import { useAppTheme } from "@/providers";
+import { useUserById } from "@/queries/users";
+import { useLocalSearchParams } from "expo-router";
+import { ScreenContainer } from "@/components";
 
-export default function Profile() {
+export default function User() {
+  const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useAppTheme();
+  const { data: user, isPending } = useUserById(id ?? "");
   const [items] = useState([
     {
       time: "9:45",
@@ -32,23 +37,37 @@ export default function Profile() {
       status: "Won",
     },
   ]);
+
+  const {
+    username,
+    firstName,
+    lastName,
+    avatar,
+    dateJoined,
+    wins,
+    losses,
+    draws,
+  } = user;
+
   return (
-    <ScrollView
-      contentContainerStyle={[
-        styles.container,
-        { backgroundColor: colors.background },
-      ]}>
-      <Avatar.Image
-        size={70}
-        source={{ uri: "" }}
-      />
-      <Text style={[styles.fullName, { color: colors.text }]}>pat.brown</Text>
-      <Text style={[styles.username, { color: colors.icon }]}>
-        Patrick Brown
-      </Text>
-      <Text style={[styles.dateJoined, { color: colors.text }]}>
-        Joined 28 September 2023
-      </Text>
+    <ScreenContainer
+      scrollable
+      isLoading={isPending}>
+      <View style={styles.header}>
+        <Avatar.Image
+          size={70}
+          source={{ uri: avatar }}
+        />
+        <Text style={[styles.fullName, { color: colors.text }]}>
+          {username}
+        </Text>
+        <Text style={[styles.username, { color: colors.icon }]}>
+          {`${firstName} ${lastName}`}
+        </Text>
+        <Text style={[styles.dateJoined, { color: colors.text }]}>
+          {dateJoined}
+        </Text>
+      </View>
       <View style={styles.statsGroup}>
         <View
           style={[
@@ -56,7 +75,7 @@ export default function Profile() {
             { backgroundColor: colors.card, width: "30%" },
           ]}>
           <Text style={[styles.statsTitle, { color: colors.green }]}>Wins</Text>
-          <Text style={[styles.statsData, { color: colors.text }]}>12</Text>
+          <Text style={[styles.statsData, { color: colors.text }]}>{wins}</Text>
         </View>
         <View
           style={[
@@ -66,7 +85,9 @@ export default function Profile() {
           <Text style={[styles.statsTitle, { color: colors.yellow }]}>
             Draws
           </Text>
-          <Text style={[styles.statsData, { color: colors.text }]}>4</Text>
+          <Text style={[styles.statsData, { color: colors.text }]}>
+            {draws}
+          </Text>
         </View>
         <View
           style={[
@@ -74,7 +95,9 @@ export default function Profile() {
             { backgroundColor: colors.card, width: "30%" },
           ]}>
           <Text style={[styles.statsTitle, { color: colors.red }]}>Losses</Text>
-          <Text style={[styles.statsData, { color: colors.text }]}>8</Text>
+          <Text style={[styles.statsData, { color: colors.text }]}>
+            {losses}
+          </Text>
         </View>
       </View>
       <Text style={[styles.sectionTitle, { color: colors.text }]}>
@@ -108,15 +131,13 @@ export default function Profile() {
         ))}
       </DataTable>
       <Text style={[styles.sectionTitle, { color: colors.text }]}>Friends</Text>
-    </ScrollView>
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  header: {
     alignItems: "center",
-    paddingTop: 16,
   },
   fullName: {
     fontSize: 22,

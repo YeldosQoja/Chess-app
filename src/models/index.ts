@@ -5,3 +5,4 @@ export * from './Strategy';
 export * from './Board';
 export * from './Square';
 export * from './PieceType';
+export * from './User';
