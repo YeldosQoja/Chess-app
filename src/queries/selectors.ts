@@ -1,4 +1,4 @@
-import { Game, User } from "@/models";
+import { Game, User, FriendRequest } from "@/models";
 
 export const selectUser = (data: any): User => ({
   id: data.id,
@@ -27,4 +27,14 @@ export const selectGame = ({
   duration:
     new Date(finished_at).getSeconds() - new Date(started_at).getSeconds(),
   ...rest,
+});
+
+export const selectFriendRequest = ({
+  id,
+  sender,
+  created_at,
+}: any): FriendRequest => ({
+  id,
+  sender: selectUser(sender),
+  createdAt: new Date(created_at),
 });

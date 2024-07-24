@@ -134,8 +134,7 @@ export default function User() {
         {friends.map((friend) => (
           <FriendItem
             key={friend.id}
-            id={friend.id}
-            name={`${friend.firstName} ${friend.lastName}`}
+            user={friend}
           />
         ))}
       </View>

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { axiosClient } from "./axiosClient";
-import { selectGame, selectUser } from "./selectors";
+import { selectFriendRequest, selectGame, selectUser } from "./selectors";
 
 async function getProfile() {
   const response = await axiosClient.get("profile/");
@@ -42,3 +42,16 @@ export const useProfileGames = () => {
   });
 };
 
+async function getFriendRequests() {
+  const response = await axiosClient.get<any[]>("profile/requests/");
+  return response.data;
+}
+
+export const useFriendRequests = () => {
+  return useQuery({
+    queryKey: ["profile", "requests"],
+    queryFn: getFriendRequests,
+    select: (data) => data.map(selectFriendRequest),
+    initialData: [],
+  });
+};

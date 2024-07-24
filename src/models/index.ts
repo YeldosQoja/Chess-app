@@ -6,3 +6,4 @@ export * from './Board';
 export * from './Square';
 export * from './PieceType';
 export * from './User';
+export * from './FriendRequest';

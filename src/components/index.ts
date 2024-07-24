@@ -8,3 +8,4 @@ export * from './GameCard';
 export * from './MenuItem';
 export * from './FriendItem';
 export * from './FriendList';
+export * from './FriendRequest';

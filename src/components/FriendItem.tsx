@@ -4,13 +4,13 @@ import { Avatar, Button, Divider } from "react-native-paper";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useAppTheme } from "@/providers";
 import { useSendChallenge } from "@/queries/game";
+import { User } from "@/models";
 
 type Props = {
-  id: number;
-  name: string;
+  user: User;
 };
 
-export const FriendItem = ({ id, name }: Props) => {
+export const FriendItem = ({ user: { id, firstName, lastName, avatar } }: Props) => {
   const { colors } = useAppTheme();
   const { mutate: sendChallenge } = useSendChallenge();
 
@@ -26,9 +26,13 @@ export const FriendItem = ({ id, name }: Props) => {
         <View style={styles.content}>
           <Avatar.Image
             size={38}
-            source={{ uri: "1" }}
+            source={{ uri: avatar }}
           />
-          <Text style={[styles.name, { color: colors.text }]}>{name}</Text>
+          <Text
+            style={[
+              styles.name,
+              { color: colors.text },
+            ]}>{`${firstName} ${lastName}`}</Text>
           <Link
             href={`/chats/${id}`}
             asChild>
@@ -56,9 +60,10 @@ export const FriendItem = ({ id, name }: Props) => {
 
 const styles = StyleSheet.create({
   content: {
+    width: "100%",
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
+    padding: 12,
   },
   name: {
     flex: 1,
