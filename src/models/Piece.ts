@@ -1,14 +1,13 @@
-import { IGame } from "./Game";
+import { IChess } from "./Chess";
 import { PieceType } from "./PieceType";
 import { Player } from "./Player";
-import { v4 as uuid } from "uuid";
 import { IStrategy, KingStrategy } from "./Strategy";
 import { Square } from "./Square";
 
 export interface IPiece {
-  id: number | string;
+  id: string;
   isCaptured: boolean;
-  readonly game: IGame;
+  readonly game: IChess;
   readonly owner: Player;
   strategy: IStrategy;
   currentSquare: Square;
@@ -22,9 +21,9 @@ export interface IPiece {
 }
 
 export class Piece implements IPiece {
-  id: string | number;
+  id: string;
   isCaptured: boolean = false;
-  readonly game: IGame;
+  readonly game: IChess;
   readonly owner: Player;
   readonly initialSquare: Square;
   currentSquare: Square;
@@ -34,8 +33,13 @@ export class Piece implements IPiece {
     return this.game.white === this.owner;
   }
 
-  constructor(game: IGame, owner: Player, square: Square, strategy: IStrategy) {
-    this.id = uuid();
+  constructor(
+    game: IChess,
+    owner: Player,
+    square: Square,
+    strategy: IStrategy
+  ) {
+    this.id = "" + strategy.type + square[0] + square[1];
     this.game = game;
     this.owner = owner;
     this.initialSquare = this.currentSquare = square;

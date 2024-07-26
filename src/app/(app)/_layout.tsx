@@ -10,6 +10,12 @@ export default function AppLayout() {
         }}
       />
       <Stack.Screen 
+        name="games/[id]"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
         name="users/[id]"
         options={{
           headerTitle: "",

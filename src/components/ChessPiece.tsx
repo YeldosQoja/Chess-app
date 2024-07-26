@@ -1,18 +1,20 @@
-import { StyleSheet, Image, TouchableOpacity, Dimensions } from "react-native";
 import React from "react";
-import { IPiece } from "@/models";
-import images from "@/assets/images/chess";
-import lodash from "lodash";
+import { StyleSheet, Image, TouchableOpacity, Dimensions } from "react-native";
 import Animated, {
+  SharedValue,
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
+import lodash from "lodash";
+import { IPiece } from "@/models";
+import images from "@/assets/images/chess";
 
 interface Props {
   piece: IPiece;
-  onSelect: (square: [number, number]) => void;
+  active: boolean;
   selected: boolean;
-};
+  onSelect: (piece: IPiece) => void;
+}
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
@@ -20,7 +22,7 @@ const AnimatedTouchableOpacity =
 const { width } = Dimensions.get("screen");
 const SQUARE_SIZE = width / 8;
 
-export const ChessPiece = ({ piece, onSelect, selected }: Props) => {
+export const ChessPiece = ({ piece, active, selected, onSelect }: Props) => {
   const [rank, file] = piece.currentSquare;
 
   const animatedStyles = useAnimatedStyle(() => {
@@ -35,12 +37,17 @@ export const ChessPiece = ({ piece, onSelect, selected }: Props) => {
       activeOpacity={0.9}
       style={[
         styles.container,
-        animatedStyles,
+        {
+          zIndex: active ? 1 : 0,
+        },
         selected && {
           backgroundColor: "yellow",
         },
+        animatedStyles,
       ]}
-      onPress={() => void onSelect(piece.currentSquare)}>
+      onPress={() => {
+        onSelect(piece);
+      }}>
       <Image
         source={lodash.get(
           images,

@@ -3,14 +3,16 @@ import { Link } from "expo-router";
 import { Avatar, Button, Divider } from "react-native-paper";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useAppTheme } from "@/providers";
-import { useSendChallenge } from "@/queries/game";
+import { useSendChallenge } from "@/queries/games";
 import { User } from "@/models";
 
 type Props = {
   user: User;
 };
 
-export const FriendItem = ({ user: { id, firstName, lastName, avatar } }: Props) => {
+export const FriendItem = ({
+  user: { id, firstName, lastName, avatar },
+}: Props) => {
   const { colors } = useAppTheme();
   const { mutate: sendChallenge } = useSendChallenge();
 

@@ -1,4 +1,4 @@
-import { IGame } from "./Game";
+import { IChess } from "./Chess";
 import { PieceType } from "./PieceType";
 import { Player } from "./Player";
 import { Square } from "./Square";
@@ -29,7 +29,7 @@ const KNIGHT_OFFSETS: Array<Square> = [
 ];
 
 export interface IStrategy {
-  game: IGame;
+  game: IChess;
   type?: PieceType | undefined;
   getValidMoves(
     currentSquare: Square,
@@ -40,9 +40,9 @@ export interface IStrategy {
 }
 
 class Strategy implements IStrategy {
-  game: IGame;
+  game: IChess;
   type?: PieceType | undefined;
-  constructor(game: IGame) {
+  constructor(game: IChess) {
     this.game = game;
   }
 
@@ -61,7 +61,7 @@ class Strategy implements IStrategy {
 }
 
 export class PawnStrategy extends Strategy {
-  constructor(game: IGame) {
+  constructor(game: IChess) {
     super(game);
     this.type = PieceType.Pawn;
   }
@@ -132,7 +132,7 @@ export class PawnStrategy extends Strategy {
 }
 
 export class RookStrategy extends Strategy {
-  constructor(game: IGame) {
+  constructor(game: IChess) {
     super(game);
     this.type = PieceType.Rook;
   }
@@ -165,7 +165,7 @@ export class RookStrategy extends Strategy {
 }
 
 export class BishopStrategy extends Strategy {
-  constructor(game: IGame) {
+  constructor(game: IChess) {
     super(game);
     this.type = PieceType.Bishop;
   }
@@ -198,7 +198,7 @@ export class BishopStrategy extends Strategy {
 }
 
 export class KnightStrategy extends Strategy {
-  constructor(game: IGame) {
+  constructor(game: IChess) {
     super(game);
     this.type = PieceType.Knight;
   }
@@ -225,7 +225,7 @@ export class KnightStrategy extends Strategy {
 }
 
 export class QueenStrategy extends Strategy {
-  constructor(game: IGame) {
+  constructor(game: IChess) {
     super(game);
     this.type = PieceType.Queen;
   }
@@ -258,7 +258,7 @@ export class QueenStrategy extends Strategy {
 }
 
 export class KingStrategy extends Strategy {
-  constructor(game: IGame) {
+  constructor(game: IChess) {
     super(game);
     this.type = PieceType.King;
   }
