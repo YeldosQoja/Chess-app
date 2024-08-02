@@ -1,7 +1,6 @@
 import React from "react";
 import { StyleSheet, Image, TouchableOpacity, Dimensions } from "react-native";
 import Animated, {
-  SharedValue,
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
@@ -10,6 +9,7 @@ import { IPiece } from "@/models";
 import images from "@/assets/images/chess";
 
 interface Props {
+  isWhite: boolean;
   piece: IPiece;
   active: boolean;
   selected: boolean;
@@ -22,7 +22,13 @@ const AnimatedTouchableOpacity =
 const { width } = Dimensions.get("screen");
 const SQUARE_SIZE = width / 8;
 
-export const ChessPiece = ({ piece, active, selected, onSelect }: Props) => {
+export const ChessPiece = ({
+  isWhite,
+  piece,
+  active,
+  selected,
+  onSelect,
+}: Props) => {
   const [rank, file] = piece.currentSquare;
 
   const animatedStyles = useAnimatedStyle(() => {
@@ -39,6 +45,7 @@ export const ChessPiece = ({ piece, active, selected, onSelect }: Props) => {
         styles.container,
         {
           zIndex: active ? 1 : 0,
+          transform: [{ rotate: isWhite ? "0deg" : "180deg" }],
         },
         selected && {
           backgroundColor: "yellow",

@@ -7,7 +7,6 @@ export const axiosClient = axios.create({
 
 axiosClient.interceptors.request.use(
   (config) => {
-    console.log("request", config);
     return config;
   },
   (error) => {
@@ -18,7 +17,7 @@ axiosClient.interceptors.request.use(
 
 axiosClient.interceptors.response.use(
   (response) => {
-    console.log("response", response);
+    console.log("response data", response.data);
     return response;
   },
   (error: AxiosError) => {

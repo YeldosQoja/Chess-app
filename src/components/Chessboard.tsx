@@ -1,18 +1,14 @@
 import React, { PropsWithChildren } from "react";
 import { View, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
-import Animated, {
-  SharedValue,
-  useAnimatedStyle,
-} from "react-native-reanimated";
 import { ChessPiece } from "./ChessPiece";
 import { IChess, IPiece, Square } from "@/models";
-import { includesSquare } from "@/utils/isSameSquare";
 
 interface Props {
   game: IChess;
+  isWhite: boolean;
   selectedPiece: IPiece | null;
   onSelectPiece: (piece: IPiece) => void;
-  onSelectMove: (square: Square) => void;
+  onMove: (square: Square) => void;
 }
 
 const COLORS = {
@@ -25,13 +21,18 @@ const SQUARE_SIZE = width / 8;
 
 export const Chessboard = ({
   game,
+  isWhite,
   selectedPiece,
   onSelectPiece,
-  onSelectMove,
+  onMove,
 }: PropsWithChildren<Props>) => {
   const { board, white, black, activePlayer } = game;
   return (
-    <View style={[styles.board]}>
+    <View
+      style={[
+        styles.board,
+        { transform: [{ rotate: isWhite ? "0deg" : "180deg" }] },
+      ]}>
       {/* Tiles */}
       {board.map((row, rank) => {
         const isEvenRank = rank % 2 === 0;
@@ -79,6 +80,7 @@ export const Chessboard = ({
         .map((piece) => (
           <ChessPiece
             key={piece.id}
+            isWhite={isWhite}
             piece={piece}
             active={activePlayer === piece.owner}
             selected={selectedPiece?.id === piece.id}
@@ -91,6 +93,7 @@ export const Chessboard = ({
         .map((piece) => (
           <ChessPiece
             key={piece.id}
+            isWhite={isWhite}
             piece={piece}
             active={activePlayer === piece.owner}
             selected={selectedPiece?.id === piece.id}
@@ -107,7 +110,7 @@ export const Chessboard = ({
               <TouchableOpacity
                 key={file}
                 style={styles.square}
-                onPress={() => onSelectMove([rank, file])}
+                onPress={() => onMove([rank, file])}
               />
             ))}
           </View>

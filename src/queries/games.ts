@@ -1,19 +1,38 @@
-import { useMutation } from "@tanstack/react-query";
+import {
+  QueryFunctionContext,
+  useMutation,
+  useQuery,
+} from "@tanstack/react-query";
 import { axiosClient } from "./axiosClient";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
+import { Square } from "@/models";
+
+async function getGameById({ queryKey }: QueryFunctionContext) {
+  const [_, __, id] = queryKey;
+  const response = await axiosClient.get(`games/${id}/`);
+  return response.data;
+}
+
+export const useGetGameById = (id: number) =>
+  useQuery({
+    queryKey: ["games", "detail", id],
+    queryFn: getGameById,
+  });
 
 async function sendChallenge(userId: number) {
   const response = await axiosClient.post(`games/challenges/send/${userId}/`);
   return response.data;
 }
 
-export const useSendChallenge = () =>
-  useMutation({
+export const useSendChallenge = () => {
+  const router = useRouter();
+  return useMutation({
     mutationFn: sendChallenge,
     onSuccess: () => {
       router.navigate("/games/preview");
     },
   });
+};
 
 async function acceptChallenge(id: number) {
   const response = await axiosClient.post<{ game_id: number }>(
@@ -22,10 +41,23 @@ async function acceptChallenge(id: number) {
   return response.data;
 }
 
-export const useAcceptChallenge = () =>
-  useMutation({
+export const useAcceptChallenge = () => {
+  const router = useRouter();
+  return useMutation({
     mutationFn: acceptChallenge,
     onSuccess: (data) => {
       router.push(`/games/${data.game_id}`);
     },
   });
+};
+
+export async function sendMove({
+  id,
+  move,
+}: {
+  id: number;
+  move: { from: Square; to: Square };
+}) {
+  const response = await axiosClient.post(`games/${id}/move/`, { ...move });
+  return response.data;
+}

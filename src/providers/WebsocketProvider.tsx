@@ -3,11 +3,12 @@ import {
   PropsWithChildren,
   useContext,
   useEffect,
+  useMemo,
   useRef,
 } from "react";
 import { Alert } from "react-native";
-import { router } from "expo-router";
 import { useAcceptChallenge } from "@/queries/games";
+import { useRouter } from "expo-router";
 
 const WebsocketContext = createContext<{ ws: WebSocket | null }>({ ws: null });
 
@@ -17,17 +18,25 @@ export const useWebsocket = () => {
 };
 
 export const WebsocketProvider = ({ children }: PropsWithChildren) => {
-  const ws = useRef(new WebSocket("ws://127.0.0.1:8000/ws/main/"));
-
+  const ref = useRef<WebSocket>(null);
+  const router = useRouter();
   const acceptChallenge = useAcceptChallenge();
 
+  const ws = useMemo(() => {
+    if (ref.current === null) {
+      ref.current = new WebSocket("ws://127.0.0.1:8000/ws/main/");
+    }
+    return ref.current;
+  }, []);
+
   useEffect(() => {
-    ws.current.onopen = (e) => {
+    ws.onopen = (e) => {
       console.log("connected", e);
     };
 
-    ws.current.onmessage = (e) => {
+    ws.onmessage = (e) => {
       const data = JSON.parse(e.data);
+      console.log("websocket data", data);
       if (data.type === "challenge") {
         const { user, request_id } = data;
         Alert.prompt(
@@ -54,19 +63,19 @@ export const WebsocketProvider = ({ children }: PropsWithChildren) => {
       }
     };
 
-    ws.current.onerror = (e) => {
-      console.log(e);
+    ws.onerror = (e) => {
+      console.log("websocket error", e);
     };
 
     return () => {
-      ws.current.close();
+      ws.close();
     };
   }, []);
 
   return (
     <WebsocketContext.Provider
       value={{
-        ws: ws.current,
+        ws,
       }}>
       {children}
     </WebsocketContext.Provider>

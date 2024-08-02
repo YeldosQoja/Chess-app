@@ -1,3 +1,6 @@
+if (__DEV__) {
+  require("../../ReactotronConfig");
+}
 import { AuthProvider, ThemeProvider, UserProvider } from "@/providers";
 import { WebsocketProvider } from "@/providers/WebsocketProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";

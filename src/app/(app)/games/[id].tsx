@@ -1,36 +1,61 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { Chess, IPiece, IStrategy, Square } from "@/models";
+import { Chess, IChess, IPiece, IStrategy, Square } from "@/models";
 import { Chessboard, PromotionPicker } from "@/components";
 import { useWebsocket } from "@/providers";
-import { includesSquare } from "@/utils/isSameSquare";
+import { sendMove, useGetGameById } from "@/queries/games";
+import { useMutation } from "@tanstack/react-query";
 
 export default function Game() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const params = useLocalSearchParams<{ id: string }>();
+  const id = params.id ? parseInt(params.id) : 0;
+
   const { ws } = useWebsocket();
 
-  const [game, setGame] = useState(new Chess());
+  const gameRef = useRef<IChess>(null);
+  const game = useMemo(() => {
+    if (gameRef.current === null) {
+      gameRef.current = new Chess();
+    }
+    return gameRef.current;
+  }, []);
+
   const [selectedPiece, setSelectedPiece] = useState<IPiece | null>(null);
+  const [board, setBoard] = useState(game.board);
 
   const [promotionModalOpen, setPromotionModalOpen] = useState(false);
 
+  const { data, isPending } = useGetGameById(id);
+  const { mutate } = useMutation({
+    mutationFn: sendMove,
+    onSuccess: (data, { move: { to } }) => {
+      console.log("onSuccess", data);
+      if (selectedPiece !== null) {
+        game.move(selectedPiece, to);
+        setBoard(game.board);
+        setSelectedPiece(null);
+      }
+    },
+  });
+
   useEffect(() => {
-    ws?.addEventListener("message", (e) => {
-      console.log("message", e);
-    });
+    ws!.onmessage = (e) => {
+      const data = JSON.parse(e.data);
+      if (data.type === "move") {
+        const { from, to } = data;
+        const [rank, file] = from as Square;
+        const piece = game.board[rank][file] as IPiece;
+        game.move(piece, to);
+        setBoard(game.board);
+      }
+    };
   }, []);
 
-  const handleSelectMove = (square: Square) => {
-    if (selectedPiece === null) return;
-    if (!includesSquare(selectedPiece.getValidMoves(), square)) return;
-    game.move(square);
-    setSelectedPiece(null);
-  };
-
-  const handleSelectPiece = (piece: IPiece) => {
-    game.selectPiece(piece);
-    setSelectedPiece(piece);
+  const handleMove = (square: Square) => {
+    if (selectedPiece !== null) {
+      mutate({ id, move: { from: selectedPiece.currentSquare, to: square } });
+    }
   };
 
   const handleSelectPromotion = ({ strategy }: { strategy: IStrategy }) => {
@@ -39,13 +64,18 @@ export default function Game() {
     setPromotionModalOpen(false);
   };
 
+  if (isPending) {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
       <Chessboard
         game={game}
+        isWhite={data.is_white}
         selectedPiece={selectedPiece}
-        onSelectPiece={handleSelectPiece}
-        onSelectMove={handleSelectMove}
+        onSelectPiece={setSelectedPiece}
+        onMove={handleMove}
       />
       <PromotionPicker
         open={promotionModalOpen}

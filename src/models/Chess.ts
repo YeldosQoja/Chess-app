@@ -9,17 +9,15 @@ import {
   BishopStrategy,
 } from "./Strategy";
 import { Player } from "./Player";
+import { includesSquare } from "@/utils/isSameSquare";
 
 export interface IChess {
-  readonly board: Board;
+  board: Board;
   readonly white: Player;
   readonly black: Player;
   activePlayer: Player;
   currentEnPassantPawn: IPiece | null;
-  updateBoard(): void;
-  resetBoard(): void;
-  selectPiece(piece: IPiece): void;
-  move(square: [number, number]): void;
+  move(piece: IPiece, square: [number, number]): void;
   isInCheck(): boolean;
   isInCheckmate(): boolean;
   isInStalemate(): boolean;
@@ -28,12 +26,11 @@ export interface IChess {
 }
 
 export class Chess implements IChess {
-  readonly board: Board = [];
+  board: Board = [];
   readonly white: Player;
   readonly black: Player;
   activePlayer: Player;
   currentEnPassantPawn: IPiece | null = null;
-  private selectedPiece: IPiece | null = null;
 
   constructor() {
     this.white = new Player(this);
@@ -81,42 +78,42 @@ export class Chess implements IChess {
     }
   }
 
-  updateBoard(): void {
+  private updateBoard(): void {
     this.resetBoard();
-    for (const p of this.white.pieces.filter(p => !p.isCaptured)) {
+    for (const p of this.white.pieces.filter((p) => !p.isCaptured)) {
       const [rank, file] = p.currentSquare;
       this.board[rank][file] = p;
     }
-    for (const p of this.black.pieces.filter(p => !p.isCaptured)) {
+    for (const p of this.black.pieces.filter((p) => !p.isCaptured)) {
       const [rank, file] = p.currentSquare;
       this.board[rank][file] = p;
     }
   }
 
-  resetBoard(): void {
+  private resetBoard(): void {
+    this.board = [];
     for (let rank = 0; rank < 8; rank++) {
+      this.board[rank] = new Array(8);
       for (let file = 0; file < 8; file++) {
         this.board[rank][file] = null;
       }
     }
   }
 
-  selectPiece(piece: IPiece): void {
-    this.selectedPiece = piece;
-  }
-
-  move(square: [number, number]): void {
-    if (this.selectedPiece === null) {
-      return;
+  move(piece: IPiece, square: [number, number]): void {
+    if (
+      piece.owner === this.activePlayer &&
+      includesSquare(piece.getValidMoves(), square)
+    ) {
+      // Remove current en passant pawn
+      this.currentEnPassantPawn = null;
+      // Make move
+      piece.move(square);
+      // Switch player
+      this.activePlayer = this.activePlayer.getOpponent();
+      // Update the board
+      this.updateBoard();
     }
-    // Remove current en passant pawn
-    this.currentEnPassantPawn = null;
-    // Make move
-    this.selectedPiece.move(square);
-    // Switch player
-    this.activePlayer = this.activePlayer.getOpponent();
-    // Update the board
-    this.updateBoard();
   }
 
   isInCheck(): boolean {
