@@ -1,14 +1,8 @@
-import {
-  createContext,
-  PropsWithChildren,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { createContext, PropsWithChildren, useContext, useEffect } from "react";
 import { Alert } from "react-native";
 import { useAcceptChallenge } from "@/queries/games";
 import { useRouter } from "expo-router";
+import { useWs } from "@/hooks/useWs";
 
 const WebsocketContext = createContext<{ ws: WebSocket | null }>({ ws: null });
 
@@ -18,16 +12,9 @@ export const useWebsocket = () => {
 };
 
 export const WebsocketProvider = ({ children }: PropsWithChildren) => {
-  const ref = useRef<WebSocket>(null);
+  const ws = useWs("ws://127.0.0.1:8000/ws/main/");
   const router = useRouter();
   const acceptChallenge = useAcceptChallenge();
-
-  const ws = useMemo(() => {
-    if (ref.current === null) {
-      ref.current = new WebSocket("ws://127.0.0.1:8000/ws/main/");
-    }
-    return ref.current;
-  }, []);
 
   useEffect(() => {
     ws.onopen = (e) => {
@@ -39,7 +26,7 @@ export const WebsocketProvider = ({ children }: PropsWithChildren) => {
       console.log("websocket data", data);
       if (data.type === "challenge") {
         const { user, request_id } = data;
-        Alert.prompt(
+        Alert.alert(
           "New Challenge!",
           `${user.username} invites you to play a match`,
           [

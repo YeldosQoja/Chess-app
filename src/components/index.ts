@@ -1,6 +1,4 @@
-export * from './ChessPiece';
-export * from './Chessboard';
-export * from './PromotionPicker';
+export * from './Chess';
 export * from './ScreenContainer';
 export * from './Input';
 export * from './Button';

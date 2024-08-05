@@ -39,7 +39,7 @@ export interface IStrategy {
   isValidSquare(square: Square): boolean;
 }
 
-class Strategy implements IStrategy {
+export class Strategy implements IStrategy {
   game: IChess;
   type?: PieceType | undefined;
   constructor(game: IChess) {

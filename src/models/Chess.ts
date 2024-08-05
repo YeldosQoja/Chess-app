@@ -16,6 +16,7 @@ export interface IChess {
   readonly white: Player;
   readonly black: Player;
   activePlayer: Player;
+  currentEnPassantPawn: IPiece | null;
   move(piece: IPiece, square: [number, number]): void;
   isInCheck(): boolean;
   isInCheckmate(): boolean;
@@ -27,7 +28,7 @@ export class Chess implements IChess {
   readonly white: Player;
   readonly black: Player;
   activePlayer: Player;
-  private currentEnPassantPawn: IPiece | null = null;
+  currentEnPassantPawn: IPiece | null = null;
 
   constructor() {
     this.white = new Player(this);

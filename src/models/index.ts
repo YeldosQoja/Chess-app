@@ -5,6 +5,7 @@ export * from './Strategy';
 export * from './Board';
 export * from './Square';
 export * from './PieceType';
+export * from './PawnPromotion';
 export * from './User';
 export * from './Game';
 export * from './FriendRequest';
