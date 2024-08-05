@@ -8,7 +8,7 @@ import { useAppTheme } from "@/providers";
 export default function Home() {
   const { colors } = useAppTheme();
 
-  const [, , group] = useSegments();
+  const [_, __, group] = useSegments();
 
   const [items] = useState([
     {

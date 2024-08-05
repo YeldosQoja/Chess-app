@@ -5,8 +5,13 @@ import { PieceType } from "./PieceType";
 export class Player {
   pieces: Piece[] = [];
   game: IChess;
+
   constructor(game: IChess) {
     this.game = game;
+  }
+
+  getColor() {
+    return this.game.white === this ? "White" : "Black";
   }
 
   getKing(): King {

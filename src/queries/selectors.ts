@@ -14,6 +14,7 @@ export const selectUser = (data: any): User => ({
 });
 
 export const selectGame = ({
+  is_white,
   is_active,
   started_at,
   finished_at,
@@ -23,6 +24,7 @@ export const selectGame = ({
 }: any): Game => ({
   challenger: selectUser(challenger),
   opponent: selectUser(opponent),
+  isWhite: is_white,
   isFinished: !is_active,
   duration:
     new Date(finished_at).getSeconds() - new Date(started_at).getSeconds(),

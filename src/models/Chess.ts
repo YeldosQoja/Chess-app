@@ -16,13 +16,10 @@ export interface IChess {
   readonly white: Player;
   readonly black: Player;
   activePlayer: Player;
-  currentEnPassantPawn: IPiece | null;
   move(piece: IPiece, square: [number, number]): void;
   isInCheck(): boolean;
   isInCheckmate(): boolean;
   isInStalemate(): boolean;
-  getWinner(): string;
-  getActivePlayer(): string;
 }
 
 export class Chess implements IChess {
@@ -30,7 +27,7 @@ export class Chess implements IChess {
   readonly white: Player;
   readonly black: Player;
   activePlayer: Player;
-  currentEnPassantPawn: IPiece | null = null;
+  private currentEnPassantPawn: IPiece | null = null;
 
   constructor() {
     this.white = new Player(this);
@@ -142,19 +139,5 @@ export class Chess implements IChess {
       }
     }
     return true;
-  }
-
-  getWinner(): string {
-    if (!this.isInCheckmate()) {
-      return "";
-    }
-    return this.activePlayer === this.white ? "Black" : "White";
-  }
-
-  getActivePlayer(): string {
-    if (this.isInCheckmate()) {
-      return "";
-    }
-    return this.activePlayer === this.white ? "White" : "Black";
   }
 }

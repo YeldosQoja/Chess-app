@@ -20,7 +20,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useProfileFriends, useFriendRequests } from "@/queries/profile";
-import { useDebounce } from "@/hooks";
+import { useDebounce } from "@/hooks/useDebounce";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
 
 const { width } = Dimensions.get("window");

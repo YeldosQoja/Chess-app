@@ -1,13 +1,11 @@
 import React, { PropsWithChildren } from "react";
 import { View, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
-import { ChessPiece } from "./ChessPiece";
-import { IChess, IPiece, Square } from "@/models";
+import { Board, Square } from "@/models";
 
 interface Props {
-  game: IChess;
+  board: Board;
   isWhite: boolean;
-  selectedPiece: IPiece | null;
-  onSelectPiece: (piece: IPiece) => void;
+  validMoves: Square[];
   onMove: (square: Square) => void;
 }
 
@@ -20,13 +18,12 @@ const { width } = Dimensions.get("screen");
 const SQUARE_SIZE = width / 8;
 
 export const Chessboard = ({
-  game,
+  board,
   isWhite,
-  selectedPiece,
-  onSelectPiece,
+  validMoves,
   onMove,
+  children: pieces,
 }: PropsWithChildren<Props>) => {
-  const { board, white, black, activePlayer } = game;
   return (
     <View
       style={[
@@ -59,47 +56,21 @@ export const Chessboard = ({
         );
       })}
       {/* Valid moves */}
-      {selectedPiece &&
-        selectedPiece.getValidMoves().map(([rank, file]) => (
-          <View
-            key={"" + rank + file}
-            style={[
-              {
-                position: "absolute",
-                top: SQUARE_SIZE * rank,
-                left: SQUARE_SIZE * file,
-              },
-              styles.square,
-            ]}>
-            <View style={styles.dot} />
-          </View>
-        ))}
-      {/* White pieces */}
-      {white.pieces
-        .filter((p) => !p.isCaptured)
-        .map((piece) => (
-          <ChessPiece
-            key={piece.id}
-            isWhite={isWhite}
-            piece={piece}
-            active={activePlayer === piece.owner}
-            selected={selectedPiece?.id === piece.id}
-            onSelect={onSelectPiece}
-          />
-        ))}
-      {/* Black pieces */}
-      {black.pieces
-        .filter((p) => !p.isCaptured)
-        .map((piece) => (
-          <ChessPiece
-            key={piece.id}
-            isWhite={isWhite}
-            piece={piece}
-            active={activePlayer === piece.owner}
-            selected={selectedPiece?.id === piece.id}
-            onSelect={onSelectPiece}
-          />
-        ))}
+      {validMoves.map(([rank, file]) => (
+        <View
+          key={"" + rank + file}
+          style={[
+            {
+              position: "absolute",
+              top: SQUARE_SIZE * rank,
+              left: SQUARE_SIZE * file,
+            },
+            styles.square,
+          ]}>
+          <View style={styles.dot} />
+        </View>
+      ))}
+      {pieces}
       {/* Moves */}
       <View style={StyleSheet.absoluteFill}>
         {board.map((row, rank) => (

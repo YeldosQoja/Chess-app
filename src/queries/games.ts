@@ -6,6 +6,7 @@ import {
 import { axiosClient } from "./axiosClient";
 import { useRouter } from "expo-router";
 import { Square } from "@/models";
+import { selectGame } from "./selectors";
 
 async function getGameById({ queryKey }: QueryFunctionContext) {
   const [_, __, id] = queryKey;
@@ -17,6 +18,7 @@ export const useGetGameById = (id: number) =>
   useQuery({
     queryKey: ["games", "detail", id],
     queryFn: getGameById,
+    select: selectGame,
   });
 
 async function sendChallenge(userId: number) {
