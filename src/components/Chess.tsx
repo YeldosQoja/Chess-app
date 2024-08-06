@@ -42,6 +42,7 @@ const COLORS = {
 };
 
 const ChessContext = createContext<{
+  player: false | { isWhite: boolean };
   white: Player | null;
   black: Player | null;
   board: BoardType;
@@ -51,8 +52,8 @@ const ChessContext = createContext<{
   selectPiece: (piece: IPiece) => void;
   move: (square: Square) => void;
   selectPromotion: (promotion: PawnPromotion) => void;
-  togglePromotionPicker: () => void;
 }>({
+  player: false,
   white: null,
   black: null,
   board: Array(8).fill(Array(8).fill(null)),
@@ -62,10 +63,13 @@ const ChessContext = createContext<{
   selectPiece: (piece: IPiece) => {},
   move: (square: Square) => {},
   selectPromotion: () => {},
-  togglePromotionPicker: () => {},
 });
 
-export const Chess = ({ children }: PropsWithChildren) => {
+type ChessProps = {
+  player: false | { isWhite: boolean };
+};
+
+export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [game, pawnPromotions] = useChess();
   const ws = useWs(`ws://127.0.0.1:8000/ws/games/room-${id}/`);
@@ -100,40 +104,50 @@ export const Chess = ({ children }: PropsWithChildren) => {
     };
   }, []);
 
-  const sendMove = useCallback((square: Square) => {
-    if (selectedPiece) {
-      const { owner, currentSquare } = selectedPiece;
-      ws.send(
-        JSON.stringify({
-          command: "move",
-          player: owner.getColor(),
-          from: currentSquare,
-          to: square,
-        })
-      );
-    }
-  }, [selectedPiece]);
+  const sendMove = useCallback(
+    (square: Square) => {
+      if (selectedPiece) {
+        const { owner, currentSquare } = selectedPiece;
+        ws.send(
+          JSON.stringify({
+            command: "move",
+            player: owner.getColor(),
+            from: currentSquare,
+            to: square,
+          })
+        );
+      }
+    },
+    [selectedPiece]
+  );
 
-  const sendPromotion = useCallback((promotion: PawnPromotion) => {
-    if (selectedPiece) {
-      const { owner, currentSquare } = selectedPiece;
-      ws.send(
-        JSON.stringify({
-          command: "promote",
-          player: owner.getColor(),
-          square: currentSquare,
-          piece: promotion.strategy.type,
-        })
-      );
-    }
-  }, [selectedPiece]);
+  const sendPromotion = useCallback(
+    (promotion: PawnPromotion) => {
+      if (selectedPiece) {
+        const { owner, currentSquare } = selectedPiece;
+        ws.send(
+          JSON.stringify({
+            command: "promote",
+            player: owner.getColor(),
+            square: currentSquare,
+            piece: promotion.strategy.type,
+          })
+        );
+      }
+    },
+    [selectedPiece]
+  );
 
   const move = useCallback((from: Square, to: Square) => {
     const [rank, file] = from;
     const piece = game.board[rank][file] as IPiece;
     game.move(piece, to);
-    setBoard(game.board);
-    setSelectedPiece(null);
+    if (player && player.isWhite === piece.isWhite && piece.isPromotion()) {
+      setPromotionPickerOpen(true);
+    } else {
+      setBoard(game.board);
+      setSelectedPiece(null);
+    }
   }, []);
 
   const promotePawn = useCallback((square: Square, pieceType: PieceType) => {
@@ -141,8 +155,10 @@ export const Chess = ({ children }: PropsWithChildren) => {
     const piece = game.board[rank][file] as IPiece;
     const promotion = pawnPromotions.find((p) => p.strategy.type === pieceType);
     const strategy = promotion?.strategy as IStrategy;
-    piece.updateStrategy(strategy);
-    togglePromotionPicker();
+    game.updateStrategy(piece, strategy);
+    setPromotionPickerOpen(false);
+    setBoard(game.board);
+    setSelectedPiece(null);
   }, []);
 
   const handleSelectPiece = useCallback((piece: IPiece) => {
@@ -151,15 +167,12 @@ export const Chess = ({ children }: PropsWithChildren) => {
     }
   }, []);
 
-  const togglePromotionPicker = useCallback(() => {
-    setPromotionPickerOpen((value) => !value);
-  }, []);
-
   const { white, black } = game;
 
   return (
     <ChessContext.Provider
       value={{
+        player,
         white,
         black,
         board,
@@ -169,7 +182,6 @@ export const Chess = ({ children }: PropsWithChildren) => {
         selectPiece: handleSelectPiece,
         move: sendMove,
         selectPromotion: sendPromotion,
-        togglePromotionPicker,
       }}>
       {children}
     </ChessContext.Provider>
@@ -199,19 +211,19 @@ const boardStyles = StyleSheet.create({
   },
 });
 
-type BoardProps = {
-  isWhite: boolean;
-};
+type BoardProps = {};
 
-const Board = ({ isWhite }: PropsWithChildren<BoardProps>) => {
-  const { white, black, board, selectedPiece, selectPiece, move } =
+const Board = ({}: PropsWithChildren<BoardProps>) => {
+  const { player, white, black, board, selectedPiece, move } =
     useContext(ChessContext);
+
+  const flip = player && !player.isWhite;
 
   return (
     <View
       style={[
         boardStyles.board,
-        { transform: [{ rotate: isWhite ? "0deg" : "180deg" }] },
+        { transform: [{ rotate: flip ? "180deg" : "0deg" }] },
       ]}>
       {/* Tiles */}
       {board.map((row, rank) => {
@@ -236,7 +248,7 @@ const Board = ({ isWhite }: PropsWithChildren<BoardProps>) => {
           </View>
         );
       })}
-      {/* Valid moves */}
+      {/* Valid move markers */}
       {selectedPiece !== null &&
         selectedPiece.getValidMoves().map(([rank, file]) => (
           <View
@@ -258,11 +270,7 @@ const Board = ({ isWhite }: PropsWithChildren<BoardProps>) => {
           .map((piece) => (
             <Piece
               key={piece.id}
-              isWhite={isWhite}
               piece={piece}
-              active={isWhite}
-              selected={selectedPiece?.id === piece.id}
-              onSelect={selectPiece}
             />
           ))}
       {black &&
@@ -271,29 +279,25 @@ const Board = ({ isWhite }: PropsWithChildren<BoardProps>) => {
           .map((piece) => (
             <Piece
               key={piece.id}
-              isWhite={isWhite}
               piece={piece}
-              active={!isWhite}
-              selected={selectedPiece?.id === piece.id}
-              onSelect={selectPiece}
             />
           ))}
       {/* Moves */}
-      <View style={StyleSheet.absoluteFill}>
-        {board.map((row, rank) => (
-          <View
-            key={rank}
-            style={boardStyles.row}>
-            {row.map((_, file) => (
-              <TouchableOpacity
-                key={file}
-                style={boardStyles.square}
-                onPress={() => move([rank, file])}
-              />
-            ))}
-          </View>
+      {selectedPiece !== null &&
+        selectedPiece.getValidMoves().map(([rank, file]) => (
+          <TouchableOpacity
+            key={"" + rank + file}
+            style={[
+              {
+                position: "absolute",
+                top: SQUARE_SIZE * rank,
+                left: SQUARE_SIZE * file,
+              },
+              boardStyles.square,
+            ]}
+            onPress={() => move([rank, file])}
+          />
         ))}
-      </View>
     </View>
   );
 };
@@ -313,27 +317,24 @@ const pieceStyles = StyleSheet.create({
 });
 
 interface PieceProps {
-  isWhite: boolean;
   piece: IPiece;
-  active: boolean;
-  selected: boolean;
-  onSelect: (piece: IPiece) => void;
 }
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
 
-export const Piece = ({
-  isWhite,
-  piece,
-  active,
-  selected,
-  onSelect,
-}: PieceProps) => {
-  const [rank, file] = piece.currentSquare;
-  const pieceType = piece.getType();
+export const Piece = ({ piece }: PieceProps) => {
+  const { selectPiece, selectedPiece, player } = useContext(ChessContext);
 
-  const { togglePromotionPicker } = useContext(ChessContext);
+  const selected = piece.id === selectedPiece?.id;
+
+  const flip = player && !player.isWhite;
+
+  const active = player && player.isWhite === piece.isWhite;
+
+  const [rank, file] = piece.currentSquare;
+
+  const pieceType = piece.getType();
 
   const animatedStyles = useAnimatedStyle(() => {
     return {
@@ -341,12 +342,6 @@ export const Piece = ({
       top: withTiming(SQUARE_SIZE * rank),
     };
   }, [rank, file]);
-  
-  useEffect(() => {
-    if ((isWhite && rank === 0) || (!isWhite && rank === 7)) {
-      togglePromotionPicker();
-    }
-  }, [rank]);
 
   return (
     <AnimatedTouchableOpacity
@@ -355,14 +350,15 @@ export const Piece = ({
         pieceStyles.container,
         {
           zIndex: active ? 1 : 0,
-          transform: [{ rotate: isWhite ? "0deg" : "180deg" }],
+          transform: [{ rotate: flip ? "180deg" : "0deg" }],
           backgroundColor: selected ? "yellow" : "transparent",
         },
         animatedStyles,
       ]}
       onPress={() => {
-        onSelect(piece);
-      }}>
+        selectPiece(piece);
+      }}
+      disabled={!player || piece.isWhite !== player.isWhite}>
       <Image
         source={lodash.get(
           images,
@@ -391,24 +387,23 @@ const pickerStyles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
   },
-  pieceItem: {
+  item: {
     width: "50%",
     height: "50%",
     justifyContent: "center",
     alignItems: "center",
   },
-  pieceImage: {
+  image: {
     height: "70%",
     aspectRatio: 1,
   },
 });
 
-interface Props {
-  isWhite: boolean;
-}
+interface Props {}
 
-export const PromotionPicker = ({ isWhite }: Props) => {
-  const playerColor = isWhite ? "white" : "black";
+export const PromotionPicker = ({}: Props) => {
+  const { player } = useContext(ChessContext);
+  const playerColor = player && player.isWhite ? "white" : "black";
 
   const {
     pawnPromotions: items,
@@ -428,11 +423,11 @@ export const PromotionPicker = ({ isWhite }: Props) => {
             <TouchableOpacity
               key={index}
               activeOpacity={0.9}
-              style={pickerStyles.pieceItem}
+              style={pickerStyles.item}
               onPress={() => void selectPromotion(promotion)}>
               <Image
                 source={promotion.image[playerColor]}
-                style={pickerStyles.pieceImage}
+                style={pickerStyles.image}
               />
             </TouchableOpacity>
           ))}

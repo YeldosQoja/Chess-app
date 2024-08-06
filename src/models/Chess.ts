@@ -7,6 +7,7 @@ import {
   KnightStrategy,
   PawnStrategy,
   BishopStrategy,
+  IStrategy,
 } from "./Strategy";
 import { Player } from "./Player";
 import { includesSquare } from "@/utils/isSameSquare";
@@ -18,6 +19,7 @@ export interface IChess {
   activePlayer: Player;
   currentEnPassantPawn: IPiece | null;
   move(piece: IPiece, square: [number, number]): void;
+  updateStrategy(piece: IPiece, strategy: IStrategy): void
   isInCheck(): boolean;
   isInCheckmate(): boolean;
   isInStalemate(): boolean;
@@ -112,6 +114,11 @@ export class Chess implements IChess {
       // Update the board
       this.updateBoard();
     }
+  }
+
+  updateStrategy(piece: IPiece, strategy: IStrategy): void {
+    piece.updateStrategy(strategy);
+    this.updateBoard();
   }
 
   isInCheck(): boolean {

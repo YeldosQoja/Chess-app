@@ -18,6 +18,7 @@ export interface IPiece {
   move(square: Square): void;
   getType(): PieceType;
   updateStrategy(strategy: IStrategy): void;
+  isPromotion(): boolean;
 }
 
 export class Piece implements IPiece {
@@ -109,6 +110,10 @@ export class Piece implements IPiece {
     if (prevPiece) {
       prevPiece.isCaptured = true;
     }
+  }
+
+  isPromotion(): boolean {
+    return this.strategy.isPromotion(this.currentSquare, this.owner);
   }
 }
 

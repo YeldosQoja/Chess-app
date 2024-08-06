@@ -22,9 +22,9 @@ export default function Game() {
         player={isWhite ? opponent : challenger}
         isWhite={!isWhite}
       />
-      <Chess>
-        <Chess.Board isWhite={isWhite} />
-        <Chess.PromotionPicker isWhite={isWhite} />
+      <Chess player={{ isWhite }}>
+        <Chess.Board />
+        <Chess.PromotionPicker />
       </Chess>
       <PlayerProfileCard
         player={isWhite ? challenger : opponent}

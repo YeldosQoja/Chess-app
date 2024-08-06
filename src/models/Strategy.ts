@@ -37,6 +37,7 @@ export interface IStrategy {
     owner: Player
   ): Array<Square>;
   isValidSquare(square: Square): boolean;
+  isPromotion(currentSquare: Square, owner: Player): boolean;
 }
 
 export class Strategy implements IStrategy {
@@ -57,6 +58,10 @@ export class Strategy implements IStrategy {
   isValidSquare(square: Square): boolean {
     const [rank, file] = square;
     return 0 <= rank && rank < 8 && 0 <= file && file < 8;
+  }
+
+  isPromotion(currentSquare: Square, owner: Player): boolean {
+    return false;
   }
 }
 
@@ -128,6 +133,12 @@ export class PawnStrategy extends Strategy {
     }
 
     return moves;
+  }
+
+  isPromotion(currentSquare: Square, owner: Player): boolean {
+    const [rank] = currentSquare;
+    const targetRank = owner.getColor() === "White" ? 0 : 7;
+    return rank === targetRank;
   }
 }
 
