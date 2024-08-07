@@ -4,12 +4,14 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import {
   Dimensions,
   Modal,
   StyleSheet,
+  Text,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -24,6 +26,7 @@ import {
   Player,
   Square,
   Strategy,
+  User,
 } from "@/models";
 import { useChess } from "@/hooks/useChess";
 import { useWs } from "@/hooks/useWs";
@@ -33,6 +36,12 @@ import Animated, {
 } from "react-native-reanimated";
 import lodash from "lodash";
 import images from "@/assets/images/chess";
+import { useAppTheme } from "@/providers";
+import { Avatar } from "react-native-paper";
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+
+dayjs.extend(duration);
 
 const { width } = Dimensions.get("window");
 const SQUARE_SIZE = width / 8;
@@ -45,6 +54,7 @@ const ChessContext = createContext<{
   player: false | { isWhite: boolean };
   white: Player | null;
   black: Player | null;
+  next: "White" | "Black";
   board: BoardType;
   selectedPiece: IPiece | null;
   promotionPickerOpen: boolean;
@@ -52,10 +62,12 @@ const ChessContext = createContext<{
   selectPiece: (piece: IPiece) => void;
   move: (square: Square) => void;
   selectPromotion: (promotion: PawnPromotion) => void;
+  lastMovedAt?: Date;
 }>({
   player: false,
   white: null,
   black: null,
+  next: "White",
   board: Array(8).fill(Array(8).fill(null)),
   selectedPiece: null,
   promotionPickerOpen: false,
@@ -77,6 +89,8 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
   const [selectedPiece, setSelectedPiece] = useState<IPiece | null>(null);
   const [board, setBoard] = useState<BoardType>(game.board);
   const [promotionPickerOpen, setPromotionPickerOpen] = useState(false);
+  const [lastMovedAt, setLastMovedAt] = useState<Date>();
+  const [startedAt, setStartedAt] = useState<Date>();
 
   useEffect(() => {
     ws.onopen = (e) => {
@@ -87,11 +101,11 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
       const data = JSON.parse(e.data);
       console.log(data);
       if (data.msg_type === "move") {
-        const { from, to } = data;
-        move(from, to);
+        const { from, to, timestamp } = data;
+        move(from, to, new Date(timestamp));
       } else if (data.msg_type === "promote") {
-        const { square, piece } = data;
-        promotePawn(square, piece);
+        const { square, piece, timestamp } = data;
+        promotePawn(square, piece, new Date(timestamp));
       }
     };
 
@@ -114,6 +128,7 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
             player: owner.getColor(),
             from: currentSquare,
             to: square,
+            timestamp: Date.now(),
           })
         );
       }
@@ -131,6 +146,7 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
             player: owner.getColor(),
             square: currentSquare,
             piece: promotion.strategy.type,
+            timestamp: Date.now(),
           })
         );
       }
@@ -138,28 +154,38 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
     [selectedPiece]
   );
 
-  const move = useCallback((from: Square, to: Square) => {
+  const move = useCallback((from: Square, to: Square, timestamp: Date) => {
     const [rank, file] = from;
     const piece = game.board[rank][file] as IPiece;
     game.move(piece, to);
-    if (player && player.isWhite === piece.isWhite && piece.isPromotion()) {
-      setPromotionPickerOpen(true);
-    } else {
+    if (!piece.isPromotion()) {
+      if (startedAt === undefined) {
+        setStartedAt(timestamp);
+      }
+      setLastMovedAt(timestamp);
       setBoard(game.board);
       setSelectedPiece(null);
+    } else if (player && player.isWhite === piece.isWhite) {
+      setPromotionPickerOpen(true);
     }
   }, []);
 
-  const promotePawn = useCallback((square: Square, pieceType: PieceType) => {
-    const [rank, file] = square;
-    const piece = game.board[rank][file] as IPiece;
-    const promotion = pawnPromotions.find((p) => p.strategy.type === pieceType);
-    const strategy = promotion?.strategy as IStrategy;
-    game.updateStrategy(piece, strategy);
-    setPromotionPickerOpen(false);
-    setBoard(game.board);
-    setSelectedPiece(null);
-  }, []);
+  const promotePawn = useCallback(
+    (square: Square, pieceType: PieceType, timestamp: Date) => {
+      const [rank, file] = square;
+      const piece = game.board[rank][file] as IPiece;
+      const promotion = pawnPromotions.find(
+        (p) => p.strategy.type === pieceType
+      );
+      const strategy = promotion?.strategy as IStrategy;
+      game.updateStrategy(piece, strategy);
+      setLastMovedAt(timestamp);
+      setBoard(game.board);
+      setSelectedPiece(null);
+      setPromotionPickerOpen(false);
+    },
+    []
+  );
 
   const handleSelectPiece = useCallback((piece: IPiece) => {
     if (game.activePlayer === piece.owner) {
@@ -167,7 +193,7 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
     }
   }, []);
 
-  const { white, black } = game;
+  const { white, black, activePlayer } = game;
 
   return (
     <ChessContext.Provider
@@ -175,6 +201,7 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
         player,
         white,
         black,
+        next: activePlayer.getColor(),
         board,
         selectedPiece,
         promotionPickerOpen,
@@ -182,6 +209,7 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
         selectPiece: handleSelectPiece,
         move: sendMove,
         selectPromotion: sendPromotion,
+        lastMovedAt,
       }}>
       {children}
     </ChessContext.Provider>
@@ -399,9 +427,9 @@ const pickerStyles = StyleSheet.create({
   },
 });
 
-interface Props {}
+interface PromotionPickerProps {}
 
-export const PromotionPicker = ({}: Props) => {
+export const PromotionPicker = ({}: PromotionPickerProps) => {
   const { player } = useContext(ChessContext);
   const playerColor = player && player.isWhite ? "white" : "black";
 
@@ -437,5 +465,105 @@ export const PromotionPicker = ({}: Props) => {
   );
 };
 
+const cardStyles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    width: "100%",
+    alignItems: "center",
+    padding: 12,
+  },
+  name: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: "500",
+    marginLeft: 6,
+  },
+  timer: {
+    padding: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    fontVariant: ["tabular-nums"],
+  },
+  timerText: {
+    fontSize: 17,
+    fontWeight: "500",
+  },
+});
+
+type ProfileCardProps = {
+  profile: User;
+  isWhite: boolean;
+};
+
+export const ProfileCard = ({
+  profile: { avatar, firstName, lastName },
+  isWhite,
+}: ProfileCardProps) => {
+  const { colors } = useAppTheme();
+
+  const { next, lastMovedAt } = useContext(ChessContext);
+
+  const [secondsRemaining, setSecondsRemaining] = useState(600);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
+  const timer = useRef<ReturnType<typeof setInterval>>(null);
+
+  useEffect(() => {
+    if (
+      lastMovedAt &&
+      ((isWhite && next === "White") || (!isWhite && next === "Black"))
+    ) {
+      // @ts-ignore
+      timer.current = setInterval(() => {
+        console.log("interval");
+        // setSecondsRemaining(sec => sec - 1);
+        const elapsedTime = Date.now() - lastMovedAt.getTime();
+        console.log({ elapsedTime });
+        setElapsedSeconds(Math.floor(elapsedTime / 1000));
+      }, 1000);
+    }
+    return () => {
+      if (timer.current && lastMovedAt) {
+        clearInterval(timer.current);
+        setSecondsRemaining((sec) => sec - elapsedSeconds);
+        setElapsedSeconds(0);
+      }
+    };
+  }, [next, lastMovedAt, isWhite]);
+
+  return (
+    <View style={[cardStyles.container, { backgroundColor: colors.card }]}>
+      <Avatar.Image
+        // @ts-ignore
+        source={{ uri: avatar }}
+        size={40}
+      />
+      <Text
+        style={[
+          cardStyles.name,
+          { color: colors.text },
+        ]}>{`${firstName} ${lastName}`}</Text>
+      <View
+        style={[
+          cardStyles.timer,
+          {
+            backgroundColor: isWhite ? "#e8e8e8" : "#282828",
+          },
+        ]}>
+        <Text
+          style={[
+            cardStyles.timerText,
+            { color: isWhite ? "#282828" : "#e8e8e8" },
+          ]}>
+          {dayjs
+            .duration(secondsRemaining - elapsedSeconds, "seconds")
+            .format("mm:ss")}
+        </Text>
+      </View>
+    </View>
+  );
+};
+
 Chess.Board = Board;
 Chess.PromotionPicker = PromotionPicker;
+Chess.ProfileCard = ProfileCard;

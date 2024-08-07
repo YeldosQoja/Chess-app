@@ -18,18 +18,18 @@ export default function Game() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <PlayerProfileCard
-        player={isWhite ? opponent : challenger}
-        isWhite={!isWhite}
-      />
       <Chess player={{ isWhite }}>
+        <Chess.ProfileCard
+          profile={isWhite ? opponent : challenger}
+          isWhite={!isWhite}
+        />
         <Chess.Board />
         <Chess.PromotionPicker />
+        <Chess.ProfileCard
+          profile={isWhite ? challenger : opponent}
+          isWhite={isWhite}
+        />
       </Chess>
-      <PlayerProfileCard
-        player={isWhite ? challenger : opponent}
-        isWhite={isWhite}
-      />
     </View>
   );
 }

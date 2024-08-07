@@ -19,7 +19,7 @@ export interface IChess {
   activePlayer: Player;
   currentEnPassantPawn: IPiece | null;
   move(piece: IPiece, square: [number, number]): void;
-  updateStrategy(piece: IPiece, strategy: IStrategy): void
+  updateStrategy(piece: IPiece, strategy: IStrategy): void;
   isInCheck(): boolean;
   isInCheckmate(): boolean;
   isInStalemate(): boolean;
@@ -109,8 +109,11 @@ export class Chess implements IChess {
       this.currentEnPassantPawn = null;
       // Make move
       piece.move(square);
-      // Switch player
-      this.activePlayer = this.activePlayer.getOpponent();
+      // Check if piece should be promoted
+      if (!piece.isPromotion()) {
+        // Switch player
+        this.activePlayer = this.activePlayer.getOpponent();
+      }
       // Update the board
       this.updateBoard();
     }
@@ -118,6 +121,7 @@ export class Chess implements IChess {
 
   updateStrategy(piece: IPiece, strategy: IStrategy): void {
     piece.updateStrategy(strategy);
+    this.activePlayer = this.activePlayer.getOpponent();
     this.updateBoard();
   }
 
