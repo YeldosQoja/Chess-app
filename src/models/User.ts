@@ -9,4 +9,6 @@ export interface User {
   wins: number;
   losses: number;
   draws: number;
+  isFriend: boolean;
+  isRequested: boolean;
 }

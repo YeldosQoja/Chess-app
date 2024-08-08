@@ -4,24 +4,25 @@ import {
   ScrollView,
   StyleSheet,
   View,
-  useColorScheme,
+  ViewStyle,
 } from "react-native";
 import { useAppTheme } from "@/providers";
 
 type Props = {
   scrollable?: boolean;
   isLoading?: boolean;
+  style?: ViewStyle;
 };
 
 export const ScreenContainer = ({
   scrollable,
   children,
   isLoading = false,
+  style,
 }: PropsWithChildren<Props>) => {
   const {
     colors: { background, tint },
   } = useAppTheme();
-  const systemColor = useColorScheme();
   if (scrollable) {
     return (
       <ScrollView
@@ -30,6 +31,7 @@ export const ScreenContainer = ({
           {
             backgroundColor: background,
           },
+          style,
         ]}>
         {isLoading ? <ActivityIndicator color={tint} /> : children}
       </ScrollView>
@@ -42,6 +44,7 @@ export const ScreenContainer = ({
         {
           backgroundColor: background,
         },
+        style,
       ]}>
       {isLoading ? <ActivityIndicator color={tint} /> : children}
     </View>

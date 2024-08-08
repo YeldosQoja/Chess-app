@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   StyleSheet,
   Text,
+  TextStyle,
   TouchableOpacity,
   TouchableOpacityProps,
 } from "react-native";
@@ -10,12 +11,13 @@ import { useAppTheme } from "@/providers";
 
 interface Props extends TouchableOpacityProps {
   title: string;
+  titleStyle: TextStyle,
   icon?: ReactNode;
   isLoading?: boolean;
 }
 
 export const Button = forwardRef<TouchableOpacity, Props>(
-  ({ style, title, icon, isLoading, ...rest }, ref) => {
+  ({ style, title, titleStyle, icon, isLoading, ...rest }, ref) => {
     const {
       colors: { tint },
     } = useAppTheme();
@@ -29,7 +31,7 @@ export const Button = forwardRef<TouchableOpacity, Props>(
           <ActivityIndicator color={"white"} />
         ) : (
           <>
-            <Text style={styles.buttonTitle}>{title}</Text>
+            <Text style={[styles.buttonTitle, titleStyle]}>{title}</Text>
             {icon}
           </>
         )}

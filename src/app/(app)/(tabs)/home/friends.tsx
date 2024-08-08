@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
   Dimensions,
   ListRenderItem,
@@ -8,9 +8,15 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { FriendList, FriendItem, Input, FriendRequest } from "@/components";
+import {
+  FriendList,
+  FriendItem,
+  Input,
+  ScreenContainer,
+  FriendRequest,
+} from "@/components";
 import { useUsers } from "@/queries/users";
-import { User } from "@/models";
+import { FriendRequest as FriendRequestModel, User } from "@/models";
 import Constants from "expo-constants";
 import { Ionicons } from "@expo/vector-icons";
 import { useAppTheme } from "@/providers";
@@ -40,8 +46,16 @@ export default function Friends() {
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 400);
 
-  const { data: friends } = useProfileFriends();
-  const { data: requests } = useFriendRequests();
+  const {
+    data: friends,
+    refetch: refetchFriends,
+    isRefetching: isRefetchingFriends,
+  } = useProfileFriends();
+  const {
+    data: requests,
+    refetch: refetchRequests,
+    isRefetching: isRefetchingRequests,
+  } = useFriendRequests();
   const { data: users, isPending, error } = useUsers(debouncedQuery);
 
   const input = useRef<TextInput>(null);
@@ -71,25 +85,33 @@ export default function Friends() {
     zIndex: withTiming(isFocused.value ? 1 : 0),
   }));
 
-  const handleFocus = () => {
+  const handleFocus = useCallback(() => {
     isFocused.value = true;
-  };
+  }, []);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     isFocused.value = false;
     if (input.current) {
       input.current.blur();
     }
     setQuery("");
-  };
+  }, []);
 
-  const renderItem: ListRenderItem<User> = ({ item }) => {
-    return <FriendItem user={item} />;
-  };
+  const renderFriendItem: ListRenderItem<User> = useCallback(
+    ({ item }) => <FriendItem user={item} />,
+    []
+  );
+
+  const renderFriendRequestItem: ListRenderItem<FriendRequestModel> =
+    useCallback(({ item }) => <FriendRequest request={item} />, []);
 
   return (
     <>
-      <View style={[headerStyles.container, { borderColor: colors.border }]}>
+      <View
+        style={[
+          headerStyles.container,
+          { backgroundColor: colors.background, borderColor: colors.border },
+        ]}>
         <Animated.View style={inputStyle}>
           <Input
             ref={input}
@@ -118,21 +140,12 @@ export default function Friends() {
           </Pressable>
         </Animated.View>
       </View>
-      <View style={{ flex: 1, backgroundColor: "white" }}>
-        <Animated.View
-          style={[
-            {
-              zIndex: 2,
-              marginTop: HEADER_HEIGHT,
-              justifyContent: "flex-end",
-              height: TAB_HEIGHT,
-              paddingHorizontal: PADDING,
-            },
-            tabStyle,
-          ]}>
+      <ScreenContainer style={styles.container}>
+        <Animated.View style={[styles.tab, tabStyle]}>
           <SegmentedControl
             values={["Friends", "Requests"]}
             selectedIndex={selectedSegmentIndex}
+            backgroundColor={colors.card}
             onChange={(event) => {
               setSelectedSegmentIndex(event.nativeEvent.selectedSegmentIndex);
             }}
@@ -141,48 +154,42 @@ export default function Friends() {
         {selectedSegmentIndex === 0 ? (
           <AnimatedFriendList
             data={friends}
-            renderItem={renderItem}
+            renderItem={renderFriendItem}
             ListHeaderComponent={
-              <View style={{ padding: 12 }}>
-                <Text
-                  style={{
-                    fontSize: 22,
-                    fontWeight: "500",
-                    marginTop: 12,
-                  }}>
+              <View style={styles.listHeader}>
+                <Text style={[styles.listHeaderTitle, { color: colors.text }]}>
                   Friends
                 </Text>
               </View>
             }
             style={friendListStyle}
+            refreshing={isRefetchingFriends}
+            onRefresh={refetchFriends}
           />
         ) : (
           <Animated.FlatList
             data={requests}
-            renderItem={({ item }) => <FriendRequest request={item} />}
+            renderItem={renderFriendRequestItem}
             ListHeaderComponent={
-              <View style={{ padding: 12 }}>
-                <Text
-                  style={{
-                    fontSize: 22,
-                    fontWeight: "500",
-                    marginTop: 12,
-                  }}>
+              <View style={styles.listHeader}>
+                <Text style={[styles.listHeaderTitle, { color: colors.text }]}>
                   Incoming Requests
                 </Text>
               </View>
             }
             keyExtractor={(item) => item.id.toString()}
             style={friendListStyle}
+            refreshing={isRefetchingRequests}
+            onRefresh={refetchRequests}
           />
         )}
         <AnimatedFriendList
           data={users}
-          renderItem={renderItem}
+          renderItem={renderFriendItem}
           style={[StyleSheet.absoluteFill, listStyle]}
           contentContainerStyle={{ paddingTop: HEADER_HEIGHT }}
         />
-      </View>
+      </ScreenContainer>
     </>
   );
 }
@@ -194,7 +201,6 @@ const headerStyles = StyleSheet.create({
     left: 0,
     right: 0,
     height: HEADER_HEIGHT,
-    backgroundColor: "white",
     paddingHorizontal: PADDING,
     paddingVertical: 8,
     flexDirection: "row",
@@ -215,5 +221,26 @@ const headerStyles = StyleSheet.create({
   buttonTitle: {
     fontSize: 15,
     fontWeight: "500",
+  },
+});
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 0,
+  },
+  tab: {
+    zIndex: 2,
+    marginTop: HEADER_HEIGHT,
+    justifyContent: "flex-end",
+    height: TAB_HEIGHT,
+    paddingHorizontal: PADDING,
+  },
+  listHeader: {
+    padding: 12,
+  },
+  listHeaderTitle: {
+    fontSize: 22,
+    fontWeight: "500",
+    marginTop: 12,
   },
 });

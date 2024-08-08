@@ -1,6 +1,6 @@
 import { StyleSheet, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { Chess, PlayerProfileCard } from "@/components";
+import { Chess } from "@/components";
 import { useAppTheme } from "@/providers";
 import { useGetGameById } from "@/queries/games";
 

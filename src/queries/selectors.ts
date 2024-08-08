@@ -11,6 +11,8 @@ export const selectUser = (data: any): User => ({
   wins: data.profile.wins,
   losses: data.profile.losses,
   draws: data.profile.draws,
+  isFriend: data.is_friend,
+  isRequested: data.is_requested,
 });
 
 export const selectGame = ({

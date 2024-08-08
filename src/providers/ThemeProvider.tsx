@@ -1,4 +1,4 @@
-import { PropsWithChildren, createContext, useEffect, useState } from "react";
+import { PropsWithChildren, createContext, useContext, useState } from "react";
 import {
   Colors,
   NavigationLightTheme,
@@ -35,43 +35,31 @@ const CombinedDarkTheme = {
 export const ThemeContext = createContext({
   colors: Colors.light,
   dark: false,
-  setDark: (value: boolean) => {},
+  setMode: (value: Mode) => {},
 });
-
-import { useContext } from "react";
 
 export const useAppTheme = () => {
   const theme = useContext(ThemeContext);
   return theme;
 };
 
-interface Props {
-  style?: "light" | "dark";
-}
+type Mode = "light" | "dark" | "system";
 
-export const ThemeProvider = ({
-  children,
-  style,
-}: PropsWithChildren<Props>) => {
+export const ThemeProvider = ({ children }: PropsWithChildren) => {
   const systemColor = useColorScheme();
-  const [dark, setDark] = useState(
-    style ? style === "dark" : systemColor === "dark"
-  );
+  const [mode, setMode] = useState<Mode>("system");
+
+  const dark = mode === "dark" || (mode === "system" && systemColor === "dark");
+
   const colors = Colors[dark ? "dark" : "light"];
   const theme = dark ? CombinedDarkTheme : CombinedLightTheme;
-
-  useEffect(() => {
-    if (style === undefined) {
-      setDark(systemColor === "dark");
-    }
-  }, [systemColor]);
 
   return (
     <ThemeContext.Provider
       value={{
-        colors: colors,
+        colors,
         dark,
-        setDark,
+        setMode,
       }}>
       <PaperProvider theme={theme}>
         <NavigationThemeProvider value={theme}>

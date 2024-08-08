@@ -1,6 +1,39 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { axiosClient } from "./axiosClient";
-import { FriendRequest, User } from "@/models";
+import { User } from "@/models";
+import { Alert } from "react-native";
+
+async function addFriend(id: number) {
+  const response = await axiosClient.post<{
+    message: string;
+  }>(`friends/${id}/add/`);
+  return response;
+}
+
+export const useAddFriend = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ["friends", "addFriend"],
+    mutationFn: addFriend,
+    onSuccess: ({ data: { message } }) => {
+      queryClient.invalidateQueries({ queryKey: ["users", "list"] });
+      Alert.alert("", message, [
+        { text: "OK", style: "default", isPreferred: true },
+      ]);
+    },
+  });
+};
+
+async function removeFriend(id: number) {
+  const response = await axiosClient.post(`friends/${id}/remove/`);
+  return response;
+}
+
+export const useRemoveFriend = () =>
+  useMutation({
+    mutationKey: ["friends", "removeFriend"],
+    mutationFn: removeFriend,
+  });
 
 async function acceptFriendRequest(id: number) {
   const response = await axiosClient.post(`friends/requests/${id}/accept/`);

@@ -5,7 +5,6 @@ import {
 } from "@tanstack/react-query";
 import { axiosClient } from "./axiosClient";
 import { useRouter } from "expo-router";
-import { Square } from "@/models";
 import { selectGame } from "./selectors";
 
 async function getGameById({ queryKey }: QueryFunctionContext) {
@@ -52,14 +51,3 @@ export const useAcceptChallenge = () => {
     },
   });
 };
-
-export async function sendMove({
-  id,
-  move,
-}: {
-  id: number;
-  move: { from: Square; to: Square };
-}) {
-  const response = await axiosClient.post(`games/${id}/move/`, { ...move });
-  return response.data;
-}

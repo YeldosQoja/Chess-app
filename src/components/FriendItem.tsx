@@ -1,3 +1,4 @@
+import { memo, useCallback } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Link } from "expo-router";
 import { Avatar, Button, Divider } from "react-native-paper";
@@ -5,60 +6,87 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useAppTheme } from "@/providers";
 import { useSendChallenge } from "@/queries/games";
 import { User } from "@/models";
+import { Button as PrimaryButton } from "@/components/Button";
+import { useAddFriend } from "@/queries/friends";
 
 type Props = {
   user: User;
 };
 
-export const FriendItem = ({
-  user: { id, firstName, lastName, avatar },
-}: Props) => {
-  const { colors } = useAppTheme();
-  const { mutate: sendChallenge } = useSendChallenge();
+export const FriendItem = memo(
+  ({
+    user: { id, firstName, lastName, avatar, isFriend, isRequested },
+  }: Props) => {
+    const { colors } = useAppTheme();
+    const sendChallenge = useSendChallenge();
+    const addFriend = useAddFriend();
 
-  const onChallenge = () => {
-    sendChallenge(id);
-  };
+    const handleAdd = useCallback(() => {
+      addFriend.mutate(id);
+    }, []);
 
-  return (
-    <Link
-      href={`/users/${id}`}
-      asChild>
-      <TouchableOpacity>
-        <View style={styles.content}>
-          <Avatar.Image
-            size={38}
-            source={{ uri: avatar }}
-          />
-          <Text
-            style={[
-              styles.name,
-              { color: colors.text },
-            ]}>{`${firstName} ${lastName}`}</Text>
-          <Link
-            href={`/chats/${id}`}
-            asChild>
-            <Ionicons.Button
-              name="mail-outline"
-              size={24}
-              color={colors.icon}
-              iconStyle={styles.messageIcon}
-              backgroundColor="transparent"
-              onPress={() => console.log("Message pressed")}
-              underlayColor="transparent"
+    const handleChallenge = useCallback(() => {
+      sendChallenge.mutate(id);
+    }, []);
+
+    return (
+      <Link
+        href={`/users/${id}`}
+        asChild>
+        <TouchableOpacity>
+          <View style={styles.content}>
+            <Avatar.Image
+              // @ts-ignore
+              source={{ uri: avatar }}
+              size={38}
             />
-          </Link>
-          <Button
-            textColor={colors.tint}
-            onPress={onChallenge}>
-            Challenge
-          </Button>
-        </View>
-        <Divider />
-      </TouchableOpacity>
-    </Link>
-  );
-};
+            <Text
+              style={[
+                styles.name,
+                { color: colors.text },
+              ]}>{`${firstName} ${lastName}`}</Text>
+            {isFriend ? (
+              <>
+                <Link
+                  href={`/chats/${id}`}
+                  asChild>
+                  <Ionicons.Button
+                    name="mail-outline"
+                    size={24}
+                    color={colors.icon}
+                    iconStyle={styles.messageIcon}
+                    backgroundColor="transparent"
+                    onPress={() => console.log("Message pressed")}
+                    underlayColor="transparent"
+                  />
+                </Link>
+                <Button
+                  textColor={colors.tint}
+                  onPress={handleChallenge}>
+                  Challenge
+                </Button>
+              </>
+            ) : isRequested ? (
+              <Ionicons
+                name="checkmark-done-sharp"
+                color={colors.tint}
+                size={26}
+              />
+            ) : (
+              <PrimaryButton
+                title="Add"
+                style={styles.addButton}
+                titleStyle={styles.addButtonTitle}
+                onPress={handleAdd}
+              />
+            )}
+          </View>
+          <Divider />
+        </TouchableOpacity>
+      </Link>
+    );
+  }
+);
 
 const styles = StyleSheet.create({
   content: {
@@ -75,5 +103,13 @@ const styles = StyleSheet.create({
   },
   messageIcon: {
     marginRight: 0,
+  },
+  addButton: {
+    height: undefined,
+    padding: 8,
+    paddingHorizontal: 16,
+  },
+  addButtonTitle: {
+    fontSize: 14,
   },
 });
