@@ -3,30 +3,45 @@ import { useLocalSearchParams } from "expo-router";
 import { Chess } from "@/components";
 import { useAppTheme } from "@/providers";
 import { useGetGameById } from "@/queries/games";
+import { useProfile } from "@/queries/profile";
 
 export default function Game() {
   const { colors } = useAppTheme();
   const params = useLocalSearchParams<{ id: string }>();
   const id = params.id ? parseInt(params.id) : 0;
-  const { data, isPending, isSuccess } = useGetGameById(id);
+  const {
+    data,
+    isPending: isLoadingGame,
+    isSuccess: isSuccessGame,
+  } = useGetGameById(id);
+  const {
+    data: profile,
+    isPending: isLoadingProfile,
+    isSuccess: isSuccessProfile,
+  } = useProfile();
 
-  if (isPending || !isSuccess) {
+  if (
+    isLoadingGame ||
+    !isSuccessGame ||
+    isLoadingProfile ||
+    !isSuccessProfile
+  ) {
     return null;
   }
 
-  const { isWhite, opponent, challenger } = data;
+  const { isWhite, opponent } = data;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Chess player={{ isWhite }}>
         <Chess.ProfileCard
-          profile={isWhite ? opponent : challenger}
+          profile={opponent}
           isWhite={!isWhite}
         />
         <Chess.Board />
         <Chess.PromotionPicker />
         <Chess.ProfileCard
-          profile={isWhite ? challenger : opponent}
+          profile={profile}
           isWhite={isWhite}
         />
       </Chess>

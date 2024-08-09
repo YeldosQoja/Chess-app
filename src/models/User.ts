@@ -5,7 +5,7 @@ export interface User {
   firstName: string;
   lastName: string;
   avatar: string | null;
-  dateJoined: string;
+  joinedAt: string;
   wins: number;
   losses: number;
   draws: number;

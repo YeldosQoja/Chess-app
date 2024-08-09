@@ -28,21 +28,6 @@ export const useUserById = (id: number) =>
   useQuery({
     queryKey: ["users", "detail", id],
     queryFn: getUserById,
-    initialData: {
-      id: 1,
-      username: "",
-      email: "",
-      first_name: "",
-      last_name: "",
-      date_joined: "",
-      profile: {
-        avatar: null,
-        wins: 0,
-        losses: 0,
-        draws: 0,
-        games: [],
-      },
-    },
     select: selectUser,
   });
 
@@ -57,7 +42,6 @@ export const useFriendsByUserId = (userId: number) =>
     queryKey: ["users", "friends", "list", userId],
     queryFn: getFriendsByUserId,
     select: (data) => data.map(selectUser),
-    initialData: [],
   });
 
 async function getGamesByUserId({ queryKey }: QueryFunctionContext) {
@@ -71,5 +55,4 @@ export const useGamesByUserId = (userId: number) =>
     queryKey: ["users", "games", "list", userId],
     queryFn: getGamesByUserId,
     select: (data) => data.map(selectGame),
-    initialData: [],
   });

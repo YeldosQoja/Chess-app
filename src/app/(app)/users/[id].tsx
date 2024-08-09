@@ -7,35 +7,56 @@ import {
   useGamesByUserId,
 } from "@/queries/users";
 import { useLocalSearchParams } from "expo-router";
-import { FriendItem, ScreenContainer } from "@/components";
+import { FriendItem, GameStats, ScreenContainer } from "@/components";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import dayjs from "dayjs";
 
 export default function User() {
   const insets = useSafeAreaInsets();
   const { colors } = useAppTheme();
-
   const params = useLocalSearchParams<{ id: string }>();
   const id = params.id ? parseInt(params.id) : 0;
 
-  const { data: user, isPending } = useUserById(id);
-  const { data: friends } = useFriendsByUserId(id);
-  const { data: games } = useGamesByUserId(id);
+  const {
+    data: user,
+    isPending: isLoadingUser,
+    isSuccess: isSuccessUser,
+  } = useUserById(id);
+  const {
+    data: friends,
+    isPending: isLoadingFriends,
+    isSuccess: isSuccessFriends,
+  } = useFriendsByUserId(id);
+  const {
+    data: games,
+    isPending: isLoadingGames,
+    isSuccess: isSuccessGames,
+  } = useGamesByUserId(id);
+
+  if (
+    isLoadingUser ||
+    !isSuccessUser ||
+    isLoadingFriends ||
+    !isSuccessFriends ||
+    isLoadingGames ||
+    !isSuccessGames
+  ) {
+    return null;
+  }
 
   const {
     username,
     firstName,
     lastName,
     avatar,
-    dateJoined,
+    joinedAt,
     wins,
     losses,
     draws,
   } = user;
 
   return (
-    <ScreenContainer
-      scrollable
-      isLoading={isPending}>
+    <ScreenContainer scrollable>
       <View style={styles.header}>
         <Avatar.Image
           size={70}
@@ -48,41 +69,10 @@ export default function User() {
           {`${firstName} ${lastName}`}
         </Text>
         <Text style={[styles.dateJoined, { color: colors.text }]}>
-          {dateJoined}
+          Joined {dayjs(joinedAt).format("D MMMM YYYY")}
         </Text>
       </View>
-      <View style={styles.statsGroup}>
-        <View
-          style={[
-            styles.stats,
-            { backgroundColor: colors.card, width: "30%" },
-          ]}>
-          <Text style={[styles.statsTitle, { color: colors.green }]}>Wins</Text>
-          <Text style={[styles.statsData, { color: colors.text }]}>{wins}</Text>
-        </View>
-        <View
-          style={[
-            styles.stats,
-            { backgroundColor: colors.card, width: "30%" },
-          ]}>
-          <Text style={[styles.statsTitle, { color: colors.yellow }]}>
-            Draws
-          </Text>
-          <Text style={[styles.statsData, { color: colors.text }]}>
-            {draws}
-          </Text>
-        </View>
-        <View
-          style={[
-            styles.stats,
-            { backgroundColor: colors.card, width: "30%" },
-          ]}>
-          <Text style={[styles.statsTitle, { color: colors.red }]}>Losses</Text>
-          <Text style={[styles.statsData, { color: colors.text }]}>
-            {losses}
-          </Text>
-        </View>
-      </View>
+      <GameStats {...{ draws, losses, wins }} />
       {games.length > 0 ? (
         <>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
@@ -94,7 +84,7 @@ export default function User() {
               <DataTable.Title>Opponent</DataTable.Title>
               <DataTable.Title>Status</DataTable.Title>
             </DataTable.Header>
-            {games.map(({ challenger, opponent, winner, duration }, idx) => {
+            {games.map(({ opponent, winner, duration }, idx) => {
               const color =
                 winner === id
                   ? colors.green
@@ -106,11 +96,7 @@ export default function User() {
               return (
                 <DataTable.Row key={idx}>
                   <DataTable.Cell>{duration}</DataTable.Cell>
-                  <DataTable.Cell>
-                    {challenger.id === id
-                      ? opponent.username
-                      : challenger.username}
-                  </DataTable.Cell>
+                  <DataTable.Cell>{opponent.username}</DataTable.Cell>
                   <DataTable.Cell
                     textStyle={{
                       color,
@@ -158,26 +144,6 @@ const styles = StyleSheet.create({
   dateJoined: {
     marginTop: 8,
     fontSize: 15,
-  },
-  statsGroup: {
-    alignSelf: "stretch",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    margin: 12,
-    marginVertical: 16,
-  },
-  stats: {
-    padding: 8,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  statsTitle: {
-    fontSize: 15,
-    fontWeight: "500",
-  },
-  statsData: {
-    fontSize: 14,
-    fontWeight: "500",
   },
   sectionTitle: {
     fontSize: 22,

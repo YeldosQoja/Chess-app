@@ -6,7 +6,7 @@ export const selectUser = (data: any): User => ({
   lastName: data.last_name,
   email: data.email,
   username: data.username,
-  dateJoined: `Joined at ${new Date(data.date_joined).toDateString()}`,
+  joinedAt: data.date_joined,
   avatar: data.profile.avatar,
   wins: data.profile.wins,
   losses: data.profile.losses,
@@ -17,17 +17,17 @@ export const selectUser = (data: any): User => ({
 
 export const selectGame = ({
   is_white,
+  is_winner,
   is_active,
   started_at,
   finished_at,
-  challenger,
   opponent,
   ...rest
 }: any): Game => ({
-  challenger: selectUser(challenger),
   opponent: selectUser(opponent),
   isWhite: is_white,
   isFinished: !is_active,
+  isWinner: is_winner,
   duration:
     new Date(finished_at).getSeconds() - new Date(started_at).getSeconds(),
   ...rest,
