@@ -36,7 +36,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     margin: 12,
-    marginVertical: 16,
   },
   stats: {
     padding: 8,

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Avatar, DataTable } from "react-native-paper";
 import { useAppTheme } from "@/providers";
 import {
@@ -10,6 +10,7 @@ import { useLocalSearchParams } from "expo-router";
 import { FriendItem, GameStats, ScreenContainer } from "@/components";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import dayjs from "dayjs";
+import { GameArchiveItem } from "@/components/GameArchiveItem";
 
 export default function User() {
   const insets = useSafeAreaInsets();
@@ -56,10 +57,13 @@ export default function User() {
   } = user;
 
   return (
-    <ScreenContainer scrollable>
+    <ScreenContainer
+      scrollable
+      style={styles.container}>
       <View style={styles.header}>
         <Avatar.Image
           size={70}
+          // @ts-ignore
           source={{ uri: avatar }}
         />
         <Text style={[styles.fullName, { color: colors.text }]}>
@@ -73,64 +77,54 @@ export default function User() {
         </Text>
       </View>
       <GameStats {...{ draws, losses, wins }} />
-      {games.length > 0 ? (
+      {games.length > 0 && (
         <>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            Recent games
-          </Text>
-          <DataTable>
-            <DataTable.Header>
-              <DataTable.Title>Time</DataTable.Title>
-              <DataTable.Title>Opponent</DataTable.Title>
-              <DataTable.Title>Status</DataTable.Title>
-            </DataTable.Header>
-            {games.map(({ opponent, winner, duration }, idx) => {
-              const color =
-                winner === id
-                  ? colors.green
-                  : winner === null
-                  ? colors.yellow
-                  : colors.red;
-              const status =
-                winner === id ? "Won" : winner === null ? "Draw" : "Lost";
-              return (
-                <DataTable.Row key={idx}>
-                  <DataTable.Cell>{duration}</DataTable.Cell>
-                  <DataTable.Cell>{opponent.username}</DataTable.Cell>
-                  <DataTable.Cell
-                    textStyle={{
-                      color,
-                      fontWeight: "600",
-                    }}>
-                    {status}
-                  </DataTable.Cell>
-                </DataTable.Row>
-              );
-            })}
-          </DataTable>
+          <TouchableOpacity style={{ backgroundColor: colors.card }}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              Games
+            </Text>
+          </TouchableOpacity>
+          <View style={{ marginBottom: 12 }}>
+            {games.map((game) => (
+              <GameArchiveItem
+                key={game.id}
+                game={game}
+              />
+            ))}
+          </View>
         </>
-      ) : (
-        <Text>No games yet</Text>
       )}
-      <Text style={[styles.sectionTitle, { color: colors.text }]}>Friends</Text>
-      <View
-        style={{
-          marginBottom: insets.bottom,
-        }}>
-        {friends.map((friend) => (
-          <FriendItem
-            key={friend.id}
-            user={friend}
-          />
-        ))}
-      </View>
+      {friends.length > 0 && (
+        <>
+          <View style={{ backgroundColor: colors.card }}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              Friends
+            </Text>
+          </View>
+          <View
+            style={{
+              marginBottom: insets.bottom,
+            }}>
+            {friends.map((friend) => (
+              <FriendItem
+                key={friend.id}
+                user={friend}
+              />
+            ))}
+          </View>
+        </>
+      )}
     </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    padding: 0,
+  },
   header: {
     alignItems: "center",
+    padding: 12,
   },
   fullName: {
     fontSize: 22,
@@ -146,9 +140,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   sectionTitle: {
-    fontSize: 22,
-    fontWeight: "500",
+    fontSize: 20,
+    fontWeight: "600",
     alignSelf: "flex-start",
-    margin: 12,
+    margin: 16,
+    marginVertical: 8,
   },
 });
