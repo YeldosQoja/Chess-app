@@ -33,7 +33,7 @@ export default function Game() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Chess player={{ isWhite }}>
+      <Chess player={isWhite ? "White" : "Black"}>
         <Chess.ProfileCard
           profile={opponent}
           isWhite={!isWhite}

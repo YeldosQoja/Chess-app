@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Avatar, DataTable } from "react-native-paper";
+import { Avatar } from "react-native-paper";
 import { useAppTheme } from "@/providers";
 import {
   useUserById,

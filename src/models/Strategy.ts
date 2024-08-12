@@ -30,7 +30,7 @@ const KNIGHT_OFFSETS: Array<Square> = [
 
 export interface IStrategy {
   game: IChess;
-  type?: PieceType | undefined;
+  type: PieceType;
   getValidMoves(
     currentSquare: Square,
     isMoved: boolean,
@@ -42,9 +42,10 @@ export interface IStrategy {
 
 export class Strategy implements IStrategy {
   game: IChess;
-  type?: PieceType | undefined;
-  constructor(game: IChess) {
+  type: PieceType;
+  constructor(game: IChess, type: PieceType) {
     this.game = game;
+    this.type = type;
   }
 
   getValidMoves(
@@ -67,8 +68,7 @@ export class Strategy implements IStrategy {
 
 export class PawnStrategy extends Strategy {
   constructor(game: IChess) {
-    super(game);
-    this.type = PieceType.Pawn;
+    super(game, PieceType.Pawn);
   }
 
   getValidMoves(
@@ -144,8 +144,7 @@ export class PawnStrategy extends Strategy {
 
 export class RookStrategy extends Strategy {
   constructor(game: IChess) {
-    super(game);
-    this.type = PieceType.Rook;
+    super(game, PieceType.Rook);
   }
 
   getValidMoves(
@@ -177,8 +176,7 @@ export class RookStrategy extends Strategy {
 
 export class BishopStrategy extends Strategy {
   constructor(game: IChess) {
-    super(game);
-    this.type = PieceType.Bishop;
+    super(game, PieceType.Bishop);
   }
 
   getValidMoves(
@@ -210,8 +208,7 @@ export class BishopStrategy extends Strategy {
 
 export class KnightStrategy extends Strategy {
   constructor(game: IChess) {
-    super(game);
-    this.type = PieceType.Knight;
+    super(game, PieceType.Knight);
   }
 
   getValidMoves(
@@ -237,8 +234,7 @@ export class KnightStrategy extends Strategy {
 
 export class QueenStrategy extends Strategy {
   constructor(game: IChess) {
-    super(game);
-    this.type = PieceType.Queen;
+    super(game, PieceType.Queen);
   }
 
   getValidMoves(
@@ -270,8 +266,7 @@ export class QueenStrategy extends Strategy {
 
 export class KingStrategy extends Strategy {
   constructor(game: IChess) {
-    super(game);
-    this.type = PieceType.King;
+    super(game, PieceType.King);
   }
 
   private getAvailableMoves(

@@ -18,6 +18,7 @@ import {
 import { useLocalSearchParams } from "expo-router";
 import { Image } from "expo-image";
 import {
+  Chess as Game,
   Board as BoardType,
   IPiece,
   IStrategy,
@@ -27,19 +28,24 @@ import {
   Square,
   Strategy,
   User,
+  QueenStrategy,
+  KnightStrategy,
+  RookStrategy,
+  BishopStrategy,
 } from "@/models";
-import { useChess } from "@/hooks/useChess";
-import { useWs } from "@/hooks/useWs";
 import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
 import lodash from "lodash";
-import images from "@/assets/images/chess";
 import { useAppTheme } from "@/providers";
 import { Avatar } from "react-native-paper";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
+import { useLazy } from "@/hooks/useLazy";
+import images from "@/assets/images/chess";
+
+const { queen, knight, bishop, rook } = images;
 
 dayjs.extend(duration);
 
@@ -50,26 +56,38 @@ const COLORS = {
   dark: "rgb(187,190,100)",
 };
 
+type GameState = {
+  activePlayer: "White" | "Black";
+  board: BoardType;
+  lastMovedAt: {
+    White: Date | null;
+    Black: Date | null;
+  };
+};
+
 const ChessContext = createContext<{
-  player: false | { isWhite: boolean };
+  selectedPiece: IPiece | null;
+  game: GameState;
+  player?: "White" | "Black";
   white: Player | null;
   black: Player | null;
-  next: "White" | "Black";
-  board: BoardType;
-  selectedPiece: IPiece | null;
   promotionPickerOpen: boolean;
   pawnPromotions: { image: any; strategy: Strategy }[];
   selectPiece: (piece: IPiece) => void;
   move: (square: Square) => void;
   selectPromotion: (promotion: PawnPromotion) => void;
-  lastMovedAt?: Date;
 }>({
-  player: false,
+  selectedPiece: null,
+  game: {
+    activePlayer: "White",
+    board: Array(8).fill(Array(8).fill(null)),
+    lastMovedAt: {
+      White: null,
+      Black: null,
+    },
+  },
   white: null,
   black: null,
-  next: "White",
-  board: Array(8).fill(Array(8).fill(null)),
-  selectedPiece: null,
   promotionPickerOpen: false,
   pawnPromotions: [],
   selectPiece: (piece: IPiece) => {},
@@ -78,28 +96,58 @@ const ChessContext = createContext<{
 });
 
 type ChessProps = {
-  player: false | { isWhite: boolean };
+  player?: "White" | "Black";
 };
 
 export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [game, pawnPromotions] = useChess();
-  const ws = useWs(`ws://127.0.0.1:8000/ws/games/room-${id}/`);
-
+  const chess = useLazy(() => new Game());
+  const pawnPromotions = useRef([
+    {
+      image: queen,
+      strategy: new QueenStrategy(chess),
+    },
+    {
+      image: knight,
+      strategy: new KnightStrategy(chess),
+    },
+    {
+      image: bishop,
+      strategy: new BishopStrategy(chess),
+    },
+    {
+      image: rook,
+      strategy: new RookStrategy(chess),
+    },
+  ]);
+  const ws = useLazy(
+    () => new WebSocket(`ws://127.0.0.1:8000/ws/games/room-${id}/`)
+  );
+  
+  const [game, setGame] = useState<GameState>({
+    activePlayer: "White",
+    board: chess.board,
+    lastMovedAt: {
+      White: null,
+      Black: null,
+    },
+  });
   const [selectedPiece, setSelectedPiece] = useState<IPiece | null>(null);
-  const [board, setBoard] = useState<BoardType>(game.board);
   const [promotionPickerOpen, setPromotionPickerOpen] = useState(false);
-  const [lastMovedAt, setLastMovedAt] = useState<Date>();
   const [startedAt, setStartedAt] = useState<Date>();
 
   useEffect(() => {
+    console.log("player", player);
     ws.onopen = (e) => {
       console.log("connected", e);
     };
 
     ws.onmessage = (e) => {
       const data = JSON.parse(e.data);
-      console.log(data);
+      console.log(data, new Date(data.timestamp).toLocaleTimeString());
+      if (data.player === player) {
+        return;
+      }
       if (data.msg_type === "move") {
         const { from, to, timestamp } = data;
         move(from, to, new Date(timestamp));
@@ -122,13 +170,15 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
     (square: Square) => {
       if (selectedPiece) {
         const { owner, currentSquare } = selectedPiece;
+        const timestamp = Date.now();
+        move(currentSquare, square, new Date());
         ws.send(
           JSON.stringify({
             command: "move",
             player: owner.getColor(),
             from: currentSquare,
             to: square,
-            timestamp: Date.now(),
+            timestamp,
           })
         );
       }
@@ -140,13 +190,16 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
     (promotion: PawnPromotion) => {
       if (selectedPiece) {
         const { owner, currentSquare } = selectedPiece;
+        const timestamp = Date.now();
+        const pieceType = promotion.strategy.type;
+        promotePawn(currentSquare, pieceType, new Date());
         ws.send(
           JSON.stringify({
             command: "promote",
             player: owner.getColor(),
             square: currentSquare,
-            piece: promotion.strategy.type,
-            timestamp: Date.now(),
+            piece: pieceType,
+            timestamp,
           })
         );
       }
@@ -155,17 +208,25 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
   );
 
   const move = useCallback((from: Square, to: Square, timestamp: Date) => {
+    console.log("move");
     const [rank, file] = from;
-    const piece = game.board[rank][file] as IPiece;
-    game.move(piece, to);
+    const piece = chess.board[rank][file] as IPiece;
+    const color = piece.owner.getColor();
+    chess.move(piece, to);
     if (!piece.isPromotion()) {
       if (startedAt === undefined) {
         setStartedAt(timestamp);
       }
-      setLastMovedAt(timestamp);
-      setBoard(game.board);
+      setGame((prev) => ({
+        activePlayer: chess.activePlayer.getColor(),
+        board: chess.board,
+        lastMovedAt: {
+          ...prev.lastMovedAt,
+          [color]: timestamp,
+        },
+      }));
       setSelectedPiece(null);
-    } else if (player && player.isWhite === piece.isWhite) {
+    } else if (player === piece.owner.getColor()) {
       setPromotionPickerOpen(true);
     }
   }, []);
@@ -173,14 +234,21 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
   const promotePawn = useCallback(
     (square: Square, pieceType: PieceType, timestamp: Date) => {
       const [rank, file] = square;
-      const piece = game.board[rank][file] as IPiece;
-      const promotion = pawnPromotions.find(
+      const piece = chess.board[rank][file] as IPiece;
+      const color = piece.owner.getColor();
+      const promotion = pawnPromotions.current.find(
         (p) => p.strategy.type === pieceType
       );
       const strategy = promotion?.strategy as IStrategy;
-      game.updateStrategy(piece, strategy);
-      setLastMovedAt(timestamp);
-      setBoard(game.board);
+      chess.updateStrategy(piece, strategy);
+      setGame((prev) => ({
+        activePlayer: chess.activePlayer.getColor(),
+        board: chess.board,
+        lastMovedAt: {
+          ...prev.lastMovedAt,
+          [color]: timestamp,
+        },
+      }));
       setSelectedPiece(null);
       setPromotionPickerOpen(false);
     },
@@ -188,28 +256,26 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
   );
 
   const handleSelectPiece = useCallback((piece: IPiece) => {
-    if (game.activePlayer === piece.owner) {
+    if (chess.activePlayer === piece.owner) {
       setSelectedPiece(piece);
     }
   }, []);
 
-  const { white, black, activePlayer } = game;
+  const { white, black } = chess;
 
   return (
     <ChessContext.Provider
       value={{
+        selectedPiece,
+        game,
         player,
         white,
         black,
-        next: activePlayer.getColor(),
-        board,
-        selectedPiece,
         promotionPickerOpen,
-        pawnPromotions,
+        pawnPromotions: pawnPromotions.current,
         selectPiece: handleSelectPiece,
         move: sendMove,
         selectPromotion: sendPromotion,
-        lastMovedAt,
       }}>
       {children}
     </ChessContext.Provider>
@@ -242,10 +308,11 @@ const boardStyles = StyleSheet.create({
 type BoardProps = {};
 
 const Board = ({}: PropsWithChildren<BoardProps>) => {
-  const { player, white, black, board, selectedPiece, move } =
+  const { selectedPiece, player, white, black, game, move } =
     useContext(ChessContext);
 
-  const flip = player && !player.isWhite;
+  const { board } = game;
+  const flip = player === "Black";
 
   return (
     <View
@@ -355,14 +422,9 @@ export const Piece = ({ piece }: PieceProps) => {
   const { selectPiece, selectedPiece, player } = useContext(ChessContext);
 
   const selected = piece.id === selectedPiece?.id;
-
-  const flip = player && !player.isWhite;
-
-  const active = player && player.isWhite === piece.isWhite;
-
+  const flip = player === "Black";
+  const active = player === piece.owner.getColor();
   const [rank, file] = piece.currentSquare;
-
-  const pieceType = piece.getType();
 
   const animatedStyles = useAnimatedStyle(() => {
     return {
@@ -386,11 +448,11 @@ export const Piece = ({ piece }: PieceProps) => {
       onPress={() => {
         selectPiece(piece);
       }}
-      disabled={!player || piece.isWhite !== player.isWhite}>
+      disabled={!active}>
       <Image
         source={lodash.get(
           images,
-          `${pieceType}.${piece.isWhite ? "white" : "black"}`
+          `${piece.getType()}.${piece.isWhite ? "white" : "black"}`
         )}
         style={pieceStyles.image}
       />
@@ -431,7 +493,6 @@ interface PromotionPickerProps {}
 
 export const PromotionPicker = ({}: PromotionPickerProps) => {
   const { player } = useContext(ChessContext);
-  const playerColor = player && player.isWhite ? "white" : "black";
 
   const {
     pawnPromotions: items,
@@ -454,7 +515,7 @@ export const PromotionPicker = ({}: PromotionPickerProps) => {
               style={pickerStyles.item}
               onPress={() => void selectPromotion(promotion)}>
               <Image
-                source={promotion.image[playerColor]}
+                source={promotion.image[player || "White"]}
                 style={pickerStyles.image}
               />
             </TouchableOpacity>
@@ -500,36 +561,43 @@ export const ProfileCard = ({
   isWhite,
 }: ProfileCardProps) => {
   const { colors } = useAppTheme();
+  const player = isWhite ? "White" : "Black";
+  const opponent = isWhite ? "Black" : "White";
 
-  const { next, lastMovedAt } = useContext(ChessContext);
-
+  const { game } = useContext(ChessContext);
   const [secondsRemaining, setSecondsRemaining] = useState(600);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
-  const timer = useRef<ReturnType<typeof setInterval>>(null);
+  const timer = useRef<ReturnType<typeof setInterval>>();
 
   useEffect(() => {
-    if (
-      lastMovedAt &&
-      ((isWhite && next === "White") || (!isWhite && next === "Black"))
-    ) {
+    const { activePlayer, lastMovedAt } = game;
+    if (player === activePlayer && lastMovedAt[opponent] !== null) {
       // @ts-ignore
+      console.log("mount", {
+        player,
+        activePlayer,
+        lastMovedAt: lastMovedAt[opponent].toLocaleTimeString(),
+      });
       timer.current = setInterval(() => {
-        console.log("interval");
-        // setSecondsRemaining(sec => sec - 1);
-        const elapsedTime = Date.now() - lastMovedAt.getTime();
-        console.log({ elapsedTime });
+        const elapsedTime = Date.now() - lastMovedAt[opponent].getTime();
         setElapsedSeconds(Math.floor(elapsedTime / 1000));
       }, 1000);
     }
     return () => {
-      if (timer.current && lastMovedAt) {
+      if (player === activePlayer && lastMovedAt[opponent] !== null) {
+        console.log("unmount", {
+          player,
+          activePlayer,
+          lastMovedAt: lastMovedAt[opponent].toLocaleTimeString(),
+        });
         clearInterval(timer.current);
-        setSecondsRemaining((sec) => sec - elapsedSeconds);
+        const elapsedTime = Date.now() - lastMovedAt[opponent].getTime();
+        setSecondsRemaining((s) => s - Math.floor(elapsedTime / 1000));
         setElapsedSeconds(0);
       }
     };
-  }, [next, lastMovedAt, isWhite]);
+  }, [player, game]);
 
   return (
     <View style={[cardStyles.container, { backgroundColor: colors.card }]}>
