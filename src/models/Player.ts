@@ -11,7 +11,7 @@ export class Player {
   }
 
   getColor() {
-    return this.game.white === this ? "White" : "Black";
+    return this.game.white === this ? "white" : "black";
   }
 
   getKing(): King {

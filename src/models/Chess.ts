@@ -101,10 +101,7 @@ export class Chess implements IChess {
   }
 
   move(piece: IPiece, square: [number, number]): void {
-    if (
-      piece.owner === this.activePlayer &&
-      includesSquare(piece.getValidMoves(), square)
-    ) {
+    if (piece.owner === this.activePlayer && piece.isValidMove(square)) {
       // Remove current en passant pawn
       this.currentEnPassantPawn = null;
       // Make move

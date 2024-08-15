@@ -14,7 +14,7 @@ export const GameCard = ({ title, playerName, onPress }: Props) => {
       style={[styles.container, { backgroundColor: colors.card }]}
       onPress={onPress}>
       <Image
-        source={require("@/assets/images/chessboard.png")}
+        source={require("@/../assets/images/chessboard.png")}
         style={[styles.image, { borderColor: colors.icon }]}
       />
       <View

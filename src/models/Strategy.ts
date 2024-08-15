@@ -137,7 +137,7 @@ export class PawnStrategy extends Strategy {
 
   isPromotion(currentSquare: Square, owner: Player): boolean {
     const [rank] = currentSquare;
-    const targetRank = owner.getColor() === "White" ? 0 : 7;
+    const targetRank = owner.getColor() === "white" ? 0 : 7;
     return rank === targetRank;
   }
 }

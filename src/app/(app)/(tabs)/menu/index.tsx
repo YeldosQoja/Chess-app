@@ -12,7 +12,7 @@ export default function Menu() {
         asChild>
         <MenuItem
           title="Profile"
-          imageSrc={require("@/assets/images/friends.png")}
+          imageSrc={require("@/../assets/images/friends.png")}
         />
       </Link>
       <Link
@@ -20,7 +20,7 @@ export default function Menu() {
         asChild>
         <MenuItem
           title="Friends"
-          imageSrc={require("@/assets/images/friends.png")}
+          imageSrc={require("@/../assets/images/friends.png")}
         />
       </Link>
       <Link
@@ -28,7 +28,7 @@ export default function Menu() {
         asChild>
         <MenuItem
           title="Chats"
-          imageSrc={require("@/assets/images/chat.png")}
+          imageSrc={require("@/../assets/images/chat.png")}
         />
       </Link>
       <Link
@@ -36,7 +36,7 @@ export default function Menu() {
         asChild>
         <MenuItem
           title="Settings"
-          imageSrc={require("@/assets/images/settings.png")}
+          imageSrc={require("@/../assets/images/settings.png")}
         />
       </Link>
     </ScreenContainer>

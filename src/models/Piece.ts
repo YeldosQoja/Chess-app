@@ -3,6 +3,7 @@ import { PieceType } from "./PieceType";
 import { Player } from "./Player";
 import { IStrategy, KingStrategy } from "./Strategy";
 import { Square } from "./Square";
+import { includesSquare } from "@/utils/isSameSquare";
 
 export interface IPiece {
   id: string;
@@ -15,6 +16,7 @@ export interface IPiece {
   isMoved: boolean;
   get isWhite(): boolean;
   getValidMoves(): Square[];
+  isValidMove(square: Square): boolean;
   move(square: Square): void;
   getType(): PieceType;
   updateStrategy(strategy: IStrategy): void;
@@ -51,6 +53,10 @@ export class Piece implements IPiece {
     return this.filterMoves(
       this.strategy.getValidMoves(this.currentSquare, this.isMoved, this.owner)
     );
+  }
+
+  isValidMove(square: Square): boolean {
+    return includesSquare(this.getValidMoves(), square);
   }
 
   private filterMoves(moves: Array<Square>): Array<Square> {

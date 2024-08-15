@@ -22,11 +22,9 @@ import {
   Board as BoardType,
   IPiece,
   IStrategy,
-  PawnPromotion,
   PieceType,
   Player,
   Square,
-  Strategy,
   User,
   QueenStrategy,
   KnightStrategy,
@@ -34,18 +32,18 @@ import {
   BishopStrategy,
 } from "@/models";
 import Animated, {
+  runOnJS,
   useAnimatedStyle,
+  useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import lodash from "lodash";
 import { useAppTheme } from "@/providers";
 import { Avatar } from "react-native-paper";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import { useLazy } from "@/hooks/useLazy";
-import images from "@/assets/images/chess";
-
-const { queen, knight, bishop, rook } = images;
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { toSquare } from "@/utils/toSquare";
 
 dayjs.extend(duration);
 
@@ -57,33 +55,33 @@ const COLORS = {
 };
 
 type GameState = {
-  activePlayer: "White" | "Black";
+  activePlayer: "white" | "black";
   board: BoardType;
   lastMovedAt: {
-    White: Date | null;
-    Black: Date | null;
+    white: Date | null;
+    black: Date | null;
   };
 };
 
 const ChessContext = createContext<{
   selectedPiece: IPiece | null;
   game: GameState;
-  player?: "White" | "Black";
+  player?: "white" | "black";
   white: Player | null;
   black: Player | null;
   promotionPickerOpen: boolean;
-  pawnPromotions: { image: any; strategy: Strategy }[];
+  pawnPromotions: IStrategy[];
   selectPiece: (piece: IPiece) => void;
   move: (square: Square) => void;
-  selectPromotion: (promotion: PawnPromotion) => void;
+  selectPromotion: (promotion: IStrategy) => void;
 }>({
   selectedPiece: null,
   game: {
-    activePlayer: "White",
+    activePlayer: "white",
     board: Array(8).fill(Array(8).fill(null)),
     lastMovedAt: {
-      White: null,
-      Black: null,
+      white: null,
+      black: null,
     },
   },
   white: null,
@@ -96,40 +94,28 @@ const ChessContext = createContext<{
 });
 
 type ChessProps = {
-  player?: "White" | "Black";
+  player?: "white" | "black";
 };
 
 export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const chess = useLazy(() => new Game());
-  const pawnPromotions = useRef([
-    {
-      image: queen,
-      strategy: new QueenStrategy(chess),
-    },
-    {
-      image: knight,
-      strategy: new KnightStrategy(chess),
-    },
-    {
-      image: bishop,
-      strategy: new BishopStrategy(chess),
-    },
-    {
-      image: rook,
-      strategy: new RookStrategy(chess),
-    },
+  const pawnPromotions = useLazy(() => [
+    new QueenStrategy(chess),
+    new KnightStrategy(chess),
+    new BishopStrategy(chess),
+    new RookStrategy(chess),
   ]);
   const ws = useLazy(
     () => new WebSocket(`ws://127.0.0.1:8000/ws/games/room-${id}/`)
   );
-  
+
   const [game, setGame] = useState<GameState>({
-    activePlayer: "White",
+    activePlayer: "white",
     board: chess.board,
     lastMovedAt: {
-      White: null,
-      Black: null,
+      white: null,
+      black: null,
     },
   });
   const [selectedPiece, setSelectedPiece] = useState<IPiece | null>(null);
@@ -137,7 +123,6 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
   const [startedAt, setStartedAt] = useState<Date>();
 
   useEffect(() => {
-    console.log("player", player);
     ws.onopen = (e) => {
       console.log("connected", e);
     };
@@ -187,11 +172,11 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
   );
 
   const sendPromotion = useCallback(
-    (promotion: PawnPromotion) => {
+    (promotion: IStrategy) => {
       if (selectedPiece) {
         const { owner, currentSquare } = selectedPiece;
         const timestamp = Date.now();
-        const pieceType = promotion.strategy.type;
+        const pieceType = promotion.type;
         promotePawn(currentSquare, pieceType, new Date());
         ws.send(
           JSON.stringify({
@@ -208,7 +193,6 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
   );
 
   const move = useCallback((from: Square, to: Square, timestamp: Date) => {
-    console.log("move");
     const [rank, file] = from;
     const piece = chess.board[rank][file] as IPiece;
     const color = piece.owner.getColor();
@@ -236,10 +220,10 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
       const [rank, file] = square;
       const piece = chess.board[rank][file] as IPiece;
       const color = piece.owner.getColor();
-      const promotion = pawnPromotions.current.find(
-        (p) => p.strategy.type === pieceType
+      const promotion = pawnPromotions.find(
+        (p) => p.type === pieceType
       );
-      const strategy = promotion?.strategy as IStrategy;
+      const strategy = promotion as IStrategy;
       chess.updateStrategy(piece, strategy);
       setGame((prev) => ({
         activePlayer: chess.activePlayer.getColor(),
@@ -272,7 +256,7 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
         white,
         black,
         promotionPickerOpen,
-        pawnPromotions: pawnPromotions.current,
+        pawnPromotions,
         selectPiece: handleSelectPiece,
         move: sendMove,
         selectPromotion: sendPromotion,
@@ -297,6 +281,10 @@ const boardStyles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  moveButton: {
+    position: "absolute",
+    zIndex: 1,
+  },
   dot: {
     backgroundColor: "rgba(0.0, 0.0, 0.0, 0.2)",
     width: "30%",
@@ -305,14 +293,12 @@ const boardStyles = StyleSheet.create({
   },
 });
 
-type BoardProps = {};
-
-const Board = ({}: PropsWithChildren<BoardProps>) => {
+const Board = () => {
   const { selectedPiece, player, white, black, game, move } =
     useContext(ChessContext);
 
   const { board } = game;
-  const flip = player === "Black";
+  const flip = player === "black";
 
   return (
     <View
@@ -383,12 +369,12 @@ const Board = ({}: PropsWithChildren<BoardProps>) => {
           <TouchableOpacity
             key={"" + rank + file}
             style={[
+              boardStyles.square,
+              boardStyles.moveButton,
               {
-                position: "absolute",
                 top: SQUARE_SIZE * rank,
                 left: SQUARE_SIZE * file,
               },
-              boardStyles.square,
             ]}
             onPress={() => move([rank, file])}
           />
@@ -400,7 +386,8 @@ const Board = ({}: PropsWithChildren<BoardProps>) => {
 const pieceStyles = StyleSheet.create({
   container: {
     position: "absolute",
-    width: `${100 / 8}%`,
+    width: SQUARE_SIZE,
+    height: SQUARE_SIZE,
     aspectRatio: 1,
     justifyContent: "center",
     alignItems: "center",
@@ -415,48 +402,152 @@ interface PieceProps {
   piece: IPiece;
 }
 
-const AnimatedTouchableOpacity =
-  Animated.createAnimatedComponent(TouchableOpacity);
-
 export const Piece = ({ piece }: PieceProps) => {
-  const { selectPiece, selectedPiece, player } = useContext(ChessContext);
+  const {
+    selectedPiece,
+    selectPiece,
+    player,
+    move,
+    game: { activePlayer },
+  } = useContext(ChessContext);
 
-  const selected = piece.id === selectedPiece?.id;
-  const flip = player === "Black";
   const active = player === piece.owner.getColor();
+  const enabled =
+    piece.owner.getColor() === player &&
+    piece.owner.getColor() === activePlayer;
+  const selected = selectedPiece === piece;
   const [rank, file] = piece.currentSquare;
 
-  const animatedStyles = useAnimatedStyle(() => {
-    return {
-      left: withTiming(SQUARE_SIZE * file),
-      top: withTiming(SQUARE_SIZE * rank),
-    };
+  const offsetX = useSharedValue(0);
+  const offsetY = useSharedValue(0);
+  const translateX = useSharedValue(SQUARE_SIZE * file);
+  const translateY = useSharedValue(SQUARE_SIZE * rank);
+  const isGestureActive = useSharedValue(false);
+  const flip = useSharedValue(player === "black");
+
+  useEffect(() => {
+    if (
+      translateX.value !== SQUARE_SIZE * file ||
+      translateY.value !== SQUARE_SIZE * rank
+    ) {
+      translateX.value = withTiming(SQUARE_SIZE * file);
+      translateY.value = withTiming(SQUARE_SIZE * rank);
+    }
   }, [rank, file]);
 
-  return (
-    <AnimatedTouchableOpacity
-      activeOpacity={0.9}
-      style={[
-        pieceStyles.container,
+  const onMove = useCallback(
+    (to: Square) => {
+      if (piece.isValidMove(to)) {
+        move(to);
+        const [rank, file] = to;
+        translateX.value = withTiming(file * SQUARE_SIZE);
+        translateY.value = withTiming(rank * SQUARE_SIZE, {}, () => {
+          isGestureActive.value = false;
+        });
+      } else {
+        translateX.value = withTiming(offsetX.value);
+        translateY.value = withTiming(offsetY.value, {}, () => {
+          isGestureActive.value = false;
+        });
+      }
+    },
+    [move, selectPiece]
+  );
+
+  const onSelect = useCallback(() => {
+    selectPiece(piece);
+  }, [selectPiece]);
+
+  const tap = Gesture.Tap()
+    .onTouchesDown(() => {
+      offsetX.value = translateX.value;
+      offsetY.value = translateY.value;
+      runOnJS(onSelect)();
+    })
+    .enabled(enabled);
+
+  const pan = Gesture.Pan()
+    .onStart(() => {
+      isGestureActive.value = true;
+    })
+    .onUpdate(({ translationX, translationY }) => {
+      const multiplier = flip.value ? -1 : 1;
+      translateX.value = offsetX.value + translationX * multiplier;
+      translateY.value = offsetY.value + translationY * multiplier;
+    })
+    .onEnd(() => {
+      const to = toSquare({ x: translateX.value, y: translateY.value });
+      runOnJS(onMove)(to);
+    })
+    .enabled(enabled);
+
+  const pieceStyle = useAnimatedStyle(
+    () => ({
+      zIndex: isGestureActive.value ? 100 : active ? 10 : 1,
+      transform: [
         {
-          zIndex: active ? 1 : 0,
-          transform: [{ rotate: flip ? "180deg" : "0deg" }],
-          backgroundColor: selected ? "yellow" : "transparent",
+          translateX: translateX.value,
         },
-        animatedStyles,
-      ]}
-      onPress={() => {
-        selectPiece(piece);
-      }}
-      disabled={!active}>
-      <Image
-        source={lodash.get(
-          images,
-          `${piece.getType()}.${piece.isWhite ? "white" : "black"}`
-        )}
-        style={pieceStyles.image}
-      />
-    </AnimatedTouchableOpacity>
+        {
+          translateY: translateY.value,
+        },
+        {
+          rotate: flip.value ? `${Math.PI}rad` : "0rad",
+        },
+      ],
+    }),
+    [selected, active]
+  );
+
+  const fromStyle = useAnimatedStyle(
+    () => ({
+      backgroundColor: "yellow",
+      opacity: isGestureActive.value || selected ? 1 : 0,
+      transform: [
+        {
+          translateX: offsetX.value,
+        },
+        {
+          translateY: offsetY.value,
+        },
+      ],
+    }),
+    [selected]
+  );
+
+  const toStyle = useAnimatedStyle(() => {
+    const [rank, file] = toSquare({ x: translateX.value, y: translateY.value });
+    const x = file * SQUARE_SIZE;
+    const y = rank * SQUARE_SIZE;
+    return {
+      backgroundColor: "yellow",
+      opacity: isGestureActive.value ? 1 : 0,
+      transform: [
+        {
+          translateX: x,
+        },
+        {
+          translateY: y,
+        },
+      ],
+    };
+  }, []);
+
+  const composedGesture = Gesture.Simultaneous(tap, pan);
+
+  return (
+    <>
+      <Animated.View style={[pieceStyles.container, toStyle]} />
+      <Animated.View style={[pieceStyles.container, fromStyle]} />
+      <GestureDetector gesture={composedGesture}>
+        <Animated.View style={[pieceStyles.container, pieceStyle]}>
+          <Image
+            source={`${piece.getType()}-${piece.owner.getColor()}`}
+            style={pieceStyles.image}
+          />
+        </Animated.View>
+      </GestureDetector>
+    </>
   );
 };
 
@@ -489,9 +580,7 @@ const pickerStyles = StyleSheet.create({
   },
 });
 
-interface PromotionPickerProps {}
-
-export const PromotionPicker = ({}: PromotionPickerProps) => {
+export const PromotionPicker = () => {
   const { player } = useContext(ChessContext);
 
   const {
@@ -515,7 +604,7 @@ export const PromotionPicker = ({}: PromotionPickerProps) => {
               style={pickerStyles.item}
               onPress={() => void selectPromotion(promotion)}>
               <Image
-                source={promotion.image[player || "White"]}
+                source={`${promotion.type}-${player}`}
                 style={pickerStyles.image}
               />
             </TouchableOpacity>
@@ -561,8 +650,8 @@ export const ProfileCard = ({
   isWhite,
 }: ProfileCardProps) => {
   const { colors } = useAppTheme();
-  const player = isWhite ? "White" : "Black";
-  const opponent = isWhite ? "Black" : "White";
+  const player = isWhite ? "white" : "black";
+  const opponent = isWhite ? "black" : "white";
 
   const { game } = useContext(ChessContext);
   const [secondsRemaining, setSecondsRemaining] = useState(600);

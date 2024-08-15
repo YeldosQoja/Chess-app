@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { Game } from "@/models";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
-import pieces from "@/assets/images/chess";
+import pieces from "../../assets/images/chess";
 import { useAppTheme } from "@/providers";
 
 type GameArchiveItemProps = {
