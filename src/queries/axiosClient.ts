@@ -1,5 +1,6 @@
 import axios, { AxiosError } from "axios";
 import { router } from "expo-router";
+import { Alert } from "react-native";
 
 export const axiosClient = axios.create({
   baseURL: "http://127.0.0.1:8000/api/",
@@ -22,9 +23,19 @@ axiosClient.interceptors.response.use(
   },
   (error: AxiosError) => {
     console.log("error", error);
+    const data = error.response?.data;
+    if (
+      typeof data === "object" &&
+      data !== null &&
+      Object.hasOwn(data, "message")
+    ) {
+      Alert.alert("", data.message, [
+        { text: "OK", style: "default", isPreferred: true },
+      ]);
+    }
     if (error.response?.status === 401) {
       router.replace("/sign-in");
     }
-    return error;
+    throw error;
   }
 );
