@@ -11,7 +11,7 @@ import { useAppTheme } from "@/providers";
 
 interface Props extends TouchableOpacityProps {
   title: string;
-  titleStyle: TextStyle,
+  titleStyle?: TextStyle,
   icon?: ReactNode;
   isLoading?: boolean;
 }

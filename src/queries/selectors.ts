@@ -16,6 +16,8 @@ export const selectUser = (data: any): User => ({
 });
 
 export const selectGame = ({
+  white,
+  black,
   is_white,
   is_winner,
   is_active,
@@ -24,6 +26,8 @@ export const selectGame = ({
   opponent,
   ...rest
 }: any): Game => ({
+  white: selectUser(white),
+  black: selectUser(black),
   opponent: selectUser(opponent),
   isWhite: is_white,
   isFinished: !is_active,

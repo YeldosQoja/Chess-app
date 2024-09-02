@@ -10,7 +10,6 @@ import {
   IStrategy,
 } from "./Strategy";
 import { Player } from "./Player";
-import { includesSquare } from "@/utils/isSameSquare";
 
 export interface IChess {
   board: Board;
@@ -132,9 +131,6 @@ export class Chess implements IChess {
   }
 
   isInStalemate(): boolean {
-    if (this.isInCheck()) {
-      return false;
-    }
     for (let rank = 0; rank < 8; rank++) {
       for (let file = 0; file < 8; file++) {
         const piece = this.board[rank][file];

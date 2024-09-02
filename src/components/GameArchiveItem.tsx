@@ -10,7 +10,7 @@ type GameArchiveItemProps = {
 };
 
 export const GameArchiveItem = ({
-  game: { opponent, isWinner, isWhite, isFinished },
+  game: { opponent, isWinner, player, isFinished },
 }: GameArchiveItemProps) => {
   const { colors, dark } = useAppTheme();
   return (
@@ -21,7 +21,7 @@ export const GameArchiveItem = ({
         color={colors.icon}
       />
       <Image
-        source={pieces.pawn[isWhite ? "white" : "black"]}
+        source={pieces.pawn[player]}
         style={styles.image}
       />
       <Text

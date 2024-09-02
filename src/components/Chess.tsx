@@ -61,12 +61,13 @@ type GameState = {
     white: Date | null;
     black: Date | null;
   };
+  isFinished: boolean;
 };
 
 const ChessContext = createContext<{
   selectedPiece: IPiece | null;
   game: GameState;
-  player?: "white" | "black";
+  player: "white" | "black" | null;
   white: Player | null;
   black: Player | null;
   promotionPickerOpen: boolean;
@@ -74,6 +75,7 @@ const ChessContext = createContext<{
   selectPiece: (piece: IPiece) => void;
   move: (square: Square) => void;
   selectPromotion: (promotion: IStrategy) => void;
+  finish: (finishedAt: Date, winner?: "white" | "black") => void;
 }>({
   selectedPiece: null,
   game: {
@@ -83,7 +85,9 @@ const ChessContext = createContext<{
       white: null,
       black: null,
     },
+    isFinished: false,
   },
+  player: null,
   white: null,
   black: null,
   promotionPickerOpen: false,
@@ -91,13 +95,19 @@ const ChessContext = createContext<{
   selectPiece: (piece: IPiece) => {},
   move: (square: Square) => {},
   selectPromotion: () => {},
+  finish: () => {},
 });
 
 type ChessProps = {
-  player?: "white" | "black";
+  player: "white" | "black" | null;
+  onFinish: (finishedAt: Date, winner?: "white" | "black") => void;
 };
 
-export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
+export const Chess = ({
+  children,
+  player,
+  onFinish,
+}: PropsWithChildren<ChessProps>) => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const chess = useLazy(() => new Game());
   const pawnPromotions = useLazy(() => [
@@ -117,6 +127,7 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
       white: null,
       black: null,
     },
+    isFinished: false,
   });
   const [selectedPiece, setSelectedPiece] = useState<IPiece | null>(null);
   const [promotionPickerOpen, setPromotionPickerOpen] = useState(false);
@@ -197,11 +208,13 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
     const piece = chess.board[rank][file] as IPiece;
     const color = piece.owner.getColor();
     chess.move(piece, to);
-    if (!piece.isPromotion()) {
-      if (startedAt === undefined) {
-        setStartedAt(timestamp);
-      }
+
+    if (piece.isPromotion() && player === color) {
+      setPromotionPickerOpen(true);
+    } else {
+      startedAt === undefined && setStartedAt(timestamp);
       setGame((prev) => ({
+        isFinished: chess.isInCheckmate() || chess.isInStalemate(),
         activePlayer: chess.activePlayer.getColor(),
         board: chess.board,
         lastMovedAt: {
@@ -210,8 +223,12 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
         },
       }));
       setSelectedPiece(null);
-    } else if (player === piece.owner.getColor()) {
-      setPromotionPickerOpen(true);
+    }
+
+    if (chess.isInCheckmate()) {
+      onFinish(timestamp, color);
+    } else if (chess.isInStalemate()) {
+      onFinish(timestamp);
     }
   }, []);
 
@@ -220,12 +237,13 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
       const [rank, file] = square;
       const piece = chess.board[rank][file] as IPiece;
       const color = piece.owner.getColor();
-      const promotion = pawnPromotions.find(
-        (p) => p.type === pieceType
-      );
+      const promotion = pawnPromotions.find((p) => p.type === pieceType);
       const strategy = promotion as IStrategy;
+
       chess.updateStrategy(piece, strategy);
+
       setGame((prev) => ({
+        isFinished: chess.isInCheckmate() || chess.isInStalemate(),
         activePlayer: chess.activePlayer.getColor(),
         board: chess.board,
         lastMovedAt: {
@@ -235,6 +253,12 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
       }));
       setSelectedPiece(null);
       setPromotionPickerOpen(false);
+
+      if (chess.isInCheckmate()) {
+        onFinish(timestamp, color);
+      } else if (chess.isInStalemate()) {
+        onFinish(timestamp);
+      }
     },
     []
   );
@@ -260,6 +284,7 @@ export const Chess = ({ children, player }: PropsWithChildren<ChessProps>) => {
         selectPiece: handleSelectPiece,
         move: sendMove,
         selectPromotion: sendPromotion,
+        finish: onFinish,
       }}>
       {children}
     </ChessContext.Provider>
@@ -650,43 +675,52 @@ export const ProfileCard = ({
   isWhite,
 }: ProfileCardProps) => {
   const { colors } = useAppTheme();
+
   const player = isWhite ? "white" : "black";
   const opponent = isWhite ? "black" : "white";
 
-  const { game } = useContext(ChessContext);
+  const { game, finish } = useContext(ChessContext);
+
+  // Seconds remaining so far
   const [secondsRemaining, setSecondsRemaining] = useState(600);
+  // Elapsed seconds for the current turn
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
   const timer = useRef<ReturnType<typeof setInterval>>();
 
   useEffect(() => {
-    const { activePlayer, lastMovedAt } = game;
-    if (player === activePlayer && lastMovedAt[opponent] !== null) {
-      // @ts-ignore
-      console.log("mount", {
-        player,
-        activePlayer,
-        lastMovedAt: lastMovedAt[opponent].toLocaleTimeString(),
-      });
+    const { activePlayer, lastMovedAt, isFinished } = game;
+    const playerLastMovedAt = lastMovedAt[player];
+    const opponentLastMovedAt = lastMovedAt[opponent];
+    if (isFinished) {
+      clearInterval(timer.current);
+    } // If it is player's turn start a timer and increment elapsed seconds
+    else if (player === activePlayer && opponentLastMovedAt !== null) {
       timer.current = setInterval(() => {
-        const elapsedTime = Date.now() - lastMovedAt[opponent].getTime();
+        const elapsedTime = Date.now() - opponentLastMovedAt.getTime();
         setElapsedSeconds(Math.floor(elapsedTime / 1000));
       }, 1000);
+    } // if it's opponent's turn stop the timer for the player,
+    // calculate how much time has elapsed and subtract it from seconds remaining value
+    else if (
+      player !== activePlayer &&
+      playerLastMovedAt !== null &&
+      opponentLastMovedAt !== null
+    ) {
+      clearInterval(timer.current);
+      const elapsedTime =
+        playerLastMovedAt.getTime() - opponentLastMovedAt.getTime();
+      setSecondsRemaining((s) => s - Math.floor(elapsedTime / 1000));
+      setElapsedSeconds(0);
     }
-    return () => {
-      if (player === activePlayer && lastMovedAt[opponent] !== null) {
-        console.log("unmount", {
-          player,
-          activePlayer,
-          lastMovedAt: lastMovedAt[opponent].toLocaleTimeString(),
-        });
-        clearInterval(timer.current);
-        const elapsedTime = Date.now() - lastMovedAt[opponent].getTime();
-        setSecondsRemaining((s) => s - Math.floor(elapsedTime / 1000));
-        setElapsedSeconds(0);
-      }
-    };
   }, [player, game]);
+
+  useEffect(() => {
+    if (secondsRemaining - elapsedSeconds === 0) {
+      finish(new Date(), opponent);
+      clearInterval(timer.current);
+    }
+  }, [elapsedSeconds, secondsRemaining]);
 
   return (
     <View style={[cardStyles.container, { backgroundColor: colors.card }]}>

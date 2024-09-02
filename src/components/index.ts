@@ -9,3 +9,4 @@ export * from './FriendList';
 export * from './FriendRequest';
 export * from './PlayerProfileCard';
 export * from './GameStats';
+export * from './GameResultModal';

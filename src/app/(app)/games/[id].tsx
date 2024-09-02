@@ -1,8 +1,9 @@
-import { StyleSheet, View } from "react-native";
+import { useCallback, useState } from "react";
+import { Alert, StyleSheet, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { Chess } from "@/components";
+import { Chess, GameResultModal } from "@/components";
 import { useAppTheme } from "@/providers";
-import { useGetGameById } from "@/queries/games";
+import { useFinishGame, useGetGameById } from "@/queries/games";
 import { useProfile } from "@/queries/profile";
 
 export default function Game() {
@@ -10,7 +11,7 @@ export default function Game() {
   const params = useLocalSearchParams<{ id: string }>();
   const id = params.id ? parseInt(params.id) : 0;
   const {
-    data,
+    data: game,
     isPending: isLoadingGame,
     isSuccess: isSuccessGame,
   } = useGetGameById(id);
@@ -19,6 +20,27 @@ export default function Game() {
     isPending: isLoadingProfile,
     isSuccess: isSuccessProfile,
   } = useProfile();
+  const { mutateAsync: finishGame } = useFinishGame();
+  const [resultModalOpen, setResultModalOpen] = useState(true);
+
+  const handleFinish = useCallback(
+    async (finishedAt: Date, winner?: "white" | "black") => {
+      try {
+        const response = await finishGame({ id, finishedAt, winner });
+        if (response.status === 200) {
+          setResultModalOpen(true);
+        }
+      } catch (error) {
+        console.warn(error);
+        Alert.alert("Error while loading the game result.");
+      }
+    },
+    []
+  );
+
+  const handleCloseResultModal = useCallback(() => {
+    setResultModalOpen(false);
+  }, []);
 
   if (
     isLoadingGame ||
@@ -29,11 +51,13 @@ export default function Game() {
     return null;
   }
 
-  const { isWhite, opponent } = data;
+  const { white, black, isWhite, opponent, player, winner, isWinner } = game;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Chess player={isWhite ? "white" : "black"}>
+      <Chess
+        player={player}
+        onFinish={handleFinish}>
         <Chess.ProfileCard
           profile={opponent}
           isWhite={!isWhite}
@@ -45,6 +69,15 @@ export default function Game() {
           isWhite={isWhite}
         />
       </Chess>
+      <GameResultModal
+        visible={resultModalOpen}
+        isWinner={isWinner}
+        player={player}
+        winner={winner}
+        white={white}
+        black={black}
+        onClose={handleCloseResultModal}
+      />
     </View>
   );
 }
