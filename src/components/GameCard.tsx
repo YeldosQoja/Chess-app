@@ -1,18 +1,51 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useAppTheme } from "@/providers";
+import { User } from "@/models";
+import { useSendChallenge } from "@/queries/games";
+import { useCallback } from "react";
 
 type Props = {
   title: string;
-  playerName: string;
-  onPress: () => void;
+  opponent: User;
+  onPress?: () => void;
 };
 
-export const GameCard = ({ title, playerName, onPress }: Props) => {
+export const GameCard = ({ title, opponent, onPress }: Props) => {
   const { colors } = useAppTheme();
+  const { mutate: sendChallenge } = useSendChallenge();
+
+  const handlePress = useCallback(() => {
+    onPress && onPress();
+    Alert.alert(
+      "Send Challenge",
+      `Do you want to send a challenge to ${opponent.username}?`,
+      [
+        {
+          text: "Yes",
+          isPreferred: true,
+          onPress: () => {
+            sendChallenge(opponent.id);
+          },
+        },
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+      ]
+    );
+  }, [onPress, opponent]);
+
   return (
     <TouchableOpacity
       style={[styles.container, { backgroundColor: colors.card }]}
-      onPress={onPress}>
+      onPress={handlePress}>
       <Image
         source={require("@/../assets/images/chessboard.png")}
         style={[styles.image, { borderColor: colors.icon }]}
@@ -23,7 +56,7 @@ export const GameCard = ({ title, playerName, onPress }: Props) => {
         }}>
         <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
         <Text style={(styles.playerName, { color: colors.text })}>
-          {playerName}
+          {`${opponent.firstName} ${opponent.lastName}`}
         </Text>
       </View>
     </TouchableOpacity>

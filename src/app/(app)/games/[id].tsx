@@ -1,14 +1,16 @@
 import { useCallback, useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Chess, GameResultModal } from "@/components";
 import { useAppTheme } from "@/providers";
 import { useFinishGame, useGetGameById } from "@/queries/games";
 import { useProfile } from "@/queries/profile";
+import { useNavigation } from "@react-navigation/native";
 
 export default function Game() {
   const { colors } = useAppTheme();
   const params = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
   const id = params.id ? parseInt(params.id) : 0;
   const {
     data: game,
@@ -21,7 +23,7 @@ export default function Game() {
     isSuccess: isSuccessProfile,
   } = useProfile();
   const { mutateAsync: finishGame } = useFinishGame();
-  const [resultModalOpen, setResultModalOpen] = useState(true);
+  const [resultModalOpen, setResultModalOpen] = useState(false);
 
   const handleFinish = useCallback(
     async (finishedAt: Date, winner?: "white" | "black") => {
@@ -39,6 +41,7 @@ export default function Game() {
   );
 
   const handleCloseResultModal = useCallback(() => {
+    router.back();
     setResultModalOpen(false);
   }, []);
 
@@ -52,6 +55,8 @@ export default function Game() {
   }
 
   const { white, black, isWhite, opponent, player, winner, isWinner } = game;
+
+  console.log({ winner, isWinner });
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>

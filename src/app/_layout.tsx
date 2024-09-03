@@ -2,7 +2,6 @@ if (__DEV__) {
   require("../../ReactotronConfig");
 }
 import { AuthProvider, ThemeProvider, UserProvider } from "@/providers";
-import { WebsocketProvider } from "@/providers/WebsocketProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -17,14 +16,12 @@ export default function RootLayout() {
         <ThemeProvider>
           <AuthProvider>
             <UserProvider>
-              <WebsocketProvider>
-                <Stack
-                  screenOptions={{
-                    headerShown: false,
-                  }}
-                />
-                <DevToolsBubble />
-              </WebsocketProvider>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                }}
+              />
+              <DevToolsBubble />
             </UserProvider>
           </AuthProvider>
         </ThemeProvider>

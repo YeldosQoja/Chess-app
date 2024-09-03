@@ -1,90 +1,77 @@
-import { useState } from "react";
-import { ScrollView, StyleSheet, Text } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Link, useSegments } from "expo-router";
-import { DataTable } from "react-native-paper";
-import { Button, GameCard, ScreenContainer } from "@/components";
+import { Button, GameArchiveItem, GameCard } from "@/components";
 import { useAppTheme } from "@/providers";
+import { useHome } from "@/queries/home";
+
+const BUTTON_HEIGHT = 50;
+const MARGIN = 12;
 
 export default function Home() {
   const { colors } = useAppTheme();
-
   const [_, __, group] = useSegments();
+  const { data, isLoading, isError, isSuccess } = useHome();
 
-  const [items] = useState([
-    {
-      time: "8:45",
-      opponent: "Scarlett Willis",
-      status: "Won",
-    },
-    {
-      time: "5:45",
-      opponent: "Margaret Kelley",
-      status: "Lost",
-    },
-    {
-      time: "6:20",
-      opponent: "Aryan Giles",
-      status: "Draw",
-    },
-  ]);
+  if (isError || !isSuccess) {
+    return null;
+  }
+
+  const { latestGame, games } = data;
 
   return (
-    <ScreenContainer>
-      <ScrollView>
-        <GameCard
-          title="Recommended Game"
-          playerName="Adriano Costa"
-          onPress={() => null}
-        />
-        <GameCard
-          title="Latest Game"
-          playerName="Sam Parker"
-          onPress={() => null}
-        />
+    <View>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}>
+        <View style={styles.cardsContainer}>
+          <GameCard
+            title="Recommended Game"
+            opponent={latestGame.opponent}
+          />
+          <GameCard
+            title="Latest Game"
+            opponent={latestGame.opponent}
+          />
+        </View>
         <Text style={[styles.title, { color: colors.text }]}>Recent games</Text>
-        <DataTable>
-          <DataTable.Header>
-            <DataTable.Title>Time</DataTable.Title>
-            <DataTable.Title>Opponent</DataTable.Title>
-            <DataTable.Title>Status</DataTable.Title>
-          </DataTable.Header>
-          {items.map(({ time, opponent, status }, idx) => (
-            <DataTable.Row key={idx}>
-              <DataTable.Cell>{time}</DataTable.Cell>
-              <DataTable.Cell>{opponent}</DataTable.Cell>
-              <DataTable.Cell
-                textStyle={{
-                  color:
-                    status === "Won"
-                      ? colors.green
-                      : status === "Draw"
-                      ? colors.yellow
-                      : status === "Lost"
-                      ? colors.red
-                      : undefined,
-                  fontWeight: "600",
-                }}>
-                {status}
-              </DataTable.Cell>
-            </DataTable.Row>
-          ))}
-        </DataTable>
+        {games.map((game) => (
+          <GameArchiveItem
+            key={game.id}
+            game={game}
+          />
+        ))}
       </ScrollView>
       <Link
         href={`/${group}/friends`}
         asChild>
         <Button
           title="Play"
-          style={{ position: "absolute", left: 12, bottom: 12, right: 12 }}
+          style={styles.button}
         />
       </Link>
-    </ScreenContainer>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    height: "100%",
+  },
+  content: {
+    paddingBottom: BUTTON_HEIGHT + MARGIN,
+  },
+  cardsContainer: {
+    margin: MARGIN,
+  },
   title: {
     fontSize: 22,
     fontWeight: "500",
+    marginHorizontal: MARGIN,
+  },
+  button: {
+    position: "absolute",
+    left: MARGIN,
+    bottom: MARGIN,
+    right: MARGIN,
   },
 });

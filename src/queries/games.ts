@@ -76,6 +76,10 @@ export const useFinishGame = () => {
     mutationFn: finishGame,
     onSuccess: (_, { id, winner, finishedAt }) => {
       const profile = queryClient.getQueryData<User>(["profile"]);
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          query.queryKey.includes("games") && query.queryKey.includes("list"),
+      });
       queryClient.setQueryData(["games", "detail", id], (data: any) => {
         const { white, black } = data;
         let isWinner = false;

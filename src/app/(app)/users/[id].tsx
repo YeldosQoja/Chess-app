@@ -7,10 +7,9 @@ import {
   useGamesByUserId,
 } from "@/queries/users";
 import { useLocalSearchParams } from "expo-router";
-import { FriendItem, GameStats, ScreenContainer } from "@/components";
+import { FriendItem, GameStats, ScreenContainer, GameArchiveItem } from "@/components";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import dayjs from "dayjs";
-import { GameArchiveItem } from "@/components/GameArchiveItem";
 
 export default function User() {
   const insets = useSafeAreaInsets();

@@ -22,7 +22,7 @@ async function getProfileFriends() {
 
 export const useProfileFriends = () => {
   return useQuery({
-    queryKey: ["profile", "friends"],
+    queryKey: ["profile", "friends", "list"],
     queryFn: getProfileFriends,
     select: (data) => data.map(selectUser),
   });
@@ -35,7 +35,7 @@ async function getProfileGames() {
 
 export const useProfileGames = () => {
   return useQuery({
-    queryKey: ["profile", "games"],
+    queryKey: ["profile", "games", "list"],
     queryFn: getProfileGames,
     select: (data) => data.map(selectGame),
     initialData: [],
@@ -49,7 +49,7 @@ async function getFriendRequests() {
 
 export const useFriendRequests = () => {
   return useQuery({
-    queryKey: ["profile", "requests"],
+    queryKey: ["profile", "requests", "list"],
     queryFn: getFriendRequests,
     select: (data) => data.map(selectFriendRequest),
     initialData: [],

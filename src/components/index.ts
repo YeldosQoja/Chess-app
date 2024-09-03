@@ -10,3 +10,4 @@ export * from './FriendRequest';
 export * from './PlayerProfileCard';
 export * from './GameStats';
 export * from './GameResultModal';
+export * from './GameArchiveItem';
