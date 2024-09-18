@@ -1,5 +1,6 @@
+import { useCallback } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Avatar } from "react-native-paper";
+import { Avatar, Button } from "react-native-paper";
 import { useAppTheme } from "@/providers";
 import {
   useUserById,
@@ -7,9 +8,15 @@ import {
   useGamesByUserId,
 } from "@/queries/users";
 import { useLocalSearchParams } from "expo-router";
-import { FriendItem, GameStats, ScreenContainer, GameArchiveItem } from "@/components";
+import {
+  FriendItem,
+  GameStats,
+  ScreenContainer,
+  GameArchiveItem,
+} from "@/components";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import dayjs from "dayjs";
+import { useSignOut } from "@/queries/auth";
 
 export default function User() {
   const insets = useSafeAreaInsets();
@@ -32,6 +39,11 @@ export default function User() {
     isPending: isLoadingGames,
     isSuccess: isSuccessGames,
   } = useGamesByUserId(id);
+  const { mutate: signOut, isPending: isSigningOut } = useSignOut();
+
+  const handleSignOut = useCallback(() => {
+    signOut();
+  }, []);
 
   if (
     isLoadingUser ||
@@ -113,6 +125,15 @@ export default function User() {
           </View>
         </>
       )}
+      <Button
+        mode="outlined"
+        textColor={colors.red}
+        labelStyle={styles.logoutButtonTitle}
+        style={[styles.logoutButton, { borderColor: colors.red }]}
+        onPress={handleSignOut}
+        loading={isSigningOut}>
+        Log out
+      </Button>
     </ScreenContainer>
   );
 }
@@ -144,5 +165,13 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     margin: 16,
     marginVertical: 8,
+  },
+  logoutButton: {
+    width: "60%",
+    borderWidth: 1.3,
+    alignSelf: "center",
+  },
+  logoutButtonTitle: {
+    fontSize: 15,
   },
 });

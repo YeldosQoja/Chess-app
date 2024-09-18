@@ -66,3 +66,19 @@ export const useSignUp = () =>
       router.replace("/sign-in");
     },
   });
+
+
+async function signOut() {
+  return await axiosClient.delete("auth/signout/");
+}
+
+export const useSignOut = () => {
+  const { setToken } = useAuth();
+  return useMutation({
+    mutationFn: signOut,
+    onSuccess: () => {
+      setToken(null);
+      router.replace("/sign-in");
+    }
+  });
+}
