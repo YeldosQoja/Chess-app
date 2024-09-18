@@ -3,7 +3,7 @@ import { router } from "expo-router";
 import { Alert } from "react-native";
 
 export const axiosClient = axios.create({
-  baseURL: "http://127.0.0.1:8000/api/",
+  baseURL: process.env.EXPO_PUBLIC_BASE_URL + "api/",
 });
 
 axiosClient.interceptors.request.use(
@@ -22,7 +22,7 @@ axiosClient.interceptors.response.use(
     return response;
   },
   (error: AxiosError) => {
-    console.log("error", error);
+    console.log("error", error.response);
     const data = error.response?.data;
     if (
       typeof data === "object" &&
