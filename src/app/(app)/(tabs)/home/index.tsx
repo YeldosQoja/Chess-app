@@ -10,7 +10,7 @@ const MARGIN = 12;
 export default function Home() {
   const { colors } = useAppTheme();
   const [_, __, group] = useSegments();
-  const { data, isLoading, isError, isSuccess } = useHome();
+  const { data, isError, isSuccess } = useHome();
 
   if (isError || !isSuccess) {
     return null;
@@ -24,22 +24,32 @@ export default function Home() {
         style={styles.scrollView}
         contentContainerStyle={styles.content}>
         <View style={styles.cardsContainer}>
-          <GameCard
-            title="Recommended Game"
-            opponent={latestGame.opponent}
-          />
-          <GameCard
-            title="Latest Game"
-            opponent={latestGame.opponent}
-          />
+          {latestGame && (
+            <GameCard
+              title="Recommended Game"
+              opponent={latestGame.opponent}
+            />
+          )}
+          {latestGame && (
+            <GameCard
+              title="Latest Game"
+              opponent={latestGame.opponent}
+            />
+          )}
         </View>
-        <Text style={[styles.title, { color: colors.text }]}>Recent games</Text>
-        {games.map((game) => (
-          <GameArchiveItem
-            key={game.id}
-            game={game}
-          />
-        ))}
+        {games.length ? (
+          <>
+            <Text style={[styles.title, { color: colors.text }]}>
+              Recent games
+            </Text>
+            {games.map((game) => (
+              <GameArchiveItem
+                key={game.id}
+                game={game}
+              />
+            ))}
+          </>
+        ) : null}
       </ScrollView>
       <Link
         href={`/${group}/friends`}

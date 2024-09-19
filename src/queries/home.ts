@@ -4,7 +4,9 @@ import { selectGame } from "./selectors";
 import { Game } from "@/models";
 
 async function getHome() {
-  const response = await axiosClient.get("home/");
+  const response = await axiosClient.get<{ games: any[]; latest_game: any }>(
+    "home/"
+  );
   return response.data;
 }
 
@@ -12,8 +14,8 @@ export const useHome = () =>
   useQuery({
     queryKey: ["home", "games", "list"],
     queryFn: getHome,
-    select: (data): { games: Game[]; latestGame: Game } => ({
-      games: data.games.map(selectGame),
-      latestGame: selectGame(data.latest_game),
+    select: ({ games, latest_game }): { games: Game[]; latestGame?: Game } => ({
+      games: games.map(selectGame),
+      latestGame: latest_game ? selectGame(latest_game) : latest_game,
     }),
   });
