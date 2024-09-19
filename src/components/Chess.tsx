@@ -117,7 +117,7 @@ export const Chess = ({
     new RookStrategy(chess),
   ]);
   const ws = useLazy(
-    () => new WebSocket(`ws://127.0.0.1:8000/ws/games/room-${id}/`)
+    () => new WebSocket(`${process.env.EXPO_PUBLIC_WS_URL}games/room-${id}/`)
   );
 
   const [game, setGame] = useState<GameState>({

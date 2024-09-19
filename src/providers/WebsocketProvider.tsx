@@ -12,7 +12,7 @@ export const useWebsocket = () => {
 };
 
 export const WebsocketProvider = ({ children }: PropsWithChildren) => {
-  const ws = useLazy(() => new WebSocket("ws://127.0.0.1:8000/ws/main/"));
+  const ws = useLazy(() => new WebSocket(process.env.EXPO_PUBLIC_WS_URL + "main"));
   const router = useRouter();
   const acceptChallenge = useAcceptChallenge();
 
