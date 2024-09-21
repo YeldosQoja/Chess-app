@@ -1,4 +1,7 @@
 import { PropsWithChildren, createContext, useContext, useState } from "react";
+import { useColorScheme } from "react-native";
+import { PaperProvider } from "react-native-paper";
+import { ThemeProvider as NavigationThemeProvider } from "@react-navigation/native";
 import {
   Colors,
   NavigationLightTheme,
@@ -6,29 +9,21 @@ import {
   PaperLightTheme,
   PaperDarkTheme,
 } from "@/theme";
-import { PaperProvider, adaptNavigationTheme } from "react-native-paper";
-import { ThemeProvider as NavigationThemeProvider } from "@react-navigation/native";
-import { useColorScheme } from "react-native";
-
-const { LightTheme, DarkTheme } = adaptNavigationTheme({
-  reactNavigationLight: NavigationLightTheme,
-  reactNavigationDark: NavigationDarkTheme,
-});
 
 const CombinedLightTheme = {
   ...PaperLightTheme,
-  ...LightTheme,
+  ...NavigationLightTheme,
   colors: {
     ...PaperLightTheme.colors,
-    ...LightTheme.colors,
+    ...NavigationLightTheme.colors,
   },
 };
 const CombinedDarkTheme = {
   ...PaperDarkTheme,
-  ...DarkTheme,
+  ...NavigationDarkTheme,
   colors: {
     ...PaperDarkTheme.colors,
-    ...DarkTheme.colors,
+    ...NavigationDarkTheme.colors,
   },
 };
 
