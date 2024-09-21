@@ -1,6 +1,6 @@
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Link, useSegments } from "expo-router";
-import { Button, GameArchiveItem, GameCard } from "@/components";
+import { GameArchiveItem, GameCard, Button } from "@/components";
 import { useAppTheme } from "@/providers";
 import { useHome } from "@/queries/home";
 
@@ -55,9 +55,10 @@ export default function Home() {
         href={`/${group}/friends`}
         asChild>
         <Button
-          title="Play"
-          style={styles.button}
-        />
+          mode="contained"
+          style={styles.button}>
+          Play
+        </Button>
       </Link>
     </View>
   );

@@ -6,7 +6,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useForm } from "react-hook-form";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAppTheme } from "@/providers";
-import { Button, Input, ScreenContainer } from "@/components";
+import { Input, ScreenContainer, Button } from "@/components";
 import { signUpSchema, useSignUp } from "@/queries/auth";
 
 export default function SignUp() {
@@ -92,6 +92,7 @@ export default function SignUp() {
             placeholderTextColor={colors.border}
             containerStyle={styles.input}
             secureTextEntry={passwordHidden}
+            textContentType="newPassword"
             rightIcon={
               <Ionicons.Button
                 name="eye-off-outline"
@@ -118,6 +119,7 @@ export default function SignUp() {
             placeholderTextColor={colors.border}
             containerStyle={styles.input}
             secureTextEntry={passwordHidden}
+            textContentType="newPassword"
             rightIcon={
               <Ionicons.Button
                 name="eye-off-outline"
@@ -133,12 +135,13 @@ export default function SignUp() {
         )}
       />
       <Button
-        title="Sign Up"
+        mode="contained"
         onPress={handleSubmit((values) => {
           signUp.mutate(values);
         })}
-        isLoading={isPending}
-      />
+        loading={isPending}>
+        Sign up
+      </Button>
       <View style={[styles.textLinkContainer, { bottom }]}>
         <Text style={{ color: colors.text }}>Already have an account?</Text>
         <Link

@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
-import { Avatar, Button } from "react-native-paper";
+import { Avatar } from "react-native-paper";
+import { Button } from "./Button";
 import { FriendRequest as FriendRequestModel } from "@/models";
 import { useAppTheme } from "@/providers";
 import {
@@ -41,7 +42,6 @@ export const FriendRequest = ({
         <Button
           mode="outlined"
           style={[styles.button, { borderColor: colors.tint }]}
-          textColor={colors.tint}
           onPress={() => {
             decline(id);
           }}>
@@ -50,7 +50,6 @@ export const FriendRequest = ({
         <Button
           mode="contained"
           style={styles.button}
-          buttonColor={colors.tint}
           onPress={() => {
             accept(id);
           }}>
@@ -80,6 +79,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   button: {
+    height: undefined,
     width: "48%",
   },
   date: {

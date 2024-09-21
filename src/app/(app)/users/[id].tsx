@@ -1,21 +1,22 @@
 import { useCallback } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Avatar, Button } from "react-native-paper";
-import { useAppTheme } from "@/providers";
+import { Avatar } from "react-native-paper";
 import {
   useUserById,
   useFriendsByUserId,
   useGamesByUserId,
 } from "@/queries/users";
 import { useLocalSearchParams } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import dayjs from "dayjs";
 import {
   FriendItem,
   GameStats,
   ScreenContainer,
   GameArchiveItem,
+  Button,
 } from "@/components";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import dayjs from "dayjs";
+import { useAppTheme } from "@/providers";
 import { useSignOut } from "@/queries/auth";
 
 export default function User() {
@@ -126,9 +127,8 @@ export default function User() {
         </>
       )}
       <Button
-        mode="outlined"
+        mode="text"
         textColor={colors.red}
-        labelStyle={styles.logoutButtonTitle}
         style={[styles.logoutButton, { borderColor: colors.red }]}
         onPress={handleSignOut}
         loading={isSigningOut}>
@@ -168,10 +168,6 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     width: "60%",
-    borderWidth: 1.3,
     alignSelf: "center",
-  },
-  logoutButtonTitle: {
-    fontSize: 15,
   },
 });

@@ -6,7 +6,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useAppTheme } from "@/providers";
-import { Button, Input, ScreenContainer } from "@/components";
+import { Input, ScreenContainer, Button } from "@/components";
 import { signInSchema, useSignIn } from "@/queries/auth";
 
 export default function SignIn() {
@@ -68,13 +68,14 @@ export default function SignIn() {
         )}
       />
       <Button
-        title="Sign In"
+        mode="contained"
         onPress={handleSubmit((values) => {
           console.log("values", values);
           signIn.mutate(values);
         })}
-        isLoading={isPending}
-      />
+        loading={isPending}>
+        Sign in
+      </Button>
       <View style={[styles.textLinkContainer, { bottom }]}>
         <Text style={{ color: colors.text }}>Don't have an account?</Text>
         <Link

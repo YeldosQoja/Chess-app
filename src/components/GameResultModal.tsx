@@ -94,11 +94,12 @@ export const GameResultModal = ({
             </View>
           </View>
           <Button
-            title="Continue"
+            mode="contained"
             style={styles.button}
-            titleStyle={styles.buttonTitle}
-            onPress={onClose}
-          />
+            labelStyle={styles.buttonTitle}
+            onPress={onClose}>
+            Continue
+          </Button>
         </View>
       </View>
     </Modal>

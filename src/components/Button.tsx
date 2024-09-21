@@ -1,56 +1,29 @@
-import { ReactNode, forwardRef } from "react";
-import {
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  TextStyle,
-  TouchableOpacity,
-  TouchableOpacityProps,
-} from "react-native";
-import { useAppTheme } from "@/providers";
+import * as React from "react";
+import { StyleSheet, View } from "react-native";
+import { ButtonProps, Button as PaperButton } from "react-native-paper";
 
-interface Props extends TouchableOpacityProps {
-  title: string;
-  titleStyle?: TextStyle,
-  icon?: ReactNode;
-  isLoading?: boolean;
-}
-
-export const Button = forwardRef<TouchableOpacity, Props>(
-  ({ style, title, titleStyle, icon, isLoading, ...rest }, ref) => {
-    const {
-      colors: { tint },
-    } = useAppTheme();
+export const Button = React.forwardRef<View, ButtonProps>(
+  ({ style, labelStyle, contentStyle, ...rest }, ref) => {
     return (
-      <TouchableOpacity
+      <PaperButton
         ref={ref}
-        style={[styles.button, { backgroundColor: tint }, style]}
-        disabled={isLoading}
-        {...rest}>
-        {isLoading ? (
-          <ActivityIndicator color={"white"} />
-        ) : (
-          <>
-            <Text style={[styles.buttonTitle, titleStyle]}>{title}</Text>
-            {icon}
-          </>
-        )}
-      </TouchableOpacity>
+        theme={{ roundness: 2 }}
+        style={[styles.container, style]}
+        labelStyle={[styles.title, labelStyle]}
+        contentStyle={[contentStyle]}
+        {...rest}
+      />
     );
   }
 );
 
 const styles = StyleSheet.create({
-  button: {
-    flexDirection: "row",
-    height: 50,
-    borderRadius: 12,
-    alignItems: "center",
+  container: {
+    height: 45,
     justifyContent: "center",
   },
-  buttonTitle: {
+  title: {
     fontSize: 16,
     fontWeight: "500",
-    color: "white",
   },
 });

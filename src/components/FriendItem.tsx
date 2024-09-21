@@ -1,12 +1,12 @@
 import { memo, useCallback } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Link } from "expo-router";
-import { Avatar, Button, Divider } from "react-native-paper";
+import { Avatar, Divider } from "react-native-paper";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useAppTheme } from "@/providers";
 import { useSendChallenge } from "@/queries/games";
 import { User } from "@/models";
-import { Button as PrimaryButton } from "@/components/Button";
+import { Button } from "./Button";
 import { useAddFriend } from "@/queries/friends";
 
 type Props = {
@@ -18,15 +18,15 @@ export const FriendItem = memo(
     user: { id, firstName, lastName, avatar, isFriend, isRequested },
   }: Props) => {
     const { colors } = useAppTheme();
-    const sendChallenge = useSendChallenge();
-    const addFriend = useAddFriend();
+    const { mutate: sendChallenge } = useSendChallenge();
+    const { mutate: addFriend } = useAddFriend();
 
     const handleAdd = useCallback(() => {
-      addFriend.mutate(id);
+      addFriend(id);
     }, []);
 
     const handleChallenge = useCallback(() => {
-      sendChallenge.mutate(id);
+      sendChallenge(id);
     }, []);
 
     return (
@@ -52,7 +52,7 @@ export const FriendItem = memo(
                   asChild>
                   <Ionicons.Button
                     name="mail-outline"
-                    size={24}
+                    size={22}
                     color={colors.icon}
                     iconStyle={styles.messageIcon}
                     backgroundColor="transparent"
@@ -61,7 +61,8 @@ export const FriendItem = memo(
                   />
                 </Link>
                 <Button
-                  textColor={colors.tint}
+                  mode="text"
+                  labelStyle={{ fontSize: 14 }}
                   onPress={handleChallenge}>
                   Challenge
                 </Button>
@@ -70,15 +71,16 @@ export const FriendItem = memo(
               <Ionicons
                 name="checkmark-done-sharp"
                 color={colors.tint}
-                size={26}
+                size={22}
               />
             ) : (
-              <PrimaryButton
-                title="Add"
+              <Button
+                mode="contained"
                 style={styles.addButton}
-                titleStyle={styles.addButtonTitle}
-                onPress={handleAdd}
-              />
+                labelStyle={styles.addButtonTitle}
+                onPress={handleAdd}>
+                Add
+              </Button>
             )}
           </View>
           <Divider />
@@ -106,8 +108,6 @@ const styles = StyleSheet.create({
   },
   addButton: {
     height: undefined,
-    padding: 8,
-    paddingHorizontal: 16,
   },
   addButtonTitle: {
     fontSize: 14,
