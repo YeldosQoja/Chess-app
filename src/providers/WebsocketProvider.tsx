@@ -23,12 +23,11 @@ export const WebsocketProvider = ({ children }: PropsWithChildren) => {
 
     ws.onmessage = (e) => {
       const data = JSON.parse(e.data);
-      console.log("websocket data", data);
       if (data.type === "challenge") {
-        const { user, request_id } = data;
+        const { username, request_id } = data;
         Alert.alert(
           "New Challenge!",
-          `${user.username} invites you to play a match`,
+          `${username} invites you to play a match`,
           [
             {
               text: "Decline",
@@ -45,7 +44,7 @@ export const WebsocketProvider = ({ children }: PropsWithChildren) => {
             },
           ]
         );
-      } else if (data.type === "challenge_accepted") {
+      } else if (data.type === "challenge_accept") {
         router.replace(`/games/${data.game_id}/`);
       }
     };

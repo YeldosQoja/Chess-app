@@ -5,7 +5,6 @@ import { Chess, GameResultModal } from "@/components";
 import { useAppTheme } from "@/providers";
 import { useFinishGame, useGetGameById } from "@/queries/games";
 import { useProfile } from "@/queries/profile";
-import { useNavigation } from "@react-navigation/native";
 
 export default function Game() {
   const { colors } = useAppTheme();
@@ -55,8 +54,6 @@ export default function Game() {
   }
 
   const { white, black, isWhite, opponent, player, winner, isWinner } = game;
-
-  console.log({ winner, isWinner });
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>

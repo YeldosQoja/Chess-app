@@ -22,8 +22,8 @@ export const useGetGameById = (id: number) =>
     select: selectGame,
   });
 
-async function sendChallenge(userId: number) {
-  const response = await axiosClient.post(`games/challenges/send/${userId}/`);
+async function sendChallenge(username: string) {
+  const response = await axiosClient.post(`games/challenges/send/${username}/`);
   return response.data;
 }
 

@@ -15,7 +15,7 @@ type Props = {
 
 export const FriendItem = memo(
   ({
-    user: { id, firstName, lastName, avatar, isFriend, isRequested },
+    user: { id, username, firstName, lastName, avatar, isFriend, isRequested },
   }: Props) => {
     const { colors } = useAppTheme();
     const { mutate: sendChallenge } = useSendChallenge();
@@ -26,7 +26,7 @@ export const FriendItem = memo(
     }, []);
 
     const handleChallenge = useCallback(() => {
-      sendChallenge(id);
+      sendChallenge(username);
     }, []);
 
     return (
