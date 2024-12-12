@@ -31,21 +31,22 @@ export const GameCard = ({ title, opponent, onPress }: Props) => {
           text: "Yes",
           isPreferred: true,
           onPress: () => {
-            sendChallenge(opponent.id);
+            sendChallenge(opponent.username);
           },
         },
         {
           text: "Cancel",
           style: "cancel",
         },
-      ]
+      ],
     );
-  }, [onPress, opponent]);
+  }, [onPress, opponent.username, sendChallenge]);
 
   return (
     <TouchableOpacity
       style={[styles.container, { backgroundColor: colors.card }]}
-      onPress={handlePress}>
+      onPress={handlePress}
+    >
       <Image
         source={require("@/../assets/images/chessboard.png")}
         style={[styles.image, { borderColor: colors.icon }]}
@@ -53,7 +54,8 @@ export const GameCard = ({ title, opponent, onPress }: Props) => {
       <View
         style={{
           flex: 1,
-        }}>
+        }}
+      >
         <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
         <Text style={(styles.playerName, { color: colors.text })}>
           {`${opponent.firstName} ${opponent.lastName}`}

@@ -1,7 +1,7 @@
-import { User } from "@/models";
-import { useAppTheme } from "@/providers";
 import { StyleSheet, Text, View } from "react-native";
 import { Avatar } from "react-native-paper";
+import { User } from "@/models";
+import { useAppTheme } from "@/providers";
 
 type Props = {
   player: User;
@@ -15,27 +15,21 @@ export const PlayerProfileCard = ({
   const { colors } = useAppTheme();
   return (
     <View style={[styles.container, { backgroundColor: colors.card }]}>
-      <Avatar.Image
-        source={{ uri: avatar }}
-        size={40}
-      />
+      <Avatar.Image source={{ uri: avatar }} size={40} />
       <Text
-        style={[
-          styles.name,
-          { color: colors.text },
-        ]}>{`${firstName} ${lastName}`}</Text>
+        style={[styles.name, { color: colors.text }]}
+      >{`${firstName} ${lastName}`}</Text>
       <View
         style={[
           styles.timer,
           {
             backgroundColor: isWhite ? "#282828" : "#e8e8e8",
           },
-        ]}>
+        ]}
+      >
         <Text
-          style={[
-            styles.timerText,
-            { color: isWhite ? "#e8e8e8" : "#282828" },
-          ]}>
+          style={[styles.timerText, { color: isWhite ? "#e8e8e8" : "#282828" }]}
+        >
           4:34
         </Text>
       </View>

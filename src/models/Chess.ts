@@ -53,7 +53,7 @@ export class Chess implements IChess {
     const kingStrategy = new KingStrategy(this);
     for (let file = 0; file < 8; file++) {
       player.pieces.push(
-        new Piece(this, player, [pawnsRank, file], pawnStrategy)
+        new Piece(this, player, [pawnsRank, file], pawnStrategy),
       );
     }
     player.pieces.push(
@@ -64,7 +64,7 @@ export class Chess implements IChess {
       new King(this, player, [piecesRank, 4], kingStrategy),
       new Piece(this, player, [piecesRank, 5], bishopStrategy),
       new Piece(this, player, [piecesRank, 6], knightStrategy),
-      new Piece(this, player, [piecesRank, 7], rookStrategy)
+      new Piece(this, player, [piecesRank, 7], rookStrategy),
     );
   }
 

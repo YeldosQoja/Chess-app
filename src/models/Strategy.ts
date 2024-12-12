@@ -34,10 +34,8 @@ export interface IStrategy {
   getValidMoves(
     currentSquare: Square,
     isMoved: boolean,
-    owner: Player
+    owner: Player,
   ): Array<Square>;
-  isValidSquare(square: Square): boolean;
-  isPromotion(currentSquare: Square, owner: Player): boolean;
 }
 
 export class Strategy implements IStrategy {
@@ -51,17 +49,17 @@ export class Strategy implements IStrategy {
   getValidMoves(
     currentSquare: Square,
     isMoved: boolean,
-    owner: Player
+    owner: Player,
   ): Array<Square> {
     return [];
   }
 
-  isValidSquare(square: Square): boolean {
+  protected isValidSquare(square: Square): boolean {
     const [rank, file] = square;
     return 0 <= rank && rank < 8 && 0 <= file && file < 8;
   }
 
-  isPromotion(currentSquare: Square, owner: Player): boolean {
+  protected isPromotion(currentSquare: Square, owner: Player): boolean {
     return false;
   }
 }
@@ -74,7 +72,7 @@ export class PawnStrategy extends Strategy {
   getValidMoves(
     currentSquare: Square,
     isMoved: boolean,
-    owner: Player
+    owner: Player,
   ): Square[] {
     const [rank, file] = currentSquare;
     const moves: Square[] = [];
@@ -150,7 +148,7 @@ export class RookStrategy extends Strategy {
   getValidMoves(
     currentSquare: Square,
     isMoved: boolean,
-    owner: Player
+    owner: Player,
   ): Array<Square> {
     const [rank, file] = currentSquare;
     const moves: Square[] = [];
@@ -182,7 +180,7 @@ export class BishopStrategy extends Strategy {
   getValidMoves(
     currentSquare: Square,
     isMoved: boolean,
-    owner: Player
+    owner: Player,
   ): Array<Square> {
     const [rank, file] = currentSquare;
     const moves: Square[] = [];
@@ -214,7 +212,7 @@ export class KnightStrategy extends Strategy {
   getValidMoves(
     currentSquare: Square,
     isMoved: boolean,
-    owner: Player
+    owner: Player,
   ): Array<Square> {
     const [rank, file] = currentSquare;
     const moves: Square[] = [];
@@ -240,7 +238,7 @@ export class QueenStrategy extends Strategy {
   getValidMoves(
     currentSquare: Square,
     isMoved: boolean,
-    owner: Player
+    owner: Player,
   ): Array<Square> {
     const [curRank, curFile] = currentSquare;
     const moves: Square[] = [];
@@ -271,12 +269,12 @@ export class KingStrategy extends Strategy {
 
   private getAvailableMoves(
     currentSquare: Square,
-    owner: Player
+    owner: Player,
   ): Array<Square> {
     const [rank, file] = currentSquare;
     const moves: Square[] = [];
     for (const [dr, df] of HORIZONTAL_VERTICAL_OFFSETS.concat(
-      DIAGONAL_OFFSETS
+      DIAGONAL_OFFSETS,
     )) {
       const curSquare: Square = [rank + dr, file + df];
       if (!this.isValidSquare(curSquare)) {
@@ -293,14 +291,14 @@ export class KingStrategy extends Strategy {
   getValidMoves(
     currentSquare: Square,
     isMoved: boolean,
-    owner: Player
+    owner: Player,
   ): Array<Square> {
     const [curRank, curFile] = currentSquare;
     const king = this.game.board[curRank][curFile];
     this.game.board[curRank][curFile] = null;
     const validMoves: Array<Square> = this.getAvailableMoves(
       currentSquare,
-      owner
+      owner,
     ).filter((square) => {
       return !this.isInCheck(square, owner);
     });
@@ -417,7 +415,7 @@ export class KingStrategy extends Strategy {
   private isKingSideCastleValid(
     currentSquare: Square,
     isMoved: boolean,
-    owner: Player
+    owner: Player,
   ): boolean {
     const maybeRook = this.game.board[currentSquare[0]][7];
     if (
@@ -440,7 +438,7 @@ export class KingStrategy extends Strategy {
   private isQueenSideCastleValid(
     currentSquare: Square,
     isMoved: boolean,
-    owner: Player
+    owner: Player,
   ): boolean {
     const maybeRook = this.game.board[currentSquare[0]][0];
     if (
@@ -458,5 +456,27 @@ export class KingStrategy extends Strategy {
       }
     }
     return true;
+  }
+}
+
+export class StrategyFactory {
+  game: IChess;
+  constructor(game: IChess) {
+    this.game = game;
+  }
+  create(pieceType: PieceType): IStrategy {
+    if (pieceType === PieceType.Queen) {
+      return new QueenStrategy(this.game);
+    }
+    if (pieceType === PieceType.Knight) {
+      return new KnightStrategy(this.game);
+    }
+    if (pieceType === PieceType.Rook) {
+      return new RookStrategy(this.game);
+    }
+    if (pieceType === PieceType.Bishop) {
+      return new BishopStrategy(this.game);
+    }
+    return new Strategy(this.game, pieceType);
   }
 }

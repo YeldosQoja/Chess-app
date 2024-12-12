@@ -3,8 +3,12 @@ import { Alert } from "react-native";
 import { useAcceptChallenge } from "@/queries/games";
 import { useRouter } from "expo-router";
 import { useLazy } from "@/hooks/useLazy";
+import { SocketService } from "@/services/SocketService";
+import { Challenge, ChallengeAccept, SocketData, SocketEvent } from "@/models";
 
-const WebsocketContext = createContext<{ ws: WebSocket | null }>({ ws: null });
+const WebsocketContext = createContext<{ socket: SocketService | null }>({
+  socket: null,
+});
 
 export const useWebsocket = () => {
   const value = useContext(WebsocketContext);
@@ -12,57 +16,53 @@ export const useWebsocket = () => {
 };
 
 export const WebsocketProvider = ({ children }: PropsWithChildren) => {
-  const ws = useLazy(() => new WebSocket(process.env.EXPO_PUBLIC_WS_URL + "main"));
+  const socket = useLazy(
+    () => new SocketService(process.env.EXPO_PUBLIC_WS_URL + "main"),
+  );
   const router = useRouter();
   const acceptChallenge = useAcceptChallenge();
 
   useEffect(() => {
-    ws.onopen = (e) => {
-      console.log("connected", e);
-    };
+    socket.on(SocketEvent.CHALLENGE, (data: SocketData<Challenge>) => {
+      const { username, requestId } = data;
+      Alert.alert("New Challenge!", `${username} invites you to play a match`, [
+        {
+          text: "Decline",
+          style: "destructive",
+        },
+        {
+          text: "Accept",
+          isPreferred: true,
+          style: "default",
+          onPress: () => {
+            acceptChallenge.mutate(requestId);
+          },
+        },
+      ]);
+    });
 
-    ws.onmessage = (e) => {
-      const data = JSON.parse(e.data);
-      if (data.type === "challenge") {
-        const { username, request_id } = data;
-        Alert.alert(
-          "New Challenge!",
-          `${username} invites you to play a match`,
-          [
-            {
-              text: "Decline",
-              style: "destructive",
-              onPress: () => {},
-            },
-            {
-              text: "Accept",
-              isPreferred: true,
-              style: "default",
-              onPress: () => {
-                acceptChallenge.mutate(request_id);
-              },
-            },
-          ]
-        );
-      } else if (data.type === "challenge_accept") {
-        router.replace(`/games/${data.game_id}/`);
-      }
-    };
+    socket.on(
+      SocketEvent.CHALLENGE_ACCEPT,
+      (data: SocketData<ChallengeAccept>) => {
+        router.replace(`/games/${data.gameId}/`);
+      },
+    );
 
-    ws.onerror = (e) => {
+    socket.onError((e) => {
       console.log("websocket error", e);
-    };
+    });
 
     return () => {
-      ws.close();
+      socket.close();
     };
-  }, []);
+  }, [socket, router]);
 
   return (
     <WebsocketContext.Provider
       value={{
-        ws,
-      }}>
+        socket,
+      }}
+    >
       {children}
     </WebsocketContext.Provider>
   );

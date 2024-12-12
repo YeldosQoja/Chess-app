@@ -1,8 +1,13 @@
 import { useCallback, useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Chess, GameResultModal } from "@/components";
-import { useAppTheme } from "@/providers";
+import {
+  ChessBoard,
+  ChessPiecePromotionPicker,
+  ChessPlayerCard,
+  GameResultModal,
+} from "@/components";
+import { ChessProvider, useAppTheme } from "@/providers";
 import { useFinishGame, useGetGameById } from "@/queries/games";
 import { useProfile } from "@/queries/profile";
 
@@ -36,13 +41,13 @@ export default function Game() {
         Alert.alert("Error while loading the game result.");
       }
     },
-    []
+    [finishGame, id],
   );
 
   const handleCloseResultModal = useCallback(() => {
     router.back();
     setResultModalOpen(false);
-  }, []);
+  }, [router]);
 
   if (
     isLoadingGame ||
@@ -57,20 +62,12 @@ export default function Game() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Chess
-        player={player}
-        onFinish={handleFinish}>
-        <Chess.ProfileCard
-          profile={opponent}
-          isWhite={!isWhite}
-        />
-        <Chess.Board />
-        <Chess.PromotionPicker />
-        <Chess.ProfileCard
-          profile={profile}
-          isWhite={isWhite}
-        />
-      </Chess>
+      <ChessProvider player={player} onFinish={handleFinish}>
+        <ChessPlayerCard profile={opponent} isWhite={!isWhite} time={600} />
+        <ChessBoard />
+        <ChessPiecePromotionPicker />
+        <ChessPlayerCard profile={profile} isWhite={isWhite} time={600} />
+      </ChessProvider>
       <GameResultModal
         visible={resultModalOpen}
         isWinner={isWinner}

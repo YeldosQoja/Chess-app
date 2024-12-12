@@ -14,7 +14,7 @@ type SignInForm = InferType<typeof signInSchema>;
 async function signIn(credentials: SignInForm) {
   return await axiosClient.post<{ access: string; refresh: string }>(
     "auth/signin/",
-    credentials
+    credentials,
   );
 }
 
@@ -67,7 +67,6 @@ export const useSignUp = () =>
     },
   });
 
-
 async function signOut() {
   return await axiosClient.delete("auth/signout/");
 }
@@ -79,6 +78,6 @@ export const useSignOut = () => {
     onSuccess: () => {
       setToken(null);
       router.replace("/sign-in");
-    }
+    },
   });
-}
+};

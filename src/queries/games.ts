@@ -10,7 +10,7 @@ import { selectGame } from "./selectors";
 import { User } from "@/models";
 
 async function getGameById({ queryKey }: QueryFunctionContext) {
-  const [_, __, id] = queryKey;
+  const [, , id] = queryKey;
   const response = await axiosClient.get(`games/${id}/`);
   return response.data;
 }
@@ -39,7 +39,7 @@ export const useSendChallenge = () => {
 
 async function acceptChallenge(id: number) {
   const response = await axiosClient.post<{ game_id: number }>(
-    `games/challenges/${id}/accept/`
+    `games/challenges/${id}/accept/`,
   );
   return response.data;
 }

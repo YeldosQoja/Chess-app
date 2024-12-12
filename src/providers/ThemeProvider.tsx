@@ -55,7 +55,8 @@ export const ThemeProvider = ({ children }: PropsWithChildren) => {
         colors,
         dark,
         setMode,
-      }}>
+      }}
+    >
       <PaperProvider theme={theme}>
         <NavigationThemeProvider value={theme}>
           {children}
