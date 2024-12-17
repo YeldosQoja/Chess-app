@@ -31,6 +31,13 @@ export class Chess implements IChess {
   activePlayer: Player;
   currentEnPassantPawn: IPiece | null = null;
 
+  public get winner() {
+    if (!this.isInCheckmate()) {
+      return undefined;
+    }
+    return this.activePlayer.getOpponent().getColor();
+  }
+
   constructor() {
     this.white = new Player(this);
     this.black = new Player(this);

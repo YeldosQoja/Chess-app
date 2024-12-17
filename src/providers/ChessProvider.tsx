@@ -25,6 +25,7 @@ type GameState = {
   board: BoardType;
   moves: (Move | Promotion)[];
   isFinished: boolean;
+  timestampLastMove: Date | null;
 };
 
 export const ChessContext = createContext<{
@@ -45,6 +46,7 @@ export const ChessContext = createContext<{
     board: Array(8).fill(Array(8).fill(null)),
     moves: [],
     isFinished: false,
+    timestampLastMove: null,
   },
   player: null,
   white: null,
@@ -81,6 +83,7 @@ export const ChessProvider = ({
     board: chess.board,
     moves: [],
     isFinished: false,
+    timestampLastMove: null,
   });
   const [selectedPiece, setSelectedPiece] = useState<IPiece | null>(null);
   const [promotionPickerOpen, setPromotionPickerOpen] = useState(false);
@@ -93,22 +96,21 @@ export const ChessProvider = ({
       const color = piece.owner.getColor();
       chess.move(piece, to);
 
+      setGameState((prev) => ({
+        activePlayer: chess.activePlayer.getColor(),
+        board: chess.board,
+        moves: [...prev.moves, data],
+        isFinished: chess.isInCheckmate() || chess.isInStalemate(),
+        timestampLastMove: new Date(),
+      }));
+
       if (piece.isPromotion() && player === color) {
         setPromotionPickerOpen(true);
       } else {
-        setGameState((prev) => ({
-          isFinished: chess.isInCheckmate() || chess.isInStalemate(),
-          activePlayer: chess.activePlayer.getColor(),
-          board: chess.board,
-          moves: [...prev.moves, data],
-        }));
         setSelectedPiece(null);
       }
-
-      if (chess.isInCheckmate()) {
-        onFinish(timestamp, color);
-      } else if (chess.isInStalemate()) {
-        onFinish(timestamp);
+      if (chess.isInCheckmate() || chess.isInStalemate()) {
+        onFinish(timestamp.start, chess.winner);
       }
     },
     [chess, onFinish, player],
@@ -116,25 +118,24 @@ export const ChessProvider = ({
 
   const promote = useCallback(
     (data: Promotion) => {
-      const { player, square, piece: pieceType, timestamp } = data;
+      const { square, piece: pieceType, timestamp } = data;
       const [rank, file] = square;
       const piece = chess.board[rank][file] as IPiece;
       const strategy = strategyFactory.create(pieceType);
       chess.updateStrategy(piece, strategy);
 
       setGameState((prev) => ({
-        isFinished: chess.isInCheckmate() || chess.isInStalemate(),
         activePlayer: chess.activePlayer.getColor(),
         board: chess.board,
         moves: [...prev.moves, data],
+        isFinished: chess.isInCheckmate() || chess.isInStalemate(),
+        timestampLastMove: new Date(),
       }));
       setSelectedPiece(null);
       setPromotionPickerOpen(false);
 
-      if (chess.isInCheckmate()) {
-        onFinish(timestamp, player);
-      } else if (chess.isInStalemate()) {
-        onFinish(timestamp);
+      if (chess.isInCheckmate() || chess.isInStalemate()) {
+        onFinish(timestamp.start, chess.winner);
       }
     },
     [chess, onFinish, strategyFactory],
@@ -170,13 +171,16 @@ export const ChessProvider = ({
           player: owner.getColor(),
           from: currentSquare,
           to: square,
-          timestamp: new Date(),
+          timestamp: {
+            start: gameState.timestampLastMove ?? new Date(),
+            end: new Date(),
+          },
         };
         move(data);
         socketService.sendMove(data);
       }
     },
-    [move, selectedPiece, socketService],
+    [gameState.timestampLastMove, move, selectedPiece, socketService],
   );
 
   const sendPromotion = useCallback(
@@ -187,13 +191,16 @@ export const ChessProvider = ({
           player: owner.getColor(),
           square: currentSquare,
           piece: pieceType,
-          timestamp: new Date(),
+          timestamp: {
+            start: gameState.timestampLastMove ?? new Date(),
+            end: new Date(),
+          },
         };
         promote(data);
         socketService.sendPromotion(data);
       }
     },
-    [promote, selectedPiece, socketService],
+    [gameState.timestampLastMove, promote, selectedPiece, socketService],
   );
 
   const handleSelectPiece = useCallback(

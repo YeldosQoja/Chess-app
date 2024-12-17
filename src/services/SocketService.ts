@@ -9,8 +9,16 @@ export class SocketService {
 
   constructor(url: string) {
     this.ws = new WebSocket(url);
+
+    this.ws.onopen = (e) => {
+      console.log(
+        `The websocket connection to url ${url} has successfully opened.`,
+      );
+    };
+
     this.ws.onmessage = (e) => {
       const data = this.deserializeJSON(e.data);
+      console.log(data);
       const { type } = data;
       if (this.listeners.hasOwnProperty(type)) {
         const callbacks = this.listeners[type];
@@ -19,6 +27,7 @@ export class SocketService {
         });
       }
     };
+
     this.ws.onerror = (e) => {
       this.errorListeners.forEach((cb) => {
         cb(e);
@@ -29,7 +38,9 @@ export class SocketService {
   private deserializeJSON(data: string): SocketData {
     const result = JSON.parse(data);
     if (result.hasOwnProperty("timestamp")) {
-      result.timestamp = new Date(result.timestamp);
+      const { start, end } = result["timestamp"];
+      result.timestamp.start = new Date(start);
+      result.timestamp.end = new Date(end);
     }
     return result;
   }

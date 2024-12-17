@@ -33,7 +33,7 @@ export const ChessPiecePromotionPicker = () => {
               style={styles.item}
               onPress={() => void selectPromotion(pieceType)}
             >
-              <Image source={`${pieceType}-${player}`} style={styles.image} />
+              <Image source={`${pieceType}_${player}`} style={styles.image} />
             </TouchableOpacity>
           ))}
         </View>

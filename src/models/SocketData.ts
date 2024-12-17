@@ -23,12 +23,18 @@ export type Move = {
   player: "white" | "black";
   from: Square;
   to: Square;
-  timestamp: Date;
+  timestamp: {
+    start: Date;
+    end: Date;
+  };
 };
 
 export type Promotion = {
   player: "white" | "black";
   square: Square;
   piece: PieceType;
-  timestamp: Date;
+  timestamp: {
+    start: Date;
+    end: Date;
+  };
 };

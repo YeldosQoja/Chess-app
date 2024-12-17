@@ -21,6 +21,8 @@ export const ChessPlayerCard = ({
 }: ProfileCardProps) => {
   const { colors } = useAppTheme();
   const { gameState, finish } = useContext(ChessContext);
+
+  const { activePlayer, moves } = gameState;
   const player = isWhite ? "white" : "black";
   const opponent = isWhite ? "black" : "white";
   const timer = useRef<any>(null);
@@ -28,33 +30,34 @@ export const ChessPlayerCard = ({
   const [currElapsedTime, setCurrElapsedTime] = useState(0);
   const prevElapsedTime = useMemo(
     () =>
-      gameState.moves.reduce((total, currMove, i, arr) => {
-        if (i + 1 === arr.length || arr[i + 1].player !== player) {
-          return total;
-        }
-        const nextMove = arr[i + 1];
-        const timeOffset =
-          new Date(nextMove.timestamp).getTime() -
-          new Date(currMove.timestamp).getTime();
-        return total + Math.floor(timeOffset / 1000);
+      moves.reduce((total, move) => {
+        if (move.player !== player) return total;
+        const { start, end } = move.timestamp;
+        const duration = end.getTime() - start.getTime();
+        return total + Math.floor(duration / 1000);
       }, 0),
-    [gameState, player],
+    [moves, player],
   );
 
-  const totalElapsedTime = currElapsedTime + prevElapsedTime;
+  const totalElapsedTime =
+    (activePlayer === player ? currElapsedTime : 0) + prevElapsedTime;
+
+  const secondsLeft = time - totalElapsedTime;
 
   useEffect(() => {
-    const { activePlayer, moves } = gameState;
-    if (activePlayer === player && moves.length) {
-      const start = moves.at(-1)!.timestamp;
-      timer.current = setInterval(() => {
-        const timeOffset = new Date().getTime() - start.getTime();
-        setCurrElapsedTime(Math.floor(timeOffset / 1000));
-      }, 1000);
+    const { activePlayer, timestampLastMove } = gameState;
+    if (timestampLastMove) {
+      if (activePlayer === player) {
+        timer.current = setInterval(() => {
+          const timeOffset = new Date().getTime() - timestampLastMove.getTime();
+          setCurrElapsedTime(Math.floor(timeOffset / 1000));
+        }, 1000);
+      } else {
+        setCurrElapsedTime(0);
+      }
     }
     return () => {
       clearInterval(timer.current);
-      setCurrElapsedTime(0);
     };
   }, [gameState, player]);
 
@@ -86,7 +89,7 @@ export const ChessPlayerCard = ({
         <Text
           style={[styles.timerText, { color: isWhite ? "#282828" : "#e8e8e8" }]}
         >
-          {dayjs.duration(time - totalElapsedTime, "seconds").format("mm:ss")}
+          {dayjs.duration(secondsLeft, "seconds").format("mm:ss")}
         </Text>
       </View>
     </View>
