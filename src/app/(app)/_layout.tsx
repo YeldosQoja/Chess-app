@@ -1,5 +1,7 @@
 import { Stack } from "expo-router";
 import { WebsocketProvider } from "@/providers";
+import { Platform } from "react-native";
+import { Header } from "@/components";
 
 export default function AppLayout() {
   return (
@@ -21,6 +23,7 @@ export default function AppLayout() {
           name="users/[id]"
           options={{
             headerTitle: "",
+            header: Platform.OS === "android" ? Header : undefined,
             headerBackTitleVisible: false,
           }}
         />
