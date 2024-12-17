@@ -13,82 +13,76 @@ type Props = {
   user: User;
 };
 
-export const FriendItem = memo(
-  ({
-    user: { id, username, firstName, lastName, avatar, isFriend, isRequested },
-  }: Props) => {
-    const { colors } = useAppTheme();
-    const { mutate: sendChallenge } = useSendChallenge();
-    const { mutate: addFriend } = useAddFriend();
+export const FriendItem = memo(function FriendItem({
+  user: { id, username, firstName, lastName, avatar, isFriend, isRequested },
+}: Props) {
+  const { colors } = useAppTheme();
+  const { mutate: sendChallenge } = useSendChallenge();
+  const { mutate: addFriend } = useAddFriend();
 
-    const handleAdd = useCallback(() => {
-      addFriend(id);
-    }, []);
+  const handleAdd = useCallback(() => {
+    addFriend(id);
+  }, [addFriend, id]);
 
-    const handleChallenge = useCallback(() => {
-      sendChallenge(username);
-    }, []);
+  const handleChallenge = useCallback(() => {
+    sendChallenge(username);
+  }, [sendChallenge, username]);
 
-    return (
-      <Link
-        href={`/users/${id}`}
-        asChild>
-        <TouchableOpacity>
-          <View style={styles.content}>
-            <Avatar.Image
-              // @ts-ignore
-              source={{ uri: avatar }}
-              size={38}
-            />
-            <Text
-              style={[
-                styles.name,
-                { color: colors.text },
-              ]}>{`${firstName} ${lastName}`}</Text>
-            {isFriend ? (
-              <>
-                <Link
-                  href={`/chats/${id}`}
-                  asChild>
-                  <Ionicons.Button
-                    name="mail-outline"
-                    size={22}
-                    color={colors.icon}
-                    iconStyle={styles.messageIcon}
-                    backgroundColor="transparent"
-                    onPress={() => console.log("Message pressed")}
-                    underlayColor="transparent"
-                  />
-                </Link>
-                <Button
-                  mode="text"
-                  labelStyle={{ fontSize: 14 }}
-                  onPress={handleChallenge}>
-                  Challenge
-                </Button>
-              </>
-            ) : isRequested ? (
-              <Ionicons
-                name="checkmark-done-sharp"
-                color={colors.tint}
-                size={22}
-              />
-            ) : (
+  return (
+    <Link href={`/users/${id}`} asChild>
+      <TouchableOpacity>
+        <View style={styles.content}>
+          <Avatar.Image
+            // @ts-ignore
+            source={{ uri: avatar }}
+            size={38}
+          />
+          <Text
+            style={[styles.name, { color: colors.text }]}
+          >{`${firstName} ${lastName}`}</Text>
+          {isFriend ? (
+            <>
+              <Link href={`/chats/${id}`} asChild>
+                <Ionicons.Button
+                  name="mail-outline"
+                  size={22}
+                  color={colors.icon}
+                  iconStyle={styles.messageIcon}
+                  backgroundColor="transparent"
+                  onPress={() => console.log("Message pressed")}
+                  underlayColor="transparent"
+                />
+              </Link>
               <Button
-                mode="contained"
-                style={styles.addButton}
-                labelStyle={styles.addButtonTitle}
-                onPress={handleAdd}>
-                Add
+                mode="text"
+                labelStyle={{ fontSize: 14 }}
+                onPress={handleChallenge}
+              >
+                Challenge
               </Button>
-            )}
-          </View>
-          <Divider />
-        </TouchableOpacity>
-      </Link>
-    );
-  }
-);
+            </>
+          ) : isRequested ? (
+            <Ionicons
+              name="checkmark-done-sharp"
+              color={colors.tint}
+              size={22}
+            />
+          ) : (
+            <Button
+              mode="contained"
+              style={styles.addButton}
+              labelStyle={styles.addButtonTitle}
+              onPress={handleAdd}
+            >
+              Add
+            </Button>
+          )}
+        </View>
+        <Divider />
+      </TouchableOpacity>
+    </Link>
+  );
+});
 
 const styles = StyleSheet.create({
   content: {

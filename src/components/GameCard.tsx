@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import {
   Alert,
   Image,
@@ -9,7 +10,6 @@ import {
 import { useAppTheme } from "@/providers";
 import { User } from "@/models";
 import { useSendChallenge } from "@/queries/games";
-import { useCallback } from "react";
 
 type Props = {
   title: string;

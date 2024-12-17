@@ -44,7 +44,7 @@ export default function User() {
 
   const handleSignOut = useCallback(() => {
     signOut();
-  }, []);
+  }, [signOut]);
 
   if (
     isLoadingUser ||
@@ -69,9 +69,7 @@ export default function User() {
   } = user;
 
   return (
-    <ScreenContainer
-      scrollable
-      style={styles.container}>
+    <ScreenContainer scrollable style={styles.container}>
       <View style={styles.header}>
         <Avatar.Image
           size={70}
@@ -98,10 +96,7 @@ export default function User() {
           </TouchableOpacity>
           <View style={{ marginBottom: 12 }}>
             {games.map((game) => (
-              <GameArchiveItem
-                key={game.id}
-                game={game}
-              />
+              <GameArchiveItem key={game.id} game={game} />
             ))}
           </View>
         </>
@@ -116,12 +111,10 @@ export default function User() {
           <View
             style={{
               marginBottom: insets.bottom,
-            }}>
+            }}
+          >
             {friends.map((friend) => (
-              <FriendItem
-                key={friend.id}
-                user={friend}
-              />
+              <FriendItem key={friend.id} user={friend} />
             ))}
           </View>
         </>
@@ -131,7 +124,8 @@ export default function User() {
         textColor={colors.red}
         style={[styles.logoutButton, { borderColor: colors.red }]}
         onPress={handleSignOut}
-        loading={isSigningOut}>
+        loading={isSigningOut}
+      >
         Log out
       </Button>
     </ScreenContainer>

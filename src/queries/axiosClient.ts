@@ -13,7 +13,7 @@ axiosClient.interceptors.request.use(
   (error) => {
     console.log("error", error);
     return error;
-  }
+  },
 );
 
 axiosClient.interceptors.response.use(
@@ -27,7 +27,7 @@ axiosClient.interceptors.response.use(
     if (
       typeof data === "object" &&
       data !== null &&
-      Object.hasOwn(data, "message")
+      data.hasOwnProperty("message")
     ) {
       Alert.alert("", data.message, [
         { text: "OK", style: "default", isPreferred: true },
@@ -37,5 +37,5 @@ axiosClient.interceptors.response.use(
       router.replace("/sign-in");
     }
     throw error;
-  }
+  },
 );

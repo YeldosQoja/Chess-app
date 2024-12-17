@@ -30,11 +30,9 @@ export const FriendRequest = ({
         style={{
           flexDirection: "row",
           alignItems: "center",
-        }}>
-        <Avatar.Image
-          size={32}
-          source={{ uri: avatar }}
-        />
+        }}
+      >
+        <Avatar.Image size={32} source={{ uri: avatar }} />
         <Text style={styles.name}>{`${firstName} ${lastName}`}</Text>
         <Text style={styles.date}>{createdAt.toLocaleDateString()}</Text>
       </View>
@@ -44,7 +42,8 @@ export const FriendRequest = ({
           style={[styles.button, { borderColor: colors.tint }]}
           onPress={() => {
             decline(id);
-          }}>
+          }}
+        >
           Decline
         </Button>
         <Button
@@ -52,7 +51,8 @@ export const FriendRequest = ({
           style={styles.button}
           onPress={() => {
             accept(id);
-          }}>
+          }}
+        >
           Accept
         </Button>
       </View>

@@ -73,15 +73,13 @@ export default function SignIn() {
           console.log("values", values);
           signIn.mutate(values);
         })}
-        loading={isPending}>
+        loading={isPending}
+      >
         Sign in
       </Button>
       <View style={[styles.textLinkContainer, { bottom }]}>
         <Text style={{ color: colors.text }}>Don't have an account?</Text>
-        <Link
-          style={styles.link}
-          replace
-          href="/sign-up">
+        <Link style={styles.link} replace href="/sign-up">
           <Text style={{ color: colors.tint }}>Sign up</Text>
         </Link>
       </View>

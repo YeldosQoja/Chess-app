@@ -165,7 +165,7 @@ export const ChessPiece = ({ piece }: PieceProps) => {
       <GestureDetector gesture={composedGesture}>
         <Animated.View style={[styles.container, pieceStyle]}>
           <Image
-            source={`${piece.getType()}-${piece.owner.getColor()}`}
+            source={`${piece.getType()}_${piece.owner.getColor()}`}
             style={styles.image}
           />
         </Animated.View>

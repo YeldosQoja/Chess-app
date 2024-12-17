@@ -36,18 +36,18 @@
         "expo-asset",
         {
           "assets": [
-            "./assets/images/chess/pawn-white.png",
-            "./assets/images/chess/pawn-black.png",
-            "./assets/images/chess/rook-white.png",
-            "./assets/images/chess/rook-black.png",
-            "./assets/images/chess/bishop-white.png",
-            "./assets/images/chess/bishop-black.png",
-            "./assets/images/chess/knight-white.png",
-            "./assets/images/chess/knight-black.png",
-            "./assets/images/chess/queen-white.png",
-            "./assets/images/chess/queen-black.png",
-            "./assets/images/chess/king-white.png",
-            "./assets/images/chess/king-black.png"
+            "./assets/images/chess/pawn_white.png",
+            "./assets/images/chess/pawn_black.png",
+            "./assets/images/chess/rook_white.png",
+            "./assets/images/chess/rook_black.png",
+            "./assets/images/chess/bishop_white.png",
+            "./assets/images/chess/bishop_black.png",
+            "./assets/images/chess/knight_white.png",
+            "./assets/images/chess/knight_black.png",
+            "./assets/images/chess/queen_white.png",
+            "./assets/images/chess/queen_black.png",
+            "./assets/images/chess/king_white.png",
+            "./assets/images/chess/king_black.png"
           ]
         }
       ]
