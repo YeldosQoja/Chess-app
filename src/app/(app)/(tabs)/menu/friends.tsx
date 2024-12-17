@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import {
   Dimensions,
+  FlatList,
   ListRenderItem,
   Pressable,
   StyleSheet,
@@ -56,7 +57,7 @@ export default function Friends() {
     refetch: refetchRequests,
     isRefetching: isRefetchingRequests,
   } = useFriendRequests();
-  const { data: users, isPending, error } = useUsers(debouncedQuery);
+  const { data: users } = useUsers(debouncedQuery);
 
   const input = useRef<TextInput>(null);
   const isFocused = useSharedValue(false);
@@ -87,7 +88,7 @@ export default function Friends() {
 
   const handleFocus = useCallback(() => {
     isFocused.value = true;
-  }, []);
+  }, [isFocused]);
 
   const handleCancel = useCallback(() => {
     isFocused.value = false;
@@ -95,11 +96,11 @@ export default function Friends() {
       input.current.blur();
     }
     setQuery("");
-  }, []);
+  }, [isFocused]);
 
   const renderFriendItem: ListRenderItem<User> = useCallback(
     ({ item }) => <FriendItem user={item} />,
-    []
+    [],
   );
 
   const renderFriendRequestItem: ListRenderItem<FriendRequestModel> =
@@ -111,29 +112,22 @@ export default function Friends() {
         style={[
           headerStyles.container,
           { backgroundColor: colors.background, borderColor: colors.border },
-        ]}>
+        ]}
+      >
         <Animated.View style={inputStyle}>
           <Input
             ref={input}
             value={query}
             placeholder="Search"
             placeholderTextColor={colors.border}
-            rightIcon={
-              <Ionicons
-                name="search"
-                size={20}
-                color={colors.icon}
-              />
-            }
+            rightIcon={<Ionicons name="search" size={20} color={colors.icon} />}
             onChangeText={setQuery}
             onFocus={handleFocus}
             style={headerStyles.search}
           />
         </Animated.View>
         <Animated.View style={buttonStyle}>
-          <Pressable
-            style={headerStyles.button}
-            onPress={handleCancel}>
+          <Pressable style={headerStyles.button} onPress={handleCancel}>
             <Text style={[headerStyles.buttonTitle, { color: colors.tint }]}>
               Cancel
             </Text>
@@ -151,38 +145,42 @@ export default function Friends() {
             }}
           />
         </Animated.View>
-        {selectedSegmentIndex === 0 ? (
-          <AnimatedFriendList
-            data={friends}
-            renderItem={renderFriendItem}
-            ListHeaderComponent={
-              <View style={styles.listHeader}>
-                <Text style={[styles.listHeaderTitle, { color: colors.text }]}>
-                  Friends
-                </Text>
-              </View>
-            }
-            style={friendListStyle}
-            refreshing={isRefetchingFriends}
-            onRefresh={refetchFriends}
-          />
-        ) : (
-          <Animated.FlatList
-            data={requests}
-            renderItem={renderFriendRequestItem}
-            ListHeaderComponent={
-              <View style={styles.listHeader}>
-                <Text style={[styles.listHeaderTitle, { color: colors.text }]}>
-                  Incoming Requests
-                </Text>
-              </View>
-            }
-            keyExtractor={(item) => item.id.toString()}
-            style={friendListStyle}
-            refreshing={isRefetchingRequests}
-            onRefresh={refetchRequests}
-          />
-        )}
+        <Animated.View style={friendListStyle}>
+          {selectedSegmentIndex === 0 ? (
+            <FriendList
+              data={friends}
+              renderItem={renderFriendItem}
+              ListHeaderComponent={
+                <View style={styles.listHeader}>
+                  <Text
+                    style={[styles.listHeaderTitle, { color: colors.text }]}
+                  >
+                    Friends
+                  </Text>
+                </View>
+              }
+              refreshing={isRefetchingFriends}
+              onRefresh={refetchFriends}
+            />
+          ) : (
+            <FlatList
+              data={requests}
+              renderItem={renderFriendRequestItem}
+              ListHeaderComponent={
+                <View style={styles.listHeader}>
+                  <Text
+                    style={[styles.listHeaderTitle, { color: colors.text }]}
+                  >
+                    Incoming Requests
+                  </Text>
+                </View>
+              }
+              keyExtractor={(item) => item.id.toString()}
+              refreshing={isRefetchingRequests}
+              onRefresh={refetchRequests}
+            />
+          )}
+        </Animated.View>
         <AnimatedFriendList
           data={users}
           renderItem={renderFriendItem}

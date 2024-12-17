@@ -8,6 +8,7 @@ import { useSendChallenge } from "@/queries/games";
 import { User } from "@/models";
 import { Button } from "./Button";
 import { useAddFriend } from "@/queries/friends";
+import { useProfile } from "@/queries/profile";
 
 type Props = {
   user: User;
@@ -17,6 +18,7 @@ export const FriendItem = memo(function FriendItem({
   user: { id, username, firstName, lastName, avatar, isFriend, isRequested },
 }: Props) {
   const { colors } = useAppTheme();
+  const { data: profile } = useProfile();
   const { mutate: sendChallenge } = useSendChallenge();
   const { mutate: addFriend } = useAddFriend();
 
@@ -67,7 +69,7 @@ export const FriendItem = memo(function FriendItem({
               color={colors.tint}
               size={22}
             />
-          ) : (
+          ) : id !== profile?.id ? (
             <Button
               mode="contained"
               style={styles.addButton}
@@ -76,7 +78,7 @@ export const FriendItem = memo(function FriendItem({
             >
               Add
             </Button>
-          )}
+          ) : null}
         </View>
         <Divider />
       </TouchableOpacity>
