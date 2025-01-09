@@ -1,26 +1,28 @@
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Avatar } from "react-native-paper";
 import { User } from "@/models";
-import { useAppTheme, ChessContext } from "@/providers";
+import { useAppTheme } from "@/providers";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 
 dayjs.extend(duration);
 
 type ProfileCardProps = {
-  profile: User;
-  isWhite: boolean;
+  color: "white" | "black";
   time: number;
-};
+} & Pick<User, "avatar" | "firstName" | "lastName">;
 
 export const ChessPlayerCard = ({
-  profile: { avatar, firstName, lastName },
-  isWhite,
+  avatar,
+  firstName,
+  lastName,
+  color,
   time,
 }: ProfileCardProps) => {
   const { colors } = useAppTheme();
-  const { gameState, finish } = useContext(ChessContext);
+
+  const isWhite = color === "white";
 
   const { activePlayer, moves } = gameState;
   const player = isWhite ? "white" : "black";

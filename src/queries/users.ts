@@ -3,7 +3,7 @@ import { axiosClient } from "./axiosClient";
 import { selectGame, selectUser } from "./selectors";
 
 async function getUsers({ queryKey }: QueryFunctionContext) {
-  const [_, __, query] = queryKey;
+  const query = queryKey[2];
   const response = await axiosClient.get<any[]>("users/", {
     params: { query },
   });
@@ -19,7 +19,7 @@ export const useUsers = (query: string) =>
   });
 
 async function getUserById({ queryKey }: QueryFunctionContext) {
-  const [_key1, _key2, id] = queryKey;
+  const id = queryKey[2];
   const response = await axiosClient.get(`users/${id}/`);
   return response.data;
 }
@@ -32,7 +32,7 @@ export const useUserById = (id: number) =>
   });
 
 async function getFriendsByUserId({ queryKey }: QueryFunctionContext) {
-  const [_, __, ___, userId] = queryKey;
+  const userId = queryKey[3];
   const response = await axiosClient.get<any[]>(`users/${userId}/friends/`);
   return response.data;
 }
@@ -45,7 +45,7 @@ export const useFriendsByUserId = (userId: number) =>
   });
 
 async function getGamesByUserId({ queryKey }: QueryFunctionContext) {
-  const [_, __, ___, userId] = queryKey;
+  const userId = queryKey[3];
   const response = await axiosClient.get<any[]>(`users/${userId}/games/`);
   return response.data;
 }

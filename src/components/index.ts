@@ -15,3 +15,4 @@ export * from "./GameStats";
 export * from "./GameResultModal";
 export * from "./GameArchiveItem";
 export * from "./Header";
+export * from "./Chess";

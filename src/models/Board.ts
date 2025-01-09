@@ -1,3 +1,3 @@
 import { IPiece } from "./Piece";
 
-export type Board = Array<Array<IPiece | null>>;
+export type Board = string[][];

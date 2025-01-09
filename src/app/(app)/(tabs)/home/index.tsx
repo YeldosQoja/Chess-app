@@ -1,3 +1,4 @@
+import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Link, useSegments } from "expo-router";
 import { GameArchiveItem, GameCard, Button } from "@/components";
@@ -9,7 +10,7 @@ const MARGIN = 12;
 
 export default function Home() {
   const { colors } = useAppTheme();
-  const [_, __, group] = useSegments();
+  const [, , group] = useSegments();
   const { data, isError, isSuccess } = useHome();
 
   if (isError || !isSuccess) {
@@ -22,19 +23,14 @@ export default function Home() {
     <View>
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.content}>
+        contentContainerStyle={styles.content}
+      >
         <View style={styles.cardsContainer}>
           {latestGame && (
-            <GameCard
-              title="Recommended Game"
-              opponent={latestGame.opponent}
-            />
+            <GameCard title="Recommended Game" opponent={latestGame.white} />
           )}
           {latestGame && (
-            <GameCard
-              title="Latest Game"
-              opponent={latestGame.opponent}
-            />
+            <GameCard title="Latest Game" opponent={latestGame.white} />
           )}
         </View>
         {games.length ? (
@@ -43,20 +39,13 @@ export default function Home() {
               Recent games
             </Text>
             {games.map((game) => (
-              <GameArchiveItem
-                key={game.id}
-                game={game}
-              />
+              <GameArchiveItem key={game.id} game={game} />
             ))}
           </>
         ) : null}
       </ScrollView>
-      <Link
-        href={`/${group}/friends`}
-        asChild>
-        <Button
-          mode="contained"
-          style={styles.button}>
+      <Link href={`/${group}/friends`} asChild>
+        <Button mode="contained" style={styles.button}>
           Play
         </Button>
       </Link>

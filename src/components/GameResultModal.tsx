@@ -9,7 +9,7 @@ type GameResultModalProps = {
   visible: boolean;
   isWinner: boolean;
   winner: "white" | "black" | null;
-  player: "white" | "black";
+  color: "white" | "black";
   white: User;
   black: User;
   onClose: () => void;
@@ -25,15 +25,14 @@ export const GameResultModal = ({
 }: GameResultModalProps) => {
   const { colors } = useAppTheme();
   return (
-    <Modal
-      visible={visible}
-      transparent>
+    <Modal visible={visible} transparent>
       <View style={styles.backdrop}>
         <View
           style={[
             styles.contentContainer,
             { backgroundColor: colors.background },
-          ]}>
+          ]}
+        >
           <View
             style={[
               styles.header,
@@ -44,7 +43,8 @@ export const GameResultModal = ({
                     : "#C7253E"
                   : "#758694",
               },
-            ]}>
+            ]}
+          >
             <Text style={[styles.title, { color: "white" }]}>
               {winner !== null
                 ? `${winner.charAt(0).toUpperCase() + winner.slice(1)} Wins`
@@ -56,8 +56,8 @@ export const GameResultModal = ({
                   isWinner
                     ? "You"
                     : winner === "white"
-                    ? white.username
-                    : black.username
+                      ? white.username
+                      : black.username
                 } win by checkmate`}
               </Text>
             )}
@@ -74,7 +74,8 @@ export const GameResultModal = ({
                   {
                     color: colors.text,
                   },
-                ]}>{`${white.firstName} ${white.lastName}`}</Text>
+                ]}
+              >{`${white.firstName} ${white.lastName}`}</Text>
             </View>
             <Text style={[styles.score, { color: colors.text }]}>{`${
               winner === "white" ? 1 : 0
@@ -90,14 +91,16 @@ export const GameResultModal = ({
                   {
                     color: colors.text,
                   },
-                ]}>{`${black.firstName} ${black.lastName}`}</Text>
+                ]}
+              >{`${black.firstName} ${black.lastName}`}</Text>
             </View>
           </View>
           <Button
             mode="contained"
             style={styles.button}
             labelStyle={styles.buttonTitle}
-            onPress={onClose}>
+            onPress={onClose}
+          >
             Continue
           </Button>
         </View>

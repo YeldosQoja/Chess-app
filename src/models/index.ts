@@ -10,3 +10,4 @@ export * from "./User";
 export * from "./Game";
 export * from "./FriendRequest";
 export * from "./SocketData";
+export * from "./Move";

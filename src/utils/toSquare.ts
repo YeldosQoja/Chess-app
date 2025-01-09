@@ -9,21 +9,14 @@ type Position = {
   y: number;
 };
 
-export const toSquare = ({ x, y }: Position): Square => {
+export const toSquare = ({ x, y }: Position, rotated: boolean): Square => {
   "worklet";
   const centerX = x + SQUARE_SIZE / 2;
   const centerY = y + SQUARE_SIZE / 2;
-  let rank = 0;
-  let file = 0;
-  for (let i = 0; i < 8; i++) {
-    if (i * SQUARE_SIZE < centerY) {
-        rank = i;
-    }
+  const i = Math.floor(centerY / SQUARE_SIZE);
+  const j = Math.floor(centerX / SQUARE_SIZE);
+  if (!rotated) {
+    return [i, j];
   }
-  for (let i = 0; i < 8; i++) {
-    if (i * SQUARE_SIZE < centerX) {
-        file = i;
-    }
-  }
-  return [rank, file];
+  return [7 - i, 7 - j];
 };

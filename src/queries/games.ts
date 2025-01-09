@@ -7,7 +7,7 @@ import {
 import { axiosClient } from "./axiosClient";
 import { useRouter } from "expo-router";
 import { selectGame } from "./selectors";
-import { User } from "@/models";
+import { Square, User } from "@/models";
 
 async function getGameById({ queryKey }: QueryFunctionContext) {
   const [, , id] = queryKey;
@@ -15,7 +15,7 @@ async function getGameById({ queryKey }: QueryFunctionContext) {
   return response.data;
 }
 
-export const useGetGameById = (id: number) =>
+export const useGetGameById = (id: string) =>
   useQuery({
     queryKey: ["games", "detail", id],
     queryFn: getGameById,
@@ -51,6 +51,68 @@ export const useAcceptChallenge = () => {
     onSuccess: (data) => {
       router.push(`/games/${data.game_id}`);
     },
+  });
+};
+
+const getValidMoves = async ({
+  queryKey,
+}: QueryFunctionContext): Promise<Square[]> => {
+  const id = queryKey[1];
+  const square = queryKey[3];
+  const response = await axiosClient.get(`games/${id}/valid_moves/${square}/`);
+  return response.data;
+};
+
+export const useValidMoves = (id: string, square: string | null) => {
+  return useQuery({
+    queryKey: ["games", id, "validMoves", square],
+    queryFn: getValidMoves,
+    initialData: [] as Square[],
+    enabled: !!square,
+  });
+};
+
+const validateMove = async ({
+  id,
+  from,
+  to,
+}: {
+  id: string;
+  from: Square;
+  to: Square;
+}) => {
+  const response = await axiosClient.post(`games/${id}/move/validate/`, {
+    from,
+    to,
+  });
+  return response.data;
+};
+
+export const useValidateMove = () => {
+  return useMutation({
+    mutationFn: validateMove,
+  });
+};
+
+async function makeMove({
+  id,
+  ...rest
+}: {
+  id: string;
+  from: Square;
+  to: Square;
+  promotion?: string;
+  timestamp: Date;
+}) {
+  const response = await axiosClient.post(`games/${id}/move/make/`, {
+    ...rest,
+  });
+  return response;
+}
+
+export const useMakeMove = () => {
+  return useMutation({
+    mutationFn: makeMove,
   });
 };
 

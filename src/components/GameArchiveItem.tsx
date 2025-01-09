@@ -9,17 +9,18 @@ type GameArchiveItemProps = {
 };
 
 export const GameArchiveItem = ({
-  game: { opponent, isWinner, player, isFinished },
+  game: { white, black, winner, color },
 }: GameArchiveItemProps) => {
   const { colors, dark } = useAppTheme();
+  const opponent = color === "white" ? black : white;
   return (
     <View style={[styles.container, { borderColor: colors.border }]}>
       <Ionicons name="time-outline" size={20} color={colors.icon} />
-      <Image source={"pawn_" + player} style={styles.image} />
+      <Image source={"pawn_" + color} style={styles.image} />
       <Text
         style={[styles.opponentName, { color: colors.text }]}
       >{`${opponent.firstName} ${opponent.lastName}`}</Text>
-      {isWinner ? (
+      {winner === color ? (
         <Ionicons name="trophy" size={22} color={"#edd900"} />
       ) : dark ? (
         <Ionicons name="flag" size={20} color="white" />

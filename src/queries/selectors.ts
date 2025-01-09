@@ -15,25 +15,9 @@ export const selectUser = (data: any): User => ({
   isRequested: data.is_requested,
 });
 
-export const selectGame = ({
-  white,
-  black,
-  is_white,
-  is_winner,
-  is_active,
-  started_at,
-  finished_at,
-  opponent,
-  ...rest
-}: any): Game => ({
+export const selectGame = ({ white, black, ...rest }: any): Game => ({
   white: selectUser(white),
   black: selectUser(black),
-  opponent: selectUser(opponent),
-  isWhite: is_white,
-  isFinished: !is_active,
-  isWinner: is_winner,
-  duration:
-    new Date(finished_at).getSeconds() - new Date(started_at).getSeconds(),
   ...rest,
 });
 

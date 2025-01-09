@@ -1,7 +1,5 @@
-import { useContext } from "react";
 import { Modal, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
-import { ChessContext } from "@/providers";
 import { PieceType } from "@/models";
 
 const PIECE_PROMOTIONS = [
@@ -11,12 +9,17 @@ const PIECE_PROMOTIONS = [
   PieceType.Bishop,
 ];
 
-export const ChessPiecePromotionPicker = () => {
-  const { player } = useContext(ChessContext);
+type Props = {
+  open: boolean;
+  onSelectPromotion: (_: PieceType) => void;
+  color: "white" | "black";
+};
 
-  const { promotionPickerOpen: open, selectPromotion } =
-    useContext(ChessContext);
-
+export const ChessPiecePromotionPicker = ({
+  open,
+  onSelectPromotion,
+  color,
+}: Props) => {
   return (
     <Modal
       style={styles.modal}
@@ -31,9 +34,9 @@ export const ChessPiecePromotionPicker = () => {
               key={index}
               activeOpacity={0.9}
               style={styles.item}
-              onPress={() => void selectPromotion(pieceType)}
+              onPress={() => void onSelectPromotion(pieceType)}
             >
-              <Image source={`${pieceType}_${player}`} style={styles.image} />
+              <Image source={`${pieceType}${color[0]}`} style={styles.image} />
             </TouchableOpacity>
           ))}
         </View>

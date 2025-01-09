@@ -1,87 +1,57 @@
-import { useContext } from "react";
-import { View, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
-import { ChessContext } from "@/providers";
-import { ChessPiece } from "./ChessPiece";
+import { View, StyleSheet, Dimensions, Text } from "react-native";
 import { COLORS, SQUARE_SIZE } from "@/constants/board";
 
 const { width } = Dimensions.get("window");
 
-export const ChessBoard = () => {
-  const { selectedPiece, player, white, black, gameState, move } =
-    useContext(ChessContext);
+type Props = {
+  color: "white" | "black";
+};
 
-  const { board } = gameState;
-  const flip = player === "black";
-
+export const ChessBoard = ({ color }: Props) => {
+  const flip = color === "black";
   return (
-    <View
-      style={[
-        styles.board,
-        { transform: [{ rotate: flip ? "180deg" : "0deg" }] },
-      ]}
-    >
-      {/* Tiles */}
-      {board.map((row, rank) => {
-        const isEvenRank = rank % 2 === 0;
-        const colors = [
-          isEvenRank ? COLORS.light : COLORS.dark,
-          isEvenRank ? COLORS.dark : COLORS.light,
-        ];
-        return (
-          <View key={rank} style={styles.row}>
-            {row.map((_, file) => (
-              <View
-                key={file}
-                style={{
-                  backgroundColor: colors[file % 2],
-                  ...styles.square,
-                }}
-              />
-            ))}
-          </View>
-        );
-      })}
-      {/* Valid move markers */}
-      {selectedPiece !== null &&
-        selectedPiece.getValidMoves().map(([rank, file]) => (
-          <View
-            key={"" + rank + file}
-            style={[
-              {
-                position: "absolute",
-                top: SQUARE_SIZE * rank,
-                left: SQUARE_SIZE * file,
-              },
-              styles.square,
-            ]}
-          >
-            <View style={styles.dot} />
-          </View>
-        ))}
-      {white !== null &&
-        white.pieces
-          .filter((p) => !p.isCaptured)
-          .map((piece) => <ChessPiece key={piece.id} piece={piece} />)}
-      {black &&
-        black.pieces
-          .filter((p) => !p.isCaptured)
-          .map((piece) => <ChessPiece key={piece.id} piece={piece} />)}
-      {/* Moves */}
-      {selectedPiece !== null &&
-        selectedPiece.getValidMoves().map(([rank, file]) => (
-          <TouchableOpacity
-            key={"" + rank + file}
-            style={[
-              styles.square,
-              styles.moveButton,
-              {
-                top: SQUARE_SIZE * rank,
-                left: SQUARE_SIZE * file,
-              },
-            ]}
-            onPress={() => move([rank, file])}
-          />
-        ))}
+    <View style={[styles.board]}>
+      {Array(8)
+        .fill(null)
+        .map((_, i) => {
+          const isEvenRank = i % 2 === 0;
+          const colors = [
+            isEvenRank ? COLORS.light : COLORS.dark,
+            isEvenRank ? COLORS.dark : COLORS.light,
+          ];
+          return (
+            <View key={i} style={styles.row}>
+              {Array(8)
+                .fill(null)
+                .map((_, j) => (
+                  <View
+                    key={j}
+                    style={{
+                      backgroundColor: colors[j % 2],
+                      ...styles.square,
+                    }}
+                  >
+                    {j === 0 ? (
+                      <Text
+                        style={[styles.rank, { color: colors[(j + 1) % 2] }]}
+                      >
+                        {flip ? i + 1 : 8 - i}
+                      </Text>
+                    ) : null}
+                    {i === 7 ? (
+                      <Text
+                        style={[styles.file, { color: colors[(j + 1) % 2] }]}
+                      >
+                        {flip
+                          ? String.fromCharCode("h".charCodeAt(0) - j)
+                          : String.fromCharCode("a".charCodeAt(0) + j)}
+                      </Text>
+                    ) : null}
+                  </View>
+                ))}
+            </View>
+          );
+        })}
     </View>
   );
 };
@@ -98,8 +68,20 @@ const styles = StyleSheet.create({
   square: {
     width: SQUARE_SIZE,
     aspectRatio: 1,
-    justifyContent: "center",
-    alignItems: "center",
+  },
+  rank: {
+    fontSize: 12,
+    fontWeight: "500",
+    position: "absolute",
+    left: 4,
+    top: 4,
+  },
+  file: {
+    fontSize: 12,
+    fontWeight: "500",
+    position: "absolute",
+    right: 4,
+    bottom: 4,
   },
   moveButton: {
     position: "absolute",

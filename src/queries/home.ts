@@ -5,7 +5,7 @@ import { Game } from "@/models";
 
 async function getHome() {
   const response = await axiosClient.get<{ games: any[]; latest_game: any }>(
-    "home/"
+    "home/",
   );
   return response.data;
 }

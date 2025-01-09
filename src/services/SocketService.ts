@@ -1,4 +1,4 @@
-import { SocketData, Move, Promotion } from "@/models";
+import { SocketData, MoveData } from "@/models";
 
 export class SocketService {
   private ws: WebSocket;
@@ -67,21 +67,7 @@ export class SocketService {
 }
 
 export class GameSocketService extends SocketService {
-  public onMove(cb: (data: SocketData<Move>) => void) {
+  public onMove(cb: (data: SocketData<MoveData>) => void) {
     this.on("move", cb);
-  }
-
-  public onPromotion(cb: (data: SocketData<Promotion>) => void) {
-    this.on("promotion", cb);
-  }
-
-  public sendMove(data: Move) {
-    const socketData: SocketData<Move> = { type: "move", ...data };
-    this.send(socketData);
-  }
-
-  public sendPromotion(data: Promotion) {
-    const socketData: SocketData<Promotion> = { type: "promotion", ...data };
-    this.send(socketData);
   }
 }

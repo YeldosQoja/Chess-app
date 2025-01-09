@@ -240,10 +240,10 @@ export class QueenStrategy extends Strategy {
     isMoved: boolean,
     owner: Player,
   ): Array<Square> {
-    const [curRank, curFile] = currentSquare;
+    const [rank, file] = currentSquare;
     const moves: Square[] = [];
     for (const offset of HORIZONTAL_VERTICAL_OFFSETS.concat(DIAGONAL_OFFSETS)) {
-      let [moveRank, moveFile] = [curRank + offset[0], curFile + offset[1]];
+      let [moveRank, moveFile] = [rank + offset[0], file + offset[1]];
       while (this.isValidSquare([moveRank, moveFile])) {
         const piece = this.game.board[moveRank][moveFile];
         if (piece) {
