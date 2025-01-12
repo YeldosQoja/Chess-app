@@ -1,13 +1,11 @@
 import { View, StyleSheet, Dimensions, Text } from "react-native";
 import { COLORS, SQUARE_SIZE } from "@/constants/board";
+import { useChess } from "@/providers";
 
 const { width } = Dimensions.get("window");
 
-type Props = {
-  color: "white" | "black";
-};
-
-export const ChessBoard = ({ color }: Props) => {
+export const ChessBoard = () => {
+  const { color } = useChess();
   const flip = color === "black";
   return (
     <View style={[styles.board]}>

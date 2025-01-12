@@ -11,15 +11,11 @@ const PIECE_PROMOTIONS = [
 
 type Props = {
   open: boolean;
-  onSelectPromotion: (_: PieceType) => void;
+  onSelect: (_: PieceType) => void;
   color: "white" | "black";
 };
 
-export const ChessPiecePromotionPicker = ({
-  open,
-  onSelectPromotion,
-  color,
-}: Props) => {
+export const PromotionPicker = ({ open, onSelect, color }: Props) => {
   return (
     <Modal
       style={styles.modal}
@@ -34,7 +30,7 @@ export const ChessPiecePromotionPicker = ({
               key={index}
               activeOpacity={0.9}
               style={styles.item}
-              onPress={() => void onSelectPromotion(pieceType)}
+              onPress={() => void onSelect(pieceType)}
             >
               <Image source={`${pieceType}${color[0]}`} style={styles.image} />
             </TouchableOpacity>

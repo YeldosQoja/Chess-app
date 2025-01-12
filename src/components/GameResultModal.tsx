@@ -1,13 +1,12 @@
 import React from "react";
 import { Modal, StyleSheet, Text, View } from "react-native";
+import { Avatar } from "react-native-paper";
 import { useAppTheme } from "@/providers";
 import { Button } from "./Button";
-import { Avatar } from "react-native-paper";
 import { User } from "@/models";
 
 type GameResultModalProps = {
-  visible: boolean;
-  isWinner: boolean;
+  open: boolean;
   winner: "white" | "black" | null;
   color: "white" | "black";
   white: User;
@@ -16,8 +15,8 @@ type GameResultModalProps = {
 };
 
 export const GameResultModal = ({
-  visible,
-  isWinner,
+  open,
+  color,
   winner,
   white,
   black,
@@ -25,7 +24,7 @@ export const GameResultModal = ({
 }: GameResultModalProps) => {
   const { colors } = useAppTheme();
   return (
-    <Modal visible={visible} transparent>
+    <Modal visible={open} transparent>
       <View style={styles.backdrop}>
         <View
           style={[
@@ -38,7 +37,7 @@ export const GameResultModal = ({
               styles.header,
               {
                 backgroundColor: winner
-                  ? isWinner
+                  ? winner === color
                     ? "#3b9813"
                     : "#C7253E"
                   : "#758694",
@@ -50,17 +49,6 @@ export const GameResultModal = ({
                 ? `${winner.charAt(0).toUpperCase() + winner.slice(1)} Wins`
                 : "Draw"}
             </Text>
-            {winner && (
-              <Text style={[styles.message, { color: "white" }]}>
-                {`${
-                  isWinner
-                    ? "You"
-                    : winner === "white"
-                      ? white.username
-                      : black.username
-                } win by checkmate`}
-              </Text>
-            )}
           </View>
           <View style={styles.scoreCard}>
             <View style={styles.player}>
@@ -77,9 +65,13 @@ export const GameResultModal = ({
                 ]}
               >{`${white.firstName} ${white.lastName}`}</Text>
             </View>
-            <Text style={[styles.score, { color: colors.text }]}>{`${
-              winner === "white" ? 1 : 0
-            }-${winner === "white" ? 0 : 1}`}</Text>
+            <Text style={[styles.score, { color: colors.text }]}>
+              {winner === "white"
+                ? "1-0"
+                : winner === "black"
+                  ? "0-1"
+                  : "1/2-1/2"}
+            </Text>
             <View style={styles.player}>
               <Avatar.Image
                 style={styles.avatar}

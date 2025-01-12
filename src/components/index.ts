@@ -1,6 +1,5 @@
 export * from "./ChessBoard";
 export * from "./ChessPiece";
-export * from "./ChessPiecePromotionPicker";
 export * from "./ChessPlayerCard";
 export * from "./ScreenContainer";
 export * from "./Input";
