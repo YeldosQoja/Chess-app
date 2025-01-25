@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import { Image, ImageSource } from "expo-image";
-import { useAppTheme } from "@/providers";
+import { useAppTheme } from "@/contexts";
 
 type Props = {
   title: string;

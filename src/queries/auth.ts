@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { axiosClient } from "./axiosClient";
-import { useAuth } from "@/providers";
+import { useAuth } from "@/contexts";
 import { InferType, object, string } from "yup";
 import { router } from "expo-router";
 

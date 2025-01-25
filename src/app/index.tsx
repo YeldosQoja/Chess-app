@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Redirect, SplashScreen } from "expo-router";
-import { useAuth } from "@/providers";
+import { useAuth } from "@/contexts";
 
 SplashScreen.hideAsync();
 

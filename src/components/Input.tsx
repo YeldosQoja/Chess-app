@@ -7,7 +7,7 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import { useAppTheme } from "@/providers";
+import { useAppTheme } from "@/contexts";
 
 interface InputProps extends TextInputProps {
   leftIcon?: ReactNode;

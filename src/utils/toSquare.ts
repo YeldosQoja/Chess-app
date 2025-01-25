@@ -1,5 +1,5 @@
-import { Square } from "@/models";
 import { Dimensions } from "react-native";
+import { Square } from "@/models";
 
 const { width } = Dimensions.get("window");
 const SQUARE_SIZE = width / 8;

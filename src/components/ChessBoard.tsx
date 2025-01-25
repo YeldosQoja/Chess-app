@@ -1,6 +1,6 @@
 import { View, StyleSheet, Dimensions, Text } from "react-native";
 import { COLORS, SQUARE_SIZE } from "@/constants/board";
-import { useChess } from "@/providers";
+import { useChess } from "@/contexts";
 
 const { width } = Dimensions.get("window");
 

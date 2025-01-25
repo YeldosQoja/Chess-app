@@ -1,11 +1,9 @@
-import { FlatList, FlatListProps } from "react-native";
-import { useAppTheme } from "@/providers";
-import { User } from "@/models";
 import { forwardRef } from "react";
+import { FlatList, FlatListProps } from "react-native";
+import { User } from "@/models";
 
-export const FriendList = forwardRef<FlatList<User>, FlatListProps<User>>(
+export const UserList = forwardRef<FlatList<User>, FlatListProps<User>>(
   ({ ...listProps }, ref) => {
-    const { colors } = useAppTheme();
     return (
       <FlatList
         {...listProps}
@@ -13,5 +11,5 @@ export const FriendList = forwardRef<FlatList<User>, FlatListProps<User>>(
         ref={ref}
       />
     );
-  }
+  },
 );

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
   Dimensions,
   FlatList,
@@ -10,8 +10,8 @@ import {
   View,
 } from "react-native";
 import {
-  FriendList,
-  FriendItem,
+  UserList,
+  UserItem,
   Input,
   ScreenContainer,
   FriendRequest,
@@ -20,7 +20,7 @@ import { useUsers } from "@/queries/users";
 import { FriendRequest as FriendRequestModel, User } from "@/models";
 import Constants from "expo-constants";
 import { Ionicons } from "@expo/vector-icons";
-import { useAppTheme } from "@/providers";
+import { CurrentUserProfileProvider, useAppTheme } from "@/contexts";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -39,7 +39,7 @@ const MAX_INPUT_WIDTH = width - 2 * PADDING;
 const MIN_INPUT_WIDTH = MAX_INPUT_WIDTH - BUTTON_WIDTH;
 const TAB_HEIGHT = 40;
 
-const AnimatedFriendList = Animated.createAnimatedComponent(FriendList);
+const AnimatedUserList = Animated.createAnimatedComponent(UserList);
 
 export default function Friends() {
   const { colors } = useAppTheme();
@@ -98,8 +98,8 @@ export default function Friends() {
     setQuery("");
   }, [isFocused]);
 
-  const renderFriendItem: ListRenderItem<User> = useCallback(
-    ({ item }) => <FriendItem user={item} />,
+  const renderUserItem: ListRenderItem<User> = useCallback(
+    ({ item }) => <UserItem user={item} />,
     [],
   );
 
@@ -145,48 +145,50 @@ export default function Friends() {
             }}
           />
         </Animated.View>
-        <Animated.View style={friendListStyle}>
-          {selectedSegmentIndex === 0 ? (
-            <FriendList
-              data={friends}
-              renderItem={renderFriendItem}
-              ListHeaderComponent={
-                <View style={styles.listHeader}>
-                  <Text
-                    style={[styles.listHeaderTitle, { color: colors.text }]}
-                  >
-                    Friends
-                  </Text>
-                </View>
-              }
-              refreshing={isRefetchingFriends}
-              onRefresh={refetchFriends}
-            />
-          ) : (
-            <FlatList
-              data={requests}
-              renderItem={renderFriendRequestItem}
-              ListHeaderComponent={
-                <View style={styles.listHeader}>
-                  <Text
-                    style={[styles.listHeaderTitle, { color: colors.text }]}
-                  >
-                    Incoming Requests
-                  </Text>
-                </View>
-              }
-              keyExtractor={(item) => item.id.toString()}
-              refreshing={isRefetchingRequests}
-              onRefresh={refetchRequests}
-            />
-          )}
-        </Animated.View>
-        <AnimatedFriendList
-          data={users}
-          renderItem={renderFriendItem}
-          style={[StyleSheet.absoluteFill, listStyle]}
-          contentContainerStyle={{ paddingTop: HEADER_HEIGHT }}
-        />
+        <CurrentUserProfileProvider>
+          <Animated.View style={friendListStyle}>
+            {selectedSegmentIndex === 0 ? (
+              <UserList
+                data={friends}
+                renderItem={renderUserItem}
+                ListHeaderComponent={
+                  <View style={styles.listHeader}>
+                    <Text
+                      style={[styles.listHeaderTitle, { color: colors.text }]}
+                    >
+                      Friends
+                    </Text>
+                  </View>
+                }
+                refreshing={isRefetchingFriends}
+                onRefresh={refetchFriends}
+              />
+            ) : (
+              <FlatList
+                data={requests}
+                renderItem={renderFriendRequestItem}
+                ListHeaderComponent={
+                  <View style={styles.listHeader}>
+                    <Text
+                      style={[styles.listHeaderTitle, { color: colors.text }]}
+                    >
+                      Incoming Requests
+                    </Text>
+                  </View>
+                }
+                keyExtractor={(item) => item.id.toString()}
+                refreshing={isRefetchingRequests}
+                onRefresh={refetchRequests}
+              />
+            )}
+          </Animated.View>
+          <AnimatedUserList
+            data={users}
+            renderItem={renderUserItem}
+            style={[StyleSheet.absoluteFill, listStyle]}
+            contentContainerStyle={{ paddingTop: HEADER_HEIGHT }}
+          />
+        </CurrentUserProfileProvider>
       </ScreenContainer>
     </>
   );

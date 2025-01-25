@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import { Avatar } from "react-native-paper";
 import { User } from "@/models";
-import { useAppTheme } from "@/providers";
+import { useAppTheme } from "@/contexts";
 
 type Props = {
   player: User;

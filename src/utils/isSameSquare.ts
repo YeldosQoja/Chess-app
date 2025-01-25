@@ -5,5 +5,5 @@ export const isSameSquare = (square1: Square, square2: Square) => {
 };
 
 export const includesSquare = (moves: Square[], target: Square) => {
-    return moves.some(m => isSameSquare(m, target));
-}
+  return moves.some((m) => isSameSquare(m, target));
+};

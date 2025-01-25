@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Avatar } from "react-native-paper";
 import { User } from "@/models";
-import { useAppTheme } from "@/providers";
+import { useAppTheme } from "@/contexts";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 

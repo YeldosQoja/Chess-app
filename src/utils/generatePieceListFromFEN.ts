@@ -1,5 +1,4 @@
-import type { Piece } from "@/models";
-import { PieceType } from "../models/PieceType";
+import type { Piece, PieceType } from "@/models";
 
 export function generatePieceListFromFEN(fen: string) {
   const pieces: Piece[] = [];

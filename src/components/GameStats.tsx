@@ -1,4 +1,4 @@
-import { useAppTheme } from "@/providers";
+import { useAppTheme } from "@/contexts";
 import { StyleSheet, Text, View } from "react-native";
 
 type GameStatsProps = {

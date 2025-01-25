@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { Avatar } from "react-native-paper";
 import { Button } from "./Button";
 import { FriendRequest as FriendRequestModel } from "@/models";
-import { useAppTheme } from "@/providers";
+import { useAppTheme } from "@/contexts";
 import {
   useAcceptFriendRequest,
   useDeclineFriendRequest,

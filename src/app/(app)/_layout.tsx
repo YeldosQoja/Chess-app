@@ -1,5 +1,5 @@
 import { Stack } from "expo-router";
-import { WebsocketProvider } from "@/providers";
+import { WebsocketProvider } from "@/contexts";
 import { Platform } from "react-native";
 import { Header } from "@/components";
 

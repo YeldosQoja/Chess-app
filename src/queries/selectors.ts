@@ -7,12 +7,9 @@ export const selectUser = (data: any): User => ({
   email: data.email,
   username: data.username,
   joinedAt: data.date_joined,
-  avatar: data.profile.avatar,
-  wins: data.profile.wins,
-  losses: data.profile.losses,
-  draws: data.profile.draws,
   isFriend: data.is_friend,
   isRequested: data.is_requested,
+  ...data.profile,
 });
 
 export const selectGame = ({ white, black, ...rest }: any): Game => ({

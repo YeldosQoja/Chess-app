@@ -6,7 +6,7 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import { useAppTheme } from "@/providers";
+import { useAppTheme } from "@/contexts";
 
 type Props = {
   scrollable?: boolean;

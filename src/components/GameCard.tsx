@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useAppTheme } from "@/providers";
+import { useAppTheme } from "@/contexts";
 import { User } from "@/models";
 import { useSendChallenge } from "@/queries/games";
 

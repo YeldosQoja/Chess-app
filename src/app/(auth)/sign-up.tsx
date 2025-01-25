@@ -5,7 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useForm } from "react-hook-form";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useAppTheme } from "@/providers";
+import { useAppTheme } from "@/contexts";
 import { Input, ScreenContainer, Button } from "@/components";
 import { signUpSchema, useSignUp } from "@/queries/auth";
 

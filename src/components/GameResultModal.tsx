@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal, StyleSheet, Text, View } from "react-native";
 import { Avatar } from "react-native-paper";
-import { useAppTheme } from "@/providers";
+import { useAppTheme } from "@/contexts";
 import { Button } from "./Button";
 import { User } from "@/models";
 

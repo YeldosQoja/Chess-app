@@ -1,4 +1,4 @@
-import { useChess } from "@/providers";
+import { useChess } from "@/contexts";
 import { ChessBoard } from "./ChessBoard";
 import { Pieces } from "./Pieces";
 import { View } from "react-native";

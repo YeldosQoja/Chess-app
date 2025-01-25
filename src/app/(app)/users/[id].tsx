@@ -10,13 +10,13 @@ import { useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import dayjs from "dayjs";
 import {
-  FriendItem,
+  UserItem,
   GameStats,
   ScreenContainer,
   GameArchiveItem,
   Button,
 } from "@/components";
-import { useAppTheme } from "@/providers";
+import { CurrentUserProfileProvider, useAppTheme } from "@/contexts";
 import { useSignOut } from "@/queries/auth";
 
 export default function User() {
@@ -113,9 +113,11 @@ export default function User() {
               marginBottom: insets.bottom,
             }}
           >
-            {friends.map((friend) => (
-              <FriendItem key={friend.id} user={friend} />
-            ))}
+            <CurrentUserProfileProvider>
+              {friends.map((friend) => (
+                <UserItem key={friend.id} user={friend} />
+              ))}
+            </CurrentUserProfileProvider>
           </View>
         </>
       )}

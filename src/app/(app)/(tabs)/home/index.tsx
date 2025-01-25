@@ -2,7 +2,7 @@ import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Link, useSegments } from "expo-router";
 import { GameArchiveItem, GameCard, Button } from "@/components";
-import { useAppTheme } from "@/providers";
+import { useAppTheme } from "@/contexts";
 import { useHome } from "@/queries/home";
 
 const BUTTON_HEIGHT = 50;

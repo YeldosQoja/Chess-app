@@ -18,6 +18,7 @@ const CombinedLightTheme = {
     ...NavigationLightTheme.colors,
   },
 };
+
 const CombinedDarkTheme = {
   ...PaperDarkTheme,
   ...NavigationDarkTheme,
@@ -40,9 +41,16 @@ export const useAppTheme = () => {
 
 type Mode = "light" | "dark" | "system";
 
-export const ThemeProvider = ({ children }: PropsWithChildren) => {
+type ThemeProviderProps = {
+  defaultMode?: "light" | "dark";
+};
+
+export const ThemeProvider = ({
+  defaultMode,
+  children,
+}: PropsWithChildren<ThemeProviderProps>) => {
   const systemColor = useColorScheme();
-  const [mode, setMode] = useState<Mode>("system");
+  const [mode, setMode] = useState<Mode>(defaultMode || "system");
 
   const dark = mode === "dark" || (mode === "system" && systemColor === "dark");
 

@@ -2,7 +2,7 @@ import React from "react";
 import { Piece } from "@/models";
 import { ChessPiece } from "./ChessPiece";
 import { encodeSquare } from "@/utils/encodeSquare";
-import { useChess } from "@/providers";
+import { useChess } from "@/contexts";
 
 type Props = {
   pieces: Piece[];

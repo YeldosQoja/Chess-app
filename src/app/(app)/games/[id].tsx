@@ -7,7 +7,7 @@ import {
   ChessRef,
   useAppTheme,
   PromotionPickerProvider,
-} from "@/providers";
+} from "@/contexts";
 import {
   useFinishGame,
   useGetGameById,

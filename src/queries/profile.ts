@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { axiosClient } from "./axiosClient";
 import { selectFriendRequest, selectGame, selectUser } from "./selectors";
 
-async function getProfile() {
+export async function getProfile() {
   const response = await axiosClient.get("profile/");
   return response.data;
 }

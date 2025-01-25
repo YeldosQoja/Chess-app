@@ -13,7 +13,7 @@ import { Piece, Square } from "@/models";
 import { SQUARE_SIZE } from "@/constants/board";
 import { toSquare } from "@/utils/toSquare";
 import { toPosition } from "@/utils/toPosition";
-import { useChess } from "@/providers";
+import { useChess } from "@/contexts";
 
 export type ChessPieceRef = {
   moveTo: (square: Square) => void;

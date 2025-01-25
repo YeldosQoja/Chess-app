@@ -1,7 +1,7 @@
 import { StatusBar, View } from "react-native";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import { useAppTheme } from "@/providers";
+import { useAppTheme } from "@/contexts";
 
 export const Header = ({ back, navigation }: NativeStackHeaderProps) => {
   const { colors } = useAppTheme();
